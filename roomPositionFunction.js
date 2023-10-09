@@ -25,11 +25,6 @@ RoomPosition.prototype.getOpenPositions = function getOpenPositions() {
 
 	const terrain = Game.map.getRoomTerrain(this.roomName);
 
-	const found = Game.flags.Flag1.pos.lookFor(LOOK_CREEPS);
-	if (found.length && found[0].getActiveBodyparts(ATTACK) == 0) {
-			creep.moveTo(found[0]);
-	}
-
 	let walkablePositions = _.filter(nearbyPositions, function(pos) {
 		return terrain.get(pos.x, pos.y) !== TERRAIN_MASK_WALL;
 	});

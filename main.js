@@ -13,6 +13,7 @@ module.exports.loop = function () {
 	let dailyBuil = 0;
 	let dailyMine = 0;
 	let dailyColl = 0;
+	let dailyGath = 0;
 
 	for (var name in Memory.creeps) {
 		if (!Game.creeps[name]) {
@@ -25,11 +26,12 @@ module.exports.loop = function () {
 		let room = Game.rooms[roomName];
 		if (room && room.controller && room.controller.my) {
 
-			let builderTarget 	= _.get(room.memory, ['census', 'builder'		], 2);
-			let collectorTarget = _.get(room.memory, ['census', 'collector'	], 2);
+			let builderTarget 	= _.get(room.memory, ['census', 'builder'		], 3);
+			let collectorTarget = _.get(room.memory, ['census', 'collector'	], 1);
 			let harvesterTarget = _.get(room.memory, ['census', 'harvester'	], 2);
-			let minerTarget 		= _.get(room.memory, ['census', 'miner'			], 2);
-			let upgraderTarget 	= _.get(room.memory, ['census', 'upgrader'	], 2);
+			let minerTarget 		= _.get(room.memory, ['census', 'miner'			], 5);
+			let upgraderTarget = _.get(room.memory, ['census', 'upgrader'], 2);
+			let gathererTarget = _.get(room.memory, ['census', 'gatherer'], 1);
 
 			//#region builders
 			var builders = _.filter(Game.creeps, (creep) => creep.memory.role == 'builder');
@@ -89,6 +91,18 @@ module.exports.loop = function () {
 				console.log('Spawning new upgrader: ' + newName);
 				Game.spawns['HomeSpawn'].spawnCreep(
 						[WORK, CARRY, MOVE], newName, {memory: {role: 'upgrader'}});
+			}
+			//#endregion
+			//#region gatherers
+			var gatherers = _.filter(Game.creeps, (creep) => creep.memory.role == 'gatherer');
+			console.log('Gatherers: ' + gatherers.length);
+			dailyGath++;
+
+			if (gatherers.length < gathererTarget) {
+				var newName = '🕵🏼‍♂️ Gatherer #' + dailyGath;
+				console.log('Spawning new gatherer: ' + newName);
+				Game.spawns['HomeSpawn'].spawnCreep(
+						[WORK, CARRY, MOVE], { memory: { role: 'gatherer' } });
 			}
 			//#endregion
 		}
