@@ -24,20 +24,41 @@ const roleRepairer = {
 			}
 		} else {
 		
-			const targets = creep.room.find(FIND_STRUCTURES, {
-				filter: object => (object.hits < object.hitsMax) && object.structureType !== STRUCTURE_WALL
+			var towers = creep.room.find(FIND_STRUCTURES);
+
+			towers = _.filter(towers, function (struct) {
+				return (struct.structureType == STRUCTURE_TOWER && struct.store.getFreeCapacity(RESOURCE_ENERGY) > 0);
 			});
 
-			//targets.sort((a, b) => a.hits - b.hits);
+			if (towers.length) {
+
+				// find closest spawn or extension to creep
+				const towerTarget = creep.pos.findClosestByRange(towers);
+                if (towerTarget) {
+				// move to the target
+				if (creep.pos.isNearTo(towerTarget)) {
+					// transfer energy
+					creep.transfer(towerTarget, RESOURCE_ENERGY);
+				} else {
+					creep.moveTo(towerTarget, { visualizePathStyle: { stroke: '#00ffff', opacity: 0.3 } });
+				}
+                } 
+			} else {
+			    
+				const targets = creep.room.find(FIND_STRUCTURES, {
+					filter: object => (object.hits < object.hitsMax) && object.structureType == STRUCTURE_ROAD /*|| object.structureType == STRUCTURE_WALL*/
+				});
+
+				//targets.sort((a, b) => a.hits - b.hits);
 		
-			const target = creep.pos.findClosestByRange(targets);
-			if (target) {
-				if (creep.repair(target) == ERR_NOT_IN_RANGE) {
-					creep.moveTo(target, { visualizePathStyle: { stroke: '#ff6600', opacity: 0.3 } });
+				const target = creep.pos.findClosestByRange(targets);
+				if (target) {
+					if (creep.repair(target) == ERR_NOT_IN_RANGE) {
+						creep.moveTo(target, { visualizePathStyle: { stroke: '#ff6600', opacity: 0.3 } });
+					}
 				}
 			}
 		}
 	}
 }
-
 module.exports = roleRepairer;

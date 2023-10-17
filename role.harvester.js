@@ -3,22 +3,26 @@ const roleHarvester = {
     /** @param {Creep} creep **/
     run: function (creep) {
     
+        if (creep.ticksToLive <= 2) {
+            creep.drop(RESOURCE_ENERGY);
+        }
+
         if (creep.memory.working && creep.store[RESOURCE_ENERGY] > 0) {
             creep.memory.working = false;
         }
-        if (!creep.memory.working && creep.store.getFreeCapacity() == 0) {
+        if (!creep.memory.working && creep.store.getFreeCapacity() < (creep.getActiveBodyparts(WORK) * 2)) {
             creep.memory.working = true;
             creep.say('⛏️');
         }
 
-        if (creep.store.getFreeCapacity() == 0 || creep.store.getFreeCapacity() == 2) {
+        if (creep.store.getFreeCapacity() == 0 || creep.store.getFreeCapacity() < (creep.getActiveBodyparts(WORK) * 2)) {
             creep.drop(RESOURCE_ENERGY);
         }
         else {
             creep.harvestEnergy();
         }
     }
-};
+}
 
 /*const roleOldHarvester = {
 	run: function(creep) {

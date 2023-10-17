@@ -11,4 +11,12 @@ function randomName() {
 
 };
 
+function roomData(room) {
+	let output;
+}
+
+function spawnClaimer() {
+	Game.spawns['Spawn1'].spawnCreep([CLAIM, CLAIM, MOVE, MOVE], 'Claimer', { memory: { role: 'claimer' } });
+}
+
 module.exports = randomName;
