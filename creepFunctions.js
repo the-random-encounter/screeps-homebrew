@@ -28,12 +28,48 @@ Creep.prototype.findEnergySource = function findEnergySource() {
 	}
 }
 
+Creep.prototype.assignHarvestSource = function assignHarvestSource() {
+
+	const room = this.room;
+
+	if (!room.memory.objects)
+		room.cacheObjects();
+
+	const roomSources = room.memory.objects.sources;
+
+	if (room.memory.objects.lastAssigned == undefined) {
+		room.memory.objects.lastAssigned = 0;
+		console.log('Creating \'lastAssigned\' memory object.')
+	}
+	
+	let nextAssigned = room.memory.objects.lastAssigned + 1;
+	
+	if (nextAssigned >= roomSources.length) {
+		nextAssigned = 0;
+	}
+
+	let assignedSource = roomSources[nextAssigned];
+
+	this.memory.source = assignedSource;
+	room.memory.objects.lastAssigned = room.memory.objects.lastAssigned + 1;
+
+	if (room.memory.objects.lastAssigned >= roomSources.length) {
+		room.memory.objects.lastAssigned = 0
+	}
+
+	console.log('Assigned creep ' + this.name + ' to source ID ' + assignedSource)
+
+	return assignedSource;
+
+}
+
 Creep.prototype.harvestEnergy = function harvestEnergy() {
 	let storedSource = Game.getObjectById(this.memory.source);
 
-	if (!storedSource || (!storedSource.pos.getOpenPositions().length && !this.pos.isNearTo(storedSource))) {
+	if (!storedSource /*|| (!storedSource.pos.getOpenPositions().length && !this.pos.isNearTo(storedSource))*/) {
 		delete this.memory.source;
-		storedSource = this.findEnergySource();
+		storedSource = this.assignHarvestSource();
+		//storedSource = this.findEnergySource();
 	}
 	
 	if (storedSource) {
@@ -47,10 +83,10 @@ Creep.prototype.harvestEnergy = function harvestEnergy() {
 
 Creep.prototype.getDroppedResource = function getDroppedResource() {
 
-	const target = creep.pos.findClosestByRange(FIND_DROPPED_RESOURCES);
+	const target = this.pos.findClosestByRange(FIND_DROPPED_RESOURCES);
 			if (target) {
-				if (creep.pickup(target) == ERR_NOT_IN_RANGE) {
-					creep.moveTo(target);
+				if (this.pickup(target) == ERR_NOT_IN_RANGE) {
+					this.moveTo(target);
 				}
 			}
 }
@@ -58,8 +94,8 @@ Creep.prototype.getDroppedResource = function getDroppedResource() {
 Creep.prototype.pickupClosestEnergy = function pickupClosestEnergy() {
 	
 	const containersWithEnergy = this.room.find(FIND_STRUCTURES, {
-		filter: (i) => i.structureType == (STRUCTURE_CONTAINER &&
-			i.store[RESOURCE_ENERGY] > 0)
+		filter: (i) => (i.structureType == STRUCTURE_CONTAINER || i.structureType == STRUCTURE_STORAGE) &&
+			i.store[RESOURCE_ENERGY] > 0
 	});
 
 	const droppedPiles = this.room.find(FIND_DROPPED_RESOURCES);
@@ -72,37 +108,3 @@ Creep.prototype.pickupClosestEnergy = function pickupClosestEnergy() {
 			}
 	}
 }
-
-/*
-Creep.prototype.renewSelf = function renewSelf() {
-
-	if (this.ticksToLive <= 30) {
-		this.memory.originalrole = this.memory.role;
-		this.memory.role = 'renew';
-	}
-}
-*/
-
-/*
-Creep.prototype.findTwoSource = function findTwoSource() {
-	sourceId = '5bbcaca89099fc012e635f2c';
-	this.memory.source = sourceId;
-
-	if (this.pos.isNearTo(sourceId)) {
-			this.harvest(sourceId);
-		} else {
-			this.moveTo(sourceId, { visualizePathStyle: { stroke: '#ffaa00' } });
-		}
-}
-
-Creep.prototype.findOneSource = function findOneSource() {
-	sourceId = '5bbcaca89099fc012e635f2d';
-	this.memory.source = sourceId;
-
-	if (this.pos.isNearTo(sourceId)) {
-			this.harvest(sourceId);
-		} else {
-			this.moveTo(sourceId, { visualizePathStyle: { stroke: '#ffaa00' } });
-		}
-}
-*/

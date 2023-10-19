@@ -34,9 +34,3 @@ RoomPosition.prototype.getOpenPositions = function getOpenPositions() {
 
 	return freePositions;
 }
-
-Room.prototype.getSources = function getSources() {
-
-	let sources = this.find(FIND_SOURCES);
-	this.memory.sourcess = sources;
-}

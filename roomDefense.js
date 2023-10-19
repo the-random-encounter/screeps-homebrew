@@ -1,4 +1,5 @@
-function roomDefense(room) {
+"use strict";
+global.roomDefense = function (room) {
 	
 
 	let towers = room.find(FIND_MY_STRUCTURES, { filter: { structureType: STRUCTURE_TOWER } });
@@ -20,43 +21,3 @@ function roomDefense(room) {
 		}
 	});
 }
-	/*const hostiles = room.find(FIND_HOSTILE_CREEPS);
-
-	let towers = room.find(FIND_MY_STRUCTURES, { filter: { structureType: STRUCTURE_TOWER } });
-	
-	if (hostiles) {
-
-		_.forEach(towers, function (tower) {
-			let target = tower.pos.findInRange(hostiles, 20);
-
-			if (target) {
-				tower.attack(target);
-			} else if (tower.pos.getRangeTo(target)) {
-			
-				target = tower.pos.findInRange(hostiles, 10, {
-					filter: function (o) {
-						return o.getActiveBodyParts(TOUGH) <= 10;
-					}
-				});
-
-				if (target) {
-					tower.attack(target);
-				} 
-			}
-			
-			else {
-					const target = creep.pos.findClosestByRange(FIND_MY_CREEPS, {
-						filter: function (object) {
-							return object.hits < object.hitsMax;
-						}
-					});
-
-					if (target) {
-						tower.heal(target)
-					}
-			}
-		});
-	}
-} */
-
-module.exports = roomDefense;
