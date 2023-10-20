@@ -63,6 +63,28 @@ Creep.prototype.assignHarvestSource = function assignHarvestSource() {
 
 }
 
+Creep.prototype.unloadEnergy = function unloadEnergy() {
+
+	if (this.memory.bucket) {
+		const target = Game.getObjectById(this.memory.bucket);
+		this.transfer(target, RESOURCE_ENERGY);
+		return;
+	} else {
+		const nearbyObj = this.room.find(FIND_STRUCTURES, { filter: (i) => (i.structureType == STRUCTURE_STORAGE || i.structureType == STRUCTURE_CONTAINER) && i.pos.isNearTo(this) });
+	
+		if (!nearbyObj.length) {
+			this.drop(RESOURCE_ENERGY);
+			console.log(this.name + ' dropped.');
+			return;
+		} else {
+			const target = nearbyObj[0];
+			this.memory.bucket = target.id;
+			this.transfer(target, RESOURCE_ENERGY);
+			return;
+		}
+	}
+}
+
 Creep.prototype.harvestEnergy = function harvestEnergy() {
 	let storedSource = Game.getObjectById(this.memory.source);
 

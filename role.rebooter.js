@@ -1,7 +1,13 @@
 const roleRebooter = {
 
     /** @param {Creep} creep **/
-    run: function(creep) {
+    run: function (creep) {
+        
+        if (creep.ticksToLive <= 2) {
+            creep.drop(RESOURCE_ENERGY);
+            creep.say('☠️');
+        }
+        
         if(creep.store.getFreeCapacity() > 0) {
             var sources = creep.room.find(FIND_SOURCES);
             if(creep.harvest(sources[0]) == ERR_NOT_IN_RANGE) {

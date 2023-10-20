@@ -2,38 +2,32 @@ const roleRunner = {
 
 	run: function (creep) {
 
-
-		if (creep.store[RESOURCE_ENERGY] == 0) {
-			
-			let target = creep.pos.findClosestByRange(FIND_MY_STRUCTURES, { filter: { structureType: STRUCTURE_STORAGE } })
-			if (target) {
-				if (creep.withdraw(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-					creep.moveTo(target, { visualizePathStyle: { stroke: '#00ffff', opacity: 0.3 } });
-				}
-			}
+		if (creep.ticksToLive <= 2) {
+            creep.drop(RESOURCE_ENERGY);
+            creep.say('☠️');
 		}
 		
-		else {
-			var targets = creep.room.find(FIND_STRUCTURES);
+		if (!creep.memory.container)
+			creep.memory.container = creep.room.memory.objects.containers[0];
+		if (!creep.memory.storage)
+				creep.memory.storage = creep.room.memory.objects.storage[0];
 
-			targets = _.filter(targets, function (struct) {
-				return (struct.structureType == STRUCTURE_CONTAINER) && struct.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
-			});
-
-			if (targets.length) {
-
-				// find closest spawn or extension to creep
-				let target = creep.pos.findClosestByRange(targets);
-
-				// move to the target
-				if (creep.pos.isNearTo(target)) {
-					// transfer energy
+		if (creep.store[RESOURCE_ENERGY] == 0) {
+			let target = Game.getObjectById(creep.memory.container);
+			if (target) {
+				if (creep.withdraw(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE)
+					creep.moveTo(target, { visualizePathStyle: { stroke: '#880088', opacity: 0.3, lineStyle: 'dotted' } });
+			}
+		} else {
+			let target = Game.getObjectById(creep.room.memory.objects.storage[0]);
+			if (target) {
+				if (creep.pos.isNearTo(target))
 					creep.transfer(target, RESOURCE_ENERGY);
-				} else {
-					creep.moveTo(target, { visualizePathStyle: { stroke: '#00ffff', opacity: 0.3 } });
-				}
+				else
+					creep.moveTo(target, { visualizePathStyle: { stroke: '#880088', opacity: 0.3, lineStyle: 'dotted' } });
 			}
 		}
 	}
 }
+
 module.exports = roleRunner;

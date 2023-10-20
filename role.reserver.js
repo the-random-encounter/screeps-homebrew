@@ -2,6 +2,11 @@ const roleClaimer = {
 
 	run: function (creep) {
 	
+		if (creep.ticksToLive <= 2) {
+            creep.drop(RESOURCE_ENERGY);
+            creep.say('☠️');
+		}
+		
 		if (creep.room == Game.flags.Flag2.room) {
 			
 			if (creep.reserveController(creep.room.controller) == ERR_NOT_IN_RANGE) {

@@ -23,32 +23,37 @@ require('roomPositionFunctions'		);
 
 // define pre-configured creep bodypart arrays as key/value pairs in an object
 const spawnVariants = {
-	'harvester300': [WORK, WORK, CARRY, MOVE],
+	'harvester300':  [WORK, WORK, CARRY, MOVE],
 	'harvester400':  [WORK, WORK, WORK, CARRY, MOVE],
-	'harvester500':  [WORK, WORK, WORK, CARRY, CARRY, MOVE, MOVE],
-	'harvester1000':  [WORK, WORK, WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE,
+	'harvester500': [WORK, WORK, WORK, CARRY, CARRY, MOVE, MOVE],
+	'harvester800': [WORK,WORK,WORK,WORK,WORK,WORK, CARRY,CARRY,CARRY,MOVE],
+	'harvester1000': [WORK, WORK, WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, MOVE, MOVE,
 		MOVE],
 	'collector300':  [CARRY, CARRY, CARRY, MOVE, MOVE, MOVE],
 	'collector500':  [CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE, MOVE],
 	'collector800':  [CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE,
 		MOVE, MOVE, MOVE, MOVE],
-	'collector1000':  [CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE,
+	'collector1000': [CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE,
 		MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE],
-	'upgrader300':  [WORK, WORK, CARRY, MOVE],
-	'upgrader500':  [WORK, WORK, WORK, WORK, CARRY, MOVE],
-	'upgrader800':  [WORK, WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE],
+	'upgrader300':	 [WORK, WORK, CARRY, MOVE],
+	'upgrader500':   [WORK, WORK, WORK, WORK, CARRY, MOVE],
+	'upgrader800':   [WORK, WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE],
 	'upgrader1000':  [WORK, WORK, WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE,
 		MOVE],
-	'builder300':  [WORK, WORK, CARRY, MOVE],
-	'builder500':  [WORK, WORK, WORK, WORK, CARRY, MOVE],
-	'builder800':  [WORK, WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE],
-	'builder1000':  [WORK, WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE,
+	'builder300':  	 [WORK, WORK, CARRY, MOVE],
+	'builder500':  	 [WORK, WORK, WORK, WORK, CARRY, MOVE],
+	'builder800':  	 [WORK, WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE],
+	'builder1000':   [WORK, WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE,
 		MOVE, MOVE],
-	'repairer300':  [WORK, WORK, CARRY, MOVE],
-	'repairer500':  [WORK, WORK, WORK, CARRY, CARRY, MOVE, MOVE],
-	'repairer800':  [WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE],
+	'repairer300':   [WORK, WORK, CARRY, MOVE],
+	'repairer500':   [WORK, WORK, WORK, CARRY, CARRY, MOVE, MOVE],
+	'repairer800':   [WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE],
 	'repairer1000':  [WORK, WORK, WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE,
-		MOVE]
+		MOVE],
+	'repairer1300': [WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE],
+	'runner300': [MOVE, MOVE, MOVE, CARRY, CARRY, CARRY],
+	'runner500': [MOVE, MOVE, MOVE, MOVE, MOVE, CARRY, CARRY, CARRY, CARRY, CARRY],
+	'runner800': [MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY]
 }
 
 // define working variant set for use in the main loop, assigned based on current energy capacity limits
@@ -57,7 +62,8 @@ let availableVariants = {
 	'collector': [],
 	'upgrader': [],
 	'builder': [],
-	'repairer': []
+	'repairer': [],
+	'runner': []
 }
 
 // declare creep counting integers for spawning purposes
@@ -77,6 +83,7 @@ let healerCount 		= 0;
 let tickCount = 0;
 let newName = '';
 let spawnAnnounce = false;
+let harvesterDying = false;
 
 // main game loop function
 module.exports.loop = function () {
@@ -128,43 +135,86 @@ module.exports.loop = function () {
 			let sites = room.find(FIND_CONSTRUCTION_SITES);
 
 			if (tickCount == 10) {
-				console.log('H:' + harvesters.length + '(' + harvesterTarget + ') | C:' + collectors.length + '(' + collectorTarget + ') | U:' + upgraders.length + '(' + upgraderTarget + ')| B:' + builders.length + '(' + builderTarget + ') | Rp:' + repairers.length + '(' + repairerTarget + ') | Rn:' + runners.length + '(' + runnerTarget + ') | Rb:' + rebooters.length + '(' + rebooterTarget + ') | Rv:' + reservers.length + '(' + reserverTarget + ') || Rng:' + rangers.length + '(' + rangerTarget + ') | War:' + warriors.length + '(' + warriorTarget + ') | Hlr:' + healers.length + '(' + healerTarget + ' || Energy: ' + room.energyAvailable + '(' + room.energyCapacityAvailable + ')');
+				console.log('H:' + harvesters.length + '(' + harvesterTarget + ') | C:' + collectors.length + '(' + collectorTarget + ') | U:' + upgraders.length + '(' + upgraderTarget + ')| B:' + builders.length + '(' + builderTarget + ') | Rn:' + runners.length + '(' + runnerTarget + ') | Rp:' + repairers.length + '(' + repairerTarget + ') | Rb:' + rebooters.length + '(' + rebooterTarget + ') | Rv:' + reservers.length + '(' + reserverTarget + ') || Rng:' + rangers.length + '(' + rangerTarget + ') | War:' + warriors.length + '(' + warriorTarget + ') | Hlr:' + healers.length + '(' + healerTarget + ') || Energy: ' + room.energyAvailable + '(' + room.energyCapacityAvailable + ')');
 				tickCount = 0;
 			}
-			room.visual.text('H:' + harvesters.length + '(' + harvesterTarget + ') | C:' + collectors.length + '(' + collectorTarget + ') | U:' + upgraders.length + '(' + upgraderTarget + ')| B:' + builders.length + '(' + builderTarget + ') | Rp:' + repairers.length + '(' + repairerTarget + ') | Rn:' + runners.length + '(' + runnerTarget + ') | Rb:' + rebooters.length + '(' + rebooterTarget + ') | Rv:' + reservers.length + '(' + reserverTarget + ') || Rng:' + rangers.length + '(' + rangerTarget + ') | War:' + warriors.length + '(' + warriorTarget + ') | Hlr:' + healers.length + '(' + healerTarget + ' || Energy: ' + room.energyAvailable + '(' + room.energyCapacityAvailable + ')', 49, 49, { align: 'right' })
+			room.visual.text('H:' + harvesters.length + '(' + harvesterTarget + ') | C:' + collectors.length + '(' + collectorTarget + ') | U:' + upgraders.length + '(' + upgraderTarget + ')| B:' + builders.length + '(' + builderTarget + ') | Rn:' + runners.length + '(' + runnerTarget + ') | Rp:' + repairers.length + '(' + repairerTarget + ') | Rb:' + rebooters.length + '(' + rebooterTarget + ') | Rv:' + reservers.length + '(' + reserverTarget + ') || Rng:' + rangers.length + '(' + rangerTarget + ') | War:' + warriors.length + '(' + warriorTarget + ') | Hlr:' + healers.length + '(' + healerTarget + ') || Energy: ' + room.energyAvailable + '(' + room.energyCapacityAvailable + ')', 49, 49, { align: 'right' })
 			
+			//let creepArray = Object.keys(Game.Memory.creeps);
+			//let creepCount = creepArray.length;
+			let capacity;
+			if (capacity)
+			//if (creepCount <= 2)
+				capacity = room.energyAvailable;
+			else
+				capacity = room.energyCapacityAvailable;
+
 			if (room.energyCapacityAvailable < 500) {
 				availableVariants.harvester = spawnVariants.harvester300;
 				availableVariants.collector = spawnVariants.collector300;
 				availableVariants.upgrader = spawnVariants.upgrader300;
 				availableVariants.builder = spawnVariants.builder300;
 				availableVariants.repairer = spawnVariants.repairer300;
+				availableVariants.runner = spawnVariants.runner300;
 			} else if (room.energyCapacityAvailable < 800) {
 				availableVariants.harvester = spawnVariants.harvester500;
 				availableVariants.collector = spawnVariants.collector500;
 				availableVariants.upgrader = spawnVariants.upgrader500;
 				availableVariants.builder = spawnVariants.builder500;
 				availableVariants.repairer = spawnVariants.repairer500;
+				availableVariants.runner = spawnVariants.runner500;
 			} else if (room.energyCapacityAvailable < 1000) {
 				availableVariants.harvester = spawnVariants.harvester800;
-				availableVariants.collector = spawnVariants.collector800;
+				availableVariants.collector = spawnVariants.collector500;
 				availableVariants.upgrader = spawnVariants.upgrader800;
 				availableVariants.builder = spawnVariants.builder800;
 				availableVariants.repairer = spawnVariants.repairer800;
-			} else if (room.energyCapacityAvailable >= 1000) {
-				availableVariants.harvester = spawnVariants.harvester1000;
-				availableVariants.collector = spawnVariants.collector1000;
+				availableVariants.runner = spawnVariants.runner800;
+			} else if (room.energyCapacityAvailable < 1300) {
+				availableVariants.harvester = spawnVariants.harvester800;
+				availableVariants.collector = spawnVariants.collector500;
 				availableVariants.upgrader = spawnVariants.upgrader1000;
 				availableVariants.builder = spawnVariants.builder1000;
 				availableVariants.repairer = spawnVariants.repairer1000;
+				availableVariants.runner = spawnVariants.runner800;
+			} else if (room.energyCapacityAvailable >= 1300) {
+				availableVariants.harvester = spawnVariants.harvester800;
+				availableVariants.collector = spawnVariants.collector800;
+				availableVariants.upgrader = spawnVariants.upgrader1000;
+				availableVariants.builder = spawnVariants.builder1000;
+				availableVariants.repairer = spawnVariants.repairer1300;
+				availableVariants.runner = spawnVariants.runner800;
 			}
 
-			if (harvesters.length < harvesterTarget) {
+			if (!collectors.length) {
+				if (room.energyAvailable <= 1000) {
+					availableVariants.collector = spawnVariants.collector1000;
+				} else if (room.energyAvailable <= 800) {
+					availableVariants.collector = spawnVariants.collector800;
+				} else if (room.energyAvailable <= 500) {
+					availableVariants.collector = spawnVariants.collector500;
+				} else if (room.energyAvailable <= 300) {
+					availableVariants.collector = spawnVariants.collector300;
+				}
+			}
+			for (i = 0; i < harvesters.length; i++) {
+				harvesterDying = false;
+				if (harvesters[i].ticksToLive <= 50) {
+					harvesterDying = true;
+					console.log('harvesterDying: ' + harvesterDying);
+					break;
+				}
+				
+			}
+			
+			//console.log(harvesters[0].name);
+			if ((harvesters.length < harvesterTarget) || (harvesters.length <= harvesterTarget && harvesterDying == true)) {
 				newName = 'H' + (harvesters.length + 1);
 				while (Game.spawns['Spawn1'].spawnCreep(availableVariants.harvester, newName, { memory: { role: 'harvester' } }) == ERR_NAME_EXISTS) {
 					newName = 'H' + (harvesters.length + 1 + harvesterCount);
 					harvesterCount++;
 				}
+
 			} else if (collectors.length < collectorTarget) {
 				newName = 'C' + (collectors.length + 1);
 				while (Game.spawns['Spawn1'].spawnCreep(availableVariants.collector, newName, { memory: { role: 'collector' } }) == ERR_NAME_EXISTS) {
@@ -182,6 +232,12 @@ module.exports.loop = function () {
 				while (Game.spawns['Spawn1'].spawnCreep(availableVariants.builder, newName, { memory: { role: 'builder' } }) == ERR_NAME_EXISTS) {
 					newName = 'B' + (builders.length + 1 + builderCount);
 					builderCount++;
+				}
+			} else if (runners.length < runnerTarget) {
+				newName = 'Rn' + (runners.length + 1);
+				while (Game.spawns['Spawn1'].spawnCreep(availableVariants.runner, newName, { memory: { role: 'runner' } }) == ERR_NAME_EXISTS) {
+					newName = 'Rn' + (runners.length + 1 + runnerCount);
+					runnerCount++;
 				}
 			} else if (repairers.length < repairerTarget) {
 				newName = 'Rp' + (repairers.length + 1);
@@ -201,12 +257,6 @@ module.exports.loop = function () {
 					newName = 'W' + (warriors.length + 1 + warriorCount);
 					warriorCount++;
 				}
-			} else if (runners.length < runnerTarget) {
-				newName = 'Rn' + (runners.length + 1);
-				while (Game.spawns['Spawn1'].spawnCreep([MOVE, MOVE, MOVE, MOVE, MOVE, CARRY, CARRY, CARRY, CARRY, CARRY], newName, { memory: { role: 'runner' } }) == ERR_NAME_EXISTS) {
-					newName = 'Rn' + (runners.length + 1 + runnerCount);
-					runnerCount++;
-				}
 			} else if (Memory.creeps.length == 0 && rebooters.length < 1) {
 				newName = 'Rb' + (rebooters.length + 1);
 				while (Game.spawns['Spawn1'].spawnCreep([WORK, WORK, MOVE, CARRY], newName, { memory: { role: 'rebooter' } }) == ERR_NAME_EXISTS) {
@@ -215,6 +265,9 @@ module.exports.loop = function () {
 				}
 			}
 		}
+		//console.log('CPU: ' + Game.cpu.getUsed() + '/' + Game.cpuLimit);
+		visualRCProgress(room.memory.objects.controller[0]);
+
 	});
 	
 		if (Game.spawns['Spawn1'].spawning) {
@@ -224,10 +277,10 @@ module.exports.loop = function () {
 				console.log('Spawning new creep: ' + spawningCreep.memory.role + ' (' + spawningCreep.name + ')');
 				spawnAnnounce = true;
 			}
-			Game.spawns['Spawn1'].room.visual.text(
-				spawningCreep.memory.role + ' - ' + Game.spawns['Spawn1'].spawning.remainingTime + '/' + Game.spawns['Spawn1'].spawning.needTime,
+			Game.spawns['Spawn1'].room.visual.text('     ' + spawningCreep.memory.role + ' - ' +
+				Game.spawns['Spawn1'].spawning.remainingTime + '/' + Game.spawns['Spawn1'].spawning.needTime,
 				Game.spawns['Spawn1'].pos.x + 1,
-				Game.spawns['Spawn1'].pos.y,
+				Game.spawns['Spawn1'].pos.y - 1,
 				{ align: 'left', opacity: 0.8, font: 0.4 });
 		} else {
 			spawnAnnounce = false;
@@ -272,12 +325,14 @@ module.exports.loop = function () {
 				break;
 		}
 	
-		Game.spawns['Spawn1'].room.controller.room.visual.text('L' + Game.spawns['Spawn1'].room.controller.level + ' - ' + Game.spawns['Spawn1'].room.controller.progress + '/' + Game.spawns['Spawn1'].room.controller.progressTotal, Game.spawns['Spawn1'].room.controller.pos.x + 1, Game.spawns['Spawn1'].room.controller.pos.y - 1, {align: 'left', opacity: 0.5, color: '#00ffff', font: 0.4} )
-		Game.spawns['Spawn1'].room.visual.text(
-				'Energy: ' + Game.spawns['Spawn1'].room.energyAvailable + '/' + Game.spawns['Spawn1'].room.energyCapacityAvailable,
-				Game.spawns['Spawn1'].pos.x + 1,
-				Game.spawns['Spawn1'].pos.y - 1,
-				{ align: 'left', opacity: 0.5, color: '#aa5500', font: 0.4 });
+		//Game.spawns['Spawn1'].room.controller.room.visual.text('L' + Game.spawns['Spawn1'].room.controller.level + ' - ' + Game.spawns['Spawn1'].room.controller.progress + '/' + Game.spawns['Spawn1'].room.controller.progressTotal, Game.spawns['Spawn1'].room.controller.pos.x + 1, Game.spawns['Spawn1'].room.controller.pos.y - 1, {align: 'left', opacity: 0.5, color: '#00ffff', font: 0.4} )
+		
+
+		Game.spawns['Spawn1'].room.visual.text('     Energy: ' + Game.spawns['Spawn1'].room.energyAvailable
+			+ '/' + Game.spawns['Spawn1'].room.energyCapacityAvailable,
+			Game.spawns['Spawn1'].pos.x + 1,
+			Game.spawns['Spawn1'].pos.y - 2,
+			{ align: 'left', opacity: 0.5, color: '#aa5500', font: 0.4 });
 		
 	}
 

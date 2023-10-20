@@ -1,5 +1,8 @@
 Room.prototype.cacheObjects = function cacheObjects() {
 
+	// begin timer for function time cost calculation
+	let timer = Date.now();
+
 	// declare storage array for objects to cache
 	let storageArray = [];
 
@@ -8,10 +11,11 @@ Room.prototype.cacheObjects = function cacheObjects() {
 	let minerals 		= this.find(FIND_MINERALS	);
 	let deposits 		= this.find(FIND_DEPOSITS	);
 	let controller 	= this.find(FIND_STRUCTURES		, { filter: { structureType: STRUCTURE_CONTROLLER } });
-	let spawn 			= this.find(FIND_STRUCTURES		,	{ filter: { structureType: STRUCTURE_SPAWN 			} });
+	let spawns 			= this.find(FIND_STRUCTURES		,	{ filter: { structureType: STRUCTURE_SPAWN 			} });
 	let towers 			= this.find(FIND_STRUCTURES		, { filter: { structureType: STRUCTURE_TOWER 			} });
 	let containers 	= this.find(FIND_STRUCTURES		, { filter: { structureType: STRUCTURE_CONTAINER 	} });
 	let storage 		= this.find(FIND_STRUCTURES		, { filter: { structureType: STRUCTURE_STORAGE 		} });
+	let ramparts 		= this.find(FIND_STRUCTURES		, { filter: { structureType: STRUCTURE_RAMPART 		} });
 
 	// check if the 'objects' object exists in room memory & create it if not
 	if (!this.memory.objects) {
@@ -27,7 +31,7 @@ Room.prototype.cacheObjects = function cacheObjects() {
 			if (storageArray.length > 1)
 				console.log('Cached ' + storageArray.length + ' sources.');
 			else
-				console.log('Cahced 1 source.');
+				console.log('Cached 1 source.');
 		}
 		storageArray = [];
 	}
@@ -41,7 +45,7 @@ Room.prototype.cacheObjects = function cacheObjects() {
 			if (storageArray.length > 1)
 				console.log('Cached ' + storageArray.length + ' minerals.');
 			else
-				console.log('Cahced 1 mineral.');
+				console.log('Cached 1 mineral.');
 		}
 		storageArray = [];
 	}
@@ -55,7 +59,7 @@ Room.prototype.cacheObjects = function cacheObjects() {
 			if (storageArray.length > 1)
 				console.log('Cached ' + storageArray.length + ' deposits.');
 			else
-				console.log('Cahced 1 deposit.');
+				console.log('Cached 1 deposit.');
 		}
 		storageArray = [];
 	}
@@ -69,21 +73,21 @@ Room.prototype.cacheObjects = function cacheObjects() {
 			if (storageArray.length > 1)
 				console.log('Cached ' + storageArray.length + '  controllers.');
 			else
-				console.log('Cahced 1 controller.');
+				console.log('Cached 1 controller.');
 		}
 		storageArray = [];
 	}
 	
 	// if a spawn is found, add its ID to array and add array to room's 'objects' memory
-	if (spawn) {
-		for (i = 0; i < spawn.length; i++)
-			storageArray.push(spawn[i].id);
+	if (spawns) {
+		for (i = 0; i < spawns.length; i++)
+			storageArray.push(spawns[i].id);
 		if (storageArray.length) {
-			this.memory.objects.spawn = storageArray;
+			this.memory.objects.spawns = storageArray;
 			if (storageArray.length > 1) 
 				console.log('Cached ' + storageArray.length + ' spawns.');
 			else 
-				console.log('Cahced 1 spawn.');
+				console.log('Cached 1 spawn.');
 		}
 		storageArray = [];
 	}	
@@ -97,7 +101,7 @@ Room.prototype.cacheObjects = function cacheObjects() {
 			if (storageArray.length > 1)
 				console.log('Cached ' + storageArray.length + ' towers.');
 			else
-				console.log('Cahced 1 tower.');
+				console.log('Cached 1 tower.');
 		}
 		storageArray = [];
 	}
@@ -111,7 +115,7 @@ Room.prototype.cacheObjects = function cacheObjects() {
 			if (storageArray.length > 1)
 				console.log('Cached ' + storageArray.length + ' containers.');
 			else
-				console.log('Cahced 1 container.');
+				console.log('Cached 1 container.');
 		}
 		storageArray = [];
 	}
@@ -119,16 +123,38 @@ Room.prototype.cacheObjects = function cacheObjects() {
 	// if storage is found, add its ID to array and add array to room's 'objects' memory
 	if (storage) {
 		for (i = 0; i < storage.length; i++)
-			storageArray.push(towers[i].id);
+			storageArray.push(storage[i].id);
 		if (storageArray.length) {
 			this.memory.objects.storage = storageArray;
 			if (storageArray.length > 1)
 				console.log('Cached ' + storageArray.length + ' storages.');
 			else
-				console.log('Cahced 1 storage.');
+				console.log('Cached 1 storage.');
 		}
 		storageArray = [];
 	}
 
-	return 'Complete';
+	// if ramparts are found, add their IDs to array and add array to room's 'objects' memory
+	if (ramparts) {
+		for (i = 0; i < ramparts.length; i++)
+			storageArray.push(ramparts[i].id);
+		if (storageArray.length) {
+			this.memory.objects.ramparts = storageArray;
+			if (storageArray.length > 1)
+				console.log('Cached ' + storageArray.length + ' ramparts.');
+			else
+				console.log('Cached 1 rampart.');
+		}
+		storageArray = [];
+	}
+
+	timer = (Date.now() - timer);
+	return 'Caching objects for room ' + this.name + ' completed in ' + timer + 'ms.';
+}
+
+Room.prototype.initTargets = function initTargets(array) {
+
+	const targetArray = array || [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+	this.memory.targets = {};
 }

@@ -2,65 +2,88 @@ const roleRepairer = {
 
 	run: function (creep) {
 		
+		if (creep.ticksToLive <= 2) {
+			creep.drop(RESOURCE_ENERGY);
+			creep.say('☠️');
+		}
 		
 		if (creep.store.getUsedCapacity() == 0) {
 
-			const containersWithEnergy = creep.room.find(FIND_STRUCTURES, {
-				filter: (i) => i.structureType == STRUCTURE_CONTAINER &&
-					i.store[RESOURCE_ENERGY] > 0
-			});
-			const droppedPiles = creep.room.find(FIND_DROPPED_RESOURCES);
-			const resourceList = containersWithEnergy.concat(droppedPiles);
-	
-			const target = creep.pos.findClosestByRange(resourceList);
-			if (target) {
-				if (creep.pickup(target) == ERR_NOT_IN_RANGE || creep.withdraw(target, RESOURCE_ENERGY)) {
-					creep.moveTo(target, { visualizePathStyle: { stroke: '#ff6600', opacity: 0.3 } });
+			switch (creep.room.memory.flags.runnerLogic) {
+				case true: {
+					const containersWithEnergy = creep.room.find(FIND_MY_STRUCTURES, {
+						filter: (i) => i.structureType == STRUCTURE_STORAGE &&
+							i.store[RESOURCE_ENERGY] > 0
+					});
+
+					const target = creep.pos.findClosestByRange(containersWithEnergy);
+					if (target) {
+						if (creep.withdraw(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE)
+							creep.moveTo(target, { visualizePathStyle: { stroke: '#ff6600', opacity: 0.3, lineStyle: 'dotted' } });
+						else
+							creep.withdraw(target, RESOURCE_ENERGY);
+					}
+					break;
 				}
-				else {
-					creep.withdraw(target, RESOURCE_ENERGY);
-					creep.pickup(target);
+				case false: 
+				default: {
+
+					const containersWithEnergy = creep.room.find(FIND_STRUCTURES, {
+						filter: (i) => i.structureType == STRUCTURE_CONTAINER &&
+							i.store[RESOURCE_ENERGY] > 0
+					});
+					const droppedPiles = creep.room.find(FIND_DROPPED_RESOURCES);
+					const resourceList = containersWithEnergy.concat(droppedPiles);
+
+					const target = creep.pos.findClosestByRange(resourceList);
+					if (target) {
+						if (creep.pickup(target) == ERR_NOT_IN_RANGE || creep.withdraw(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+							creep.moveTo(target, { visualizePathStyle: { stroke: '#ff6600', opacity: 0.3, lineStyle: 'dotted' } });
+						}
+						else {
+							creep.withdraw(target, RESOURCE_ENERGY);
+							creep.pickup(target);
+						}
+					}
+					break;
 				}
 			}
 		} else {
-		
+
 			var towers = creep.room.find(FIND_STRUCTURES);
 
 			towers = _.filter(towers, function (struct) {
 				return (struct.structureType == STRUCTURE_TOWER && struct.store.getFreeCapacity(RESOURCE_ENERGY) > 0);
 			});
-			
+	
 			if (towers.length) {
 
-				// find closest spawn or extension to creep
+				// find closest tower to creep
 				const towerTarget = creep.pos.findClosestByRange(towers);
-                if (towerTarget) {
-				// move to the target
-				if (creep.pos.isNearTo(towerTarget)) {
-					// transfer energy
-					creep.transfer(towerTarget, RESOURCE_ENERGY);
-				} else {
-					creep.moveTo(towerTarget, { visualizePathStyle: { stroke: '#00ffff', opacity: 0.3 } });
+				if (towerTarget) {
+					// move to the target
+					if (creep.pos.isNearTo(towerTarget)) {
+						// transfer energy
+						creep.transfer(towerTarget, RESOURCE_ENERGY);
+					} else {
+						creep.moveTo(towerTarget, { visualizePathStyle: { stroke: '#ff6600', opacity: 0.3 } });
+					}
 				}
-                } 
 			} else {
-			    
-				let targets = creep.room.find(FIND_STRUCTURES, {
-					filter: object => (object.hits !== object.hitsMax) && (object.structureType == STRUCTURE_ROAD || object.structureType == STRUCTURE_CONTAINER || object.structureType == STRUCTURE_TOWER || object.structureType == STRUCTURE_SPAWN || object.structureType == STRUCTURE_EXTENSION) /*|| object.structureType == STRUCTURE_WALL*/
-				});
-				
-				//targets.sort((a, b) => a.hits - b.hits);
+			
+				// search for ramparts under 90% health
+				let targets = creep.room.find(FIND_STRUCTURES, { filter: (i) => ((i.hits / i.hitsMax * 100) <= 90) && (i.structureType == STRUCTURE_RAMPART) });
 
-				if (!targets) {
-					targets = creep.room.find(FIND_STRUCTURES, { filter: { structureType: STRUCTURE_WALL } });
-				}
+				// if no ramparts under 90%, search for roads/spawns/towers/extensions under 95%
+				if (!targets.length)
+					targets = creep.room.find(FIND_STRUCTURES, { filter: (i) => ((i.hits / i.hitsMax * 100) <= 95) && (i.structureType == STRUCTURE_TOWER || i.structureType == STRUCTURE_SPAWN || i.structureType == STRUCTURE_EXTENSION || i.structureType == STRUCTURE_ROAD) });
 				
 				const target = creep.pos.findClosestByRange(targets);
 
+				// travel to closest object within repair criteria and start repairing!
 				if (target) {
-					if (creep.repair(target) == ERR_NOT_IN_RANGE) {
+					if (creep.repair(target) == ERR_NOT_IN_RANGE)
 						creep.moveTo(target, { visualizePathStyle: { stroke: '#ff6600', opacity: 0.3 } });
-					}
 				}
 			}
 		}
