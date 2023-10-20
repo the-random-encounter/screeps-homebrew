@@ -48,6 +48,8 @@ const roleRepairer = {
 					break;
 				}
 			}
+
+		// now that we have some energy on hand, let's find something to fix (or towers to juice up)
 		} else {
 
 			var towers = creep.room.find(FIND_STRUCTURES);
