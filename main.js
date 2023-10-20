@@ -21,6 +21,15 @@ require('creepFunctions'					);
 require('roomFunctions'						);
 require('roomPositionFunctions'		);
 
+// define heap memory for use on various things and stuff
+let HEAP_MEMORY = {
+	'TOWER_DATA': {
+		'652e4025c40f9d0858e95789': {
+			'maxDistance': 15
+		}
+	}
+};
+
 // define pre-configured creep bodypart arrays as key/value pairs in an object
 const spawnVariants = {
 	'harvester300':  [WORK, WORK, CARRY, MOVE],
@@ -85,6 +94,9 @@ let newName = '';
 let spawnAnnounce = false;
 let harvesterDying = false;
 
+// declare specific RoomPosition objects
+const badSourcePos = new RoomPosition(41, 7, 'E57S51');
+
 // main game loop function
 module.exports.loop = function () {
 	
@@ -107,32 +119,38 @@ module.exports.loop = function () {
 			roomDefense(room);
 
 			// pull creep role caps from room memory, or set to default value if none are set
-			let harvesterTarget = _.get(room.memory, ['targets', 'harvester'	], 2);
-			let collectorTarget = _.get(room.memory, ['targets', 'collector'	], 2);
-			let upgraderTarget 	= _.get(room.memory, ['targets', 'upgrader'		], 2);
-			let builderTarget 	= _.get(room.memory, ['targets', 'builder'		], 2);
-			let repairerTarget 	= _.get(room.memory, ['targets', 'repairer'		], 1);
-			let runnerTarget 		= _.get(room.memory, ['targets', 'runner'			], 0);
-			let rebooterTarget 	= _.get(room.memory, ['targets', 'rebooter'		], 0);
-			let reserverTarget 	= _.get(room.memory, ['targets', 'reserver'		], 0);
-			let rangerTarget 		= _.get(room.memory, ['targets', 'ranger'			], 1);
-			let warriorTarget 	= _.get(room.memory, ['targets', 'warrior'		], 1);
-			let healerTarget 		= _.get(room.memory, ['targets', 'healer'			], 1);
+			let harvesterTarget = _.get(room.memory, ['targets', 'harvester'], 2);
+			let collectorTarget = _.get(room.memory, ['targets', 'collector'], 2);
+			let upgraderTarget = _.get(room.memory, ['targets', 'upgrader'], 2);
+			let builderTarget = _.get(room.memory, ['targets', 'builder'], 2);
+			let repairerTarget = _.get(room.memory, ['targets', 'repairer'], 1);
+			let runnerTarget = _.get(room.memory, ['targets', 'runner'], 0);
+			let rebooterTarget = _.get(room.memory, ['targets', 'rebooter'], 0);
+			let reserverTarget = _.get(room.memory, ['targets', 'reserver'], 0);
+			let rangerTarget = _.get(room.memory, ['targets', 'ranger'], 1);
+			let warriorTarget = _.get(room.memory, ['targets', 'warrior'], 1);
+			let healerTarget = _.get(room.memory, ['targets', 'healer'], 1);
 
 			// pull current amount of creeps alive by role
-			let harvesters 	= _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester'	);
-			let collectors 	= _.filter(Game.creeps, (creep) => creep.memory.role == 'collector'	);
-			let upgraders 	= _.filter(Game.creeps, (creep) => creep.memory.role == 'upgrader'	);
-			let builders 		= _.filter(Game.creeps, (creep) => creep.memory.role == 'builder'		);
-			let repairers 	= _.filter(Game.creeps, (creep) => creep.memory.role == 'repairer'	);
-			let runners 		= _.filter(Game.creeps, (creep) => creep.memory.role == 'runner'		);
-			let rebooters 	= _.filter(Game.creeps, (creep) => creep.memory.role == 'rebooter'	);
-			let reservers 	= _.filter(Game.creeps, (creep) => creep.memory.role == 'reserver'	);
-			let rangers 		= _.filter(Game.creeps, (creep) => creep.memory.role == 'ranger'		);
-			let warriors 		= _.filter(Game.creeps, (creep) => creep.memory.role == 'warrior'		);
-			let healers			= _.filter(Game.creeps, (creep) => creep.memory.role == 'healer'		);
+			let harvesters = _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester');
+			let collectors = _.filter(Game.creeps, (creep) => creep.memory.role == 'collector');
+			let upgraders = _.filter(Game.creeps, (creep) => creep.memory.role == 'upgrader');
+			let builders = _.filter(Game.creeps, (creep) => creep.memory.role == 'builder');
+			let repairers = _.filter(Game.creeps, (creep) => creep.memory.role == 'repairer');
+			let runners = _.filter(Game.creeps, (creep) => creep.memory.role == 'runner');
+			let rebooters = _.filter(Game.creeps, (creep) => creep.memory.role == 'rebooter');
+			let reservers = _.filter(Game.creeps, (creep) => creep.memory.role == 'reserver');
+			let rangers = _.filter(Game.creeps, (creep) => creep.memory.role == 'ranger');
+			let warriors = _.filter(Game.creeps, (creep) => creep.memory.role == 'warrior');
+			let healers = _.filter(Game.creeps, (creep) => creep.memory.role == 'healer');
 
 			let sites = room.find(FIND_CONSTRUCTION_SITES);
+
+
+			if (room.find(FIND_HOSTILE_CREEPS).length) {
+				collectors[0].memory.invaderLooter = true;
+				console.log(collectors[0] + ' is now the invader looter');
+			}
 
 			if (tickCount == 10) {
 				console.log('H:' + harvesters.length + '(' + harvesterTarget + ') | C:' + collectors.length + '(' + collectorTarget + ') | U:' + upgraders.length + '(' + upgraderTarget + ')| B:' + builders.length + '(' + builderTarget + ') | Rn:' + runners.length + '(' + runnerTarget + ') | Rp:' + repairers.length + '(' + repairerTarget + ') | Rb:' + rebooters.length + '(' + rebooterTarget + ') | Rv:' + reservers.length + '(' + reserverTarget + ') || Rng:' + rangers.length + '(' + rangerTarget + ') | War:' + warriors.length + '(' + warriorTarget + ') | Hlr:' + healers.length + '(' + healerTarget + ') || Energy: ' + room.energyAvailable + '(' + room.energyCapacityAvailable + ')');

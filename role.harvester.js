@@ -9,6 +9,13 @@ const roleHarvester = {
             creep.say('☠️');
         }
 
+        // declare specific RoomPosition objects
+        const badSourcePos = new RoomPosition(41, 7, 'E57S51');
+
+        if (creep.pos === badSourcePos) {
+            creep.move(7);
+        }
+
         if (!creep.memory.working && creep.store[RESOURCE_ENERGY] > 0) {
             creep.memory.working = true;
             creep.say('⛏️');

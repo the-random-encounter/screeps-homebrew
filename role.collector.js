@@ -22,32 +22,35 @@ const roleCollector = {
 		if (creep.memory.invaderLooter) {
 			const tombstones = creep.room.find(FIND_TOMBSTONES, {filter: { creep: {my: false}}});
 			const target = creep.pos.findClosestByRange(tombstones);
-			const lootTypes = Object.keys(target.store);
+			
+			if (target) {
+				const lootTypes = Object.keys(target.store);
 
-			if (creep.store.getFreeCapacity() !== 0) {
-				if (creep.pos.isNearTo(target)) {
-					for (i = lootTypes.length - 1; i >= 0; i--) {
-						creep.withdraw(target, lootTypes[i]);
-						if (creep.store.getFreeCapacity() == 0)
-							break;
+				if (creep.store.getFreeCapacity() !== 0) {
+					if (creep.pos.isNearTo(target)) {
+						for (i = lootTypes.length - 1; i >= 0; i--) {
+							creep.withdraw(target, lootTypes[i]);
+							if (creep.store.getFreeCapacity() == 0)
+								break;
+						}
+					} else {
+						creep.moveTo(target, { visualizePathStyle: { stroke: '#ff0000', opacity: 0.5, lineStyle: 'undefined' } });
 					}
 				} else {
-					creep.moveTo(target, { visualizePathStyle: { stroke: '#ff0000', opacity: 0.5, lineStyle: 'undefined' } });
-				}
-			} else {
-				const storage = Game.getObjectById(creep.room.memory.objects.storage[0]) || creep.pos.findClosestByRange(FIND_MY_STRUCTURES, { filter: { structureType: STRUCTURE_STORAGE } });
+					const storage = Game.getObjectById(creep.room.memory.objects.storage[0]) || creep.pos.findClosestByRange(FIND_MY_STRUCTURES, { filter: { structureType: STRUCTURE_STORAGE } });
 
-				const creepLootTypes = Object.keys(creep.store)
-				if (creep.pos.isNearTo(storage)) {
-					for (i = 0; i < creepLootTypes.length; i++) {
-						creep.transfer(storage, creepLootTypes[i]);
+					const creepLootTypes = Object.keys(creep.store)
+					if (creep.pos.isNearTo(storage)) {
+						for (i = 0; i < creepLootTypes.length; i++) {
+							creep.transfer(storage, creepLootTypes[i]);
+						}
+					} else {
+						creep.moveTo(storage, { visualizePathStyle: { stroke: '#ff0000', opacity: 0.5, lineStyle: 'undefined' } });
 					}
-				} else {
-					creep.moveTo(storage, { visualizePathStyle: { stroke: '#ff0000', opacity: 0.5, lineStyle: 'undefined' } });
 				}
-			}
-			if (!creep.room.find(FIND_TOMBSTONES, { filter: (i) => !i.creep.my && i.store.getUsedCapacity() > 0 })) {
-				creep.memory.invaderLooter = false;
+				if (!creep.room.find(FIND_TOMBSTONES, { filter: (i) => !i.creep.my && i.store.getUsedCapacity() > 0 })) {
+					creep.memory.invaderLooter = false;
+				}
 			}
 		} else {
 
