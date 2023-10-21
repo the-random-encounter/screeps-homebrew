@@ -5,15 +5,15 @@ const roleHarvester = {
     
         if (creep.ticksToLive <= 2) {
             creep.unloadEnergy();
-            //creep.drop(RESOURCE_ENERGY);
             creep.say('☠️');
         }
 
-        // declare specific RoomPosition objects
-        const badSourcePos = new RoomPosition(41, 7, 'E57S51');
-
-        if (creep.pos === badSourcePos) {
-            creep.move(7);
+        // a specific fix for local room harvesters standing in a dumb spot
+        if (creep.room.name == 'E58S51') {
+            if (creep.pos.x == 41 && creep.pos.y == 7)
+                creep.move(7);
+            if (creep.pos.x == 41 && creep.pos.y == 18)
+                creep.move(1);
         }
 
         if (!creep.memory.working && creep.store[RESOURCE_ENERGY] > 0) {
