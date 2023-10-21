@@ -164,6 +164,10 @@ global.visualRCProgress = function (controllerID) {
 		
 }
 
+global.queue = function (command) {
+	manualCmdQueue.push(command);
+}
+
 Object.assign(exports, {
 
 	POLYBLUEDOTTED3: {

@@ -59,58 +59,79 @@ const roleCollector = {
 
 					// prioritize saving any energy dropped on friendly creep tombstones
 					if (creep.room.find(FIND_TOMBSTONES, { filter: (i) => ((i.store[RESOURCE_ENERGY] > 0) && i.creep.my) })) {
-						const tombstones = creep.room.find(FIND_TOMBSTONES, { filter: (i) => ((i.store[RESOURCE_ENERGY] > 0) && i.creep.my) });					
+						const tombstones = creep.room.find(FIND_TOMBSTONES, { filter: (i) => ((i.store[RESOURCE_ENERGY] > 0) && i.creep.my) });
 						const tombstone = creep.pos.findClosestByRange(tombstones);
 						if (tombstone) {
 							if (creep.withdraw(tombstone, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-									creep.moveTo(tombstone, { visualizePathStyle: { stroke: '#00ffff', opacity: 0.3, lineStyle: 'dotted' } });
-								}
-						}
-					// secondarily, prioritize saving any energy dropped by a creep (usually when near death)
-					} else if (creep.room.find(FIND_DROPPED_RESOURCES) && creep.store.getFreeCapacity() > 0) {
-							const droppedPile = creep.pos.findClosestByRange(FIND_DROPPED_RESOURCES);
-
-							if (creep.pickup(droppedPile) == ERR_NOT_IN_RANGE)
-								creep.moveTo(droppedPile, { visualizePathStyle: { stroke: '#00ffff', opacity: 0.3, lineStyle: 'dotted' } });
-						}
-
-						// if collector is carrying nothing, collect energy from nearest storage
-						if (creep.store[RESOURCE_ENERGY] == 0) {
-					
-							const target = creep.pos.findClosestByRange(FIND_MY_STRUCTURES, { filter: { structureType: STRUCTURE_STORAGE } })
-					
-							if (target) {
-								if (creep.withdraw(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-									creep.moveTo(target, { visualizePathStyle: { stroke: '#00ffff', opacity: 0.3, lineStyle: 'dotted' } });
-								}
+								creep.moveTo(tombstone, { visualizePathStyle: { stroke: '#00ffff', opacity: 0.3, lineStyle: 'dotted' } });
 							}
+						}
+						// secondarily, prioritize saving any energy dropped by a creep (usually when near death)
+					} else if (creep.room.find(FIND_DROPPED_RESOURCES) && creep.store.getFreeCapacity() > 0) {
+						const droppedPile = creep.pos.findClosestByRange(FIND_DROPPED_RESOURCES);
+
+						if (creep.pickup(droppedPile) == ERR_NOT_IN_RANGE)
+							creep.moveTo(droppedPile, { visualizePathStyle: { stroke: '#00ffff', opacity: 0.3, lineStyle: 'dotted' } });
+					}
+
+					// if collector is carrying nothing, collect energy from nearest storage
+					if (creep.store[RESOURCE_ENERGY] == 0) {
+					
+						const target = creep.pos.findClosestByRange(FIND_MY_STRUCTURES, { filter: { structureType: STRUCTURE_STORAGE } })
+					
+						if (target) {
+							if (creep.withdraw(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+								creep.moveTo(target, { visualizePathStyle: { stroke: '#00ffff', opacity: 0.3, lineStyle: 'dotted' } });
+							}
+						}
 				
-							// if carrying energy, locate closest spawns & extensions to deposit
+						// if carrying energy, locate closest spawns & extensions to deposit
+					} else {
+
+						// build structure list & filter for spawns & extensions
+						var targets = creep.room.find(FIND_STRUCTURES);
+
+						targets = _.filter(targets, function (struct) {
+							return (struct.structureType == STRUCTURE_SPAWN || struct.structureType == STRUCTURE_EXTENSION) && struct.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
+						});
+
+						if (targets.length) {
+
+							// find closest spawn or extension to creep
+							const target = creep.pos.findClosestByRange(targets);
+
+							// move to the target
+							if (creep.pos.isNearTo(target)) {
+								// transfer energy
+								creep.transfer(target, RESOURCE_ENERGY);
+							} else {
+								creep.moveTo(target, { visualizePathStyle: { stroke: '#00ffff', opacity: 0.3, lineStyle: 'dotted' } });
+							}
 						} else {
+							var towers = creep.room.find(FIND_STRUCTURES);
 
-							// build structure list & filter for spawns & extensions
-							var targets = creep.room.find(FIND_STRUCTURES);
-
-							targets = _.filter(targets, function (struct) {
-								return (struct.structureType == STRUCTURE_SPAWN || struct.structureType == STRUCTURE_EXTENSION) && struct.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
+							towers = _.filter(towers, function (struct) {
+								return (struct.structureType == STRUCTURE_TOWER && struct.store.getFreeCapacity(RESOURCE_ENERGY) > 0);
 							});
+	
+							if (towers.length) {
 
-							if (targets.length) {
-
-								// find closest spawn or extension to creep
-								const target = creep.pos.findClosestByRange(targets);
-
-								// move to the target
-								if (creep.pos.isNearTo(target)) {
-									// transfer energy
-									creep.transfer(target, RESOURCE_ENERGY);
-								} else {
-									creep.moveTo(target, { visualizePathStyle: { stroke: '#00ffff', opacity: 0.3, lineStyle: 'dotted' } });
+								// find closest tower to creep
+								const towerTarget = creep.pos.findClosestByRange(towers);
+								if (towerTarget) {
+									// move to the target
+									if (creep.pos.isNearTo(towerTarget)) {
+										// transfer energy
+										creep.transfer(towerTarget, RESOURCE_ENERGY);
+									} else {
+										creep.moveTo(towerTarget, { visualizePathStyle: { stroke: '#ff6600', opacity: 0.3 } });
+									}
 								}
 							}
 						}
 						break;
 					}
+				}
 				case false:
 				default: {
 

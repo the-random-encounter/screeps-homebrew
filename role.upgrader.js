@@ -29,7 +29,7 @@ const roleUpgrader = {
 		if (creep.store.getUsedCapacity() == 0) {
 				
 			switch (creep.room.memory.flags.runnerLogic) {
-				case true:
+				case true: {
 					let containersWithEnergy = creep.room.find(FIND_MY_STRUCTURES, {
 						filter: (i) => (i.structureType == STRUCTURE_STORAGE) && i.store[RESOURCE_ENERGY] > 0
 					});
@@ -43,9 +43,10 @@ const roleUpgrader = {
 							creep.withdraw(target, RESOURCE_ENERGY);
 					}
 					break;
+			}
 				case false:
-				default:
-					containersWithEnergy = creep.room.find(FIND_STRUCTURES, {
+				default: {
+					const containersWithEnergy = creep.room.find(FIND_STRUCTURES, {
 						filter: (i) => (i.structureType == STRUCTURE_CONTAINER || i.structureType == STRUCTURE_STORAGE) && i.store[RESOURCE_ENERGY] > 0
 					});
 					const droppedPiles = creep.room.find(FIND_DROPPED_RESOURCES);
@@ -70,6 +71,7 @@ const roleUpgrader = {
 						}
 					}
 					break;
+				}
 			}
 		}
 	}

@@ -28,7 +28,7 @@ Creep.prototype.findEnergySource = function findEnergySource() {
 	}
 }
 
-Creep.prototype.assignHarvestSource = function assignHarvestSource() {
+Creep.prototype.assignHarvestSource = function assignHarvestSource(noIncrement) {
 
 	const room = this.room;
 
@@ -51,13 +51,49 @@ Creep.prototype.assignHarvestSource = function assignHarvestSource() {
 	let assignedSource = roomSources[nextAssigned];
 
 	this.memory.source = assignedSource;
-	room.memory.objects.lastAssigned = room.memory.objects.lastAssigned + 1;
+
+	if (!noIncrement) {
+		room.memory.objects.lastAssigned = room.memory.objects.lastAssigned + 1;
+	}
 
 	if (room.memory.objects.lastAssigned >= roomSources.length) {
 		room.memory.objects.lastAssigned = 0
 	}
 
 	console.log('Assigned creep ' + this.name + ' to source ID ' + assignedSource)
+
+	return assignedSource;
+
+}
+
+Creep.prototype.assignRemoteHarvestSource = function assignRemoteHarvestSource() {
+	const room = this.room;
+
+	if (!room.memory.objects)
+		room.cacheObjects();
+
+	const roomSources = Memory.rooms.E57S51.objects.sources;
+
+	if (room.memory.objects.lastAssigned == undefined) {
+		room.memory.objects.lastAssigned = 0;
+		console.log('Creating \'lastAssigned\' memory object.')
+	}
+	
+	let nextAssigned = room.memory.objects.lastAssigned;
+	
+	if (nextAssigned >= roomSources.length) {
+		nextAssigned = 0;
+	}
+
+	let assignedSource = roomSources[nextAssigned];
+
+	this.memory.source = assignedSource;
+
+	if (room.memory.objects.lastAssigned >= roomSources.length) {
+		room.memory.objects.lastAssigned = 0
+	}
+
+	console.log('Assigned creep ' + this.name + ' to remote source ID ' + assignedSource)
 
 	return assignedSource;
 
@@ -88,14 +124,20 @@ Creep.prototype.unloadEnergy = function unloadEnergy() {
 Creep.prototype.harvestEnergy = function harvestEnergy() {
 	let storedSource = Game.getObjectById(this.memory.source);
 
-	if (!storedSource /*|| (!storedSource.pos.getOpenPositions().length && !this.pos.isNearTo(storedSource))*/) {
+	if (!storedSource) {
 		delete this.memory.source;
-		storedSource = this.assignHarvestSource();
-		//storedSource = this.findEnergySource();
+		if (this.memory.role == 'harvester') {
+			storedSource = this.assignHarvestSource();
+		} else if (this.memory.role == 'remoteharvester') {
+			storedSource = this.assignRemoteHarvestSource();
+		}
 	}
 	
 	if (storedSource) {
 		if (this.pos.isNearTo(storedSource)) {
+			if (storedSource.energy == 0 && this.store.getUsedCapacity() > 0) {
+				this.unloadEnergy();
+			}
 			this.harvest(storedSource);
 		} else {
 			this.moveTo(storedSource, { visualizePathStyle: { stroke: '#ffaa00' } });
