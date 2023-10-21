@@ -112,10 +112,8 @@ const badSourcePos = new RoomPosition(41, 7, 'E57S51');
 // main game loop function
 module.exports.loop = function () {
 
-	if (manualCmdQueue.length) {
-		manualCmdQueue[0];
-		manualCmdQueue.shift();
-	}
+	if (manualCmdQueue.length)
+		manualCmdQueue.shift()();
 
 	calcTickTime();
 
@@ -172,6 +170,7 @@ module.exports.loop = function () {
 			let remoteBuilders = _.filter(Game.creeps, (creep) => creep.memory.role == 'remotebuilder');
 
 			let sites = room.find(FIND_CONSTRUCTION_SITES);
+			let westSites = Game.rooms.E57S51.find(FIND_CONSTRUCTION_SITES);
 			/* #endregion */
 
 			if (room.find(FIND_HOSTILE_CREEPS).length) {
@@ -364,11 +363,11 @@ module.exports.loop = function () {
 				}
 			} else if (remoteRunners.length < remoteRunnerTarget) {
 				newName = 'RR' + (remoteRunners.length + 1);
-				while (Game.spawns['Spawn1'].spawnCreep([CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE], newName, { memory: { role: 'remoterunner' } }) == ERR_NAME_EXISTS) {
+				while (Game.spawns['Spawn1'].spawnCreep([CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE], newName, { memory: { role: 'remoterunner' } }) == ERR_NAME_EXISTS) {
 					newName = 'RR' + (remoteRunners.length + 1 + remoteRunnerCount);
 					remoteRunnerCount++;
 				}
-			} else if (remoteBuilders.length < remoteBuilderTarget) {
+			} else if (westSites.length > 0 && remoteBuilders.length < remoteBuilderTarget) {
 				newName = 'RB' + (remoteBuilders.length + 1);
 				while (Game.spawns['Spawn1'].spawnCreep([WORK, WORK, WORK, WORK, WORK, WORK, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE], newName, { memory: { role: 'remotebuilder' } }) == ERR_NAME_EXISTS) {
 					newName = 'RB' + (remoteBuilders.length + 1 + remoteBuilderCount);

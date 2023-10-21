@@ -4,7 +4,6 @@ const roleRemoteHarvester = {
 		
 		if (creep.ticksToLive <= 2) {
 			creep.unloadEnergy();
-			//creep.drop(RESOURCE_ENERGY);
 			creep.say('☠️');
 		}
 
@@ -13,21 +12,19 @@ const roleRemoteHarvester = {
 			creep.say('⛏️');
 		}
 		
-		if (creep.memory.working && creep.store.getFreeCapacity() < (creep.getActiveBodyparts(WORK) * 2)) {
+		if (creep.memory.working && creep.store.getFreeCapacity() < (creep.getActiveBodyparts(WORK) * 2))
 				creep.memory.working = false;
-		}
 
 		if (creep.store.getFreeCapacity() == 0 || creep.store.getFreeCapacity() < (creep.getActiveBodyparts(WORK) * 2)) {
-
-			const container = creep.room.find(FIND_STRUCTURES, { filter: (i) => ((i.strucutreType == STRUCTURE_CONTAINER) && creep.pos.isNearTo(i) && (i.hits < i.hitsMax)) });
-			if (container) {
-				creep.repair(container);
-			}
+			const containers = creep.room.find(FIND_STRUCTURES, { filter: { structureType: STRUCTURE_CONTAINER } });
+			const target = creep.pos.findClosestByRange(containers);
+			if (target)
+				creep.repair(target);
+			else
 				creep.unloadEnergy();
 		}
-		else {
-				creep.harvestEnergy();
-		}
+		else
+			creep.harvestEnergy();
 	}
 }
 

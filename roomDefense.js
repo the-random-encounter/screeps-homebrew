@@ -8,8 +8,8 @@ global.roomDefense = function (room) {
 			const tID = tower.id;
 			var closestHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
 			if (closestHostile) {
-				tower.room.visual.circle(tower.pos, { fill: '#110000', radius: 18, stroke: '#ff0000', opacity: 0.3, lineStyle: 'dashed' });
-				if (tower.pos.getRangeTo(closestHostile) <= 18)
+				tower.room.visual.circle(tower.pos, { fill: '#110000', radius: 35, stroke: '#ff0000', opacity: 0.3, lineStyle: 'dashed' });
+				//if (tower.pos.getRangeTo(closestHostile) <= 18)
 					tower.attack(closestHostile);
 			} else {
 				var closestDamagedCreep = tower.pos.findClosestByRange(FIND_MY_CREEPS, {
@@ -21,7 +21,7 @@ global.roomDefense = function (room) {
 			}
 			
 			const repairTargets = tower.room.find(FIND_STRUCTURES, {
-				filter: (i) => ((i.structureType == STRUCTURE_CONTAINER || i.structureType == STRUCTURE_TOWER || i.structureType == STRUCTURE_ROAD || i.structureType == STRUCTURE_RAMPART) && (i.hits < i.hitsMax))
+				filter: (i) => ((i.structureType == STRUCTURE_CONTAINER || i.structureType == STRUCTURE_TOWER || i.structureType == STRUCTURE_ROAD/* || i.structureType == STRUCTURE_RAMPART*/) && (i.hits < i.hitsMax))
 			});
 			const target = repairTargets[0];
 			tower.repair(target);
