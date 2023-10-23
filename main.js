@@ -104,9 +104,10 @@ let tickCount = 0;
 let newName 	= '';
 let spawnAnnounce 				= false;
 let harvesterDying 				= false;
-let remoteHarvesterDying 	= false;
+let runnerDying 					= false;
 let reserverDying 				= false;
 let collectorDying 				= false;
+let remoteHarvesterDying 	= false;
 let remoteGuardDying 			= false;
 
 // main game loop function
@@ -336,6 +337,14 @@ module.exports.loop = function () {
 				}
 			}
 
+			for (i = 0; i < runners.length; i++) {
+				runnerDying = false;
+				if (runners[i].ticksToLive <= 20) {
+					runnerDying = true;
+					break;
+				}
+			}
+
 			for (i = 0; i < reservers.length; i++) {
 				reserverDying = false;
 				if (reservers[i].ticksToLive <= 90) {
@@ -383,7 +392,7 @@ module.exports.loop = function () {
 					newName = 'C' + (collectors.length + 1 + collectorCount);
 					collectorCount++;
 				}
-			} else if (runners.length < runnerTarget) {
+			} else if ((runners.length < runnerTarget) || (runners.length <= runnerTarget && runnerDying)) {
 				newName = 'Rn' + (runners.length + 1);
 				while (Game.spawns['Spawn1'].spawnCreep(availableVariants.runner, newName, { memory: { role: 'runner' } }) == ERR_NAME_EXISTS) {
 					newName = 'Rn' + (runners.length + 1 + runnerCount);
