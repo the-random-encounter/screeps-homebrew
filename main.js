@@ -176,6 +176,9 @@ module.exports.loop = function () {
 				case 'remotebuilder':
 					remoteBuilderCount = 0;
 					break;
+				case 'remoteguard':
+					remoteGuardCount = 0;
+					break;
 			}
 		}
 	}

@@ -183,3 +183,16 @@ Room.prototype.setTarget = function setTarget(roleTarget, newTarget) {
 
 	return ('[' + this.name + ']: Set role \'' + roleTarget + '\' target to ' + newTarget + ' (was ' + oldTarget + ').');
 }
+
+Room.prototype.sendEnergy = function sendEnergy() {
+
+	const linkToLocal = this.memory.objects.links[0];
+	const linkFromLocal = this.memory.objects.links[1];
+
+	if (linkFromLocal.cooldown === 0) {
+		linkFromLocal.transferEnergy(linkToLocal)
+		return '[' + this.name + ']: Transferring energy.';
+	} else {
+		return '[' + this.name + ']: On cooldown, ' + linkFromLocal.cooldown + ' ticks remaining.';
+	}
+}
