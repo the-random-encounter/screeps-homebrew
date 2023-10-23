@@ -52,7 +52,7 @@ const roleCollector = {
 							creep.moveTo(storage, { visualizePathStyle: { stroke: '#ff0000', opacity: 0.5, lineStyle: 'undefined' } });
 						}
 					}
-					if (creep.room.find(FIND_TOMBSTONES, { filter: { creep: { my: false } } }).length == 0 || creep.room.find(FIND_TOMBSTONES, { filter: { creep: { my: false } } }).length == undefined) {
+					if (((creep.room.find(FIND_TOMBSTONES, { filter: { creep: { my: false } } }).length == 0 || creep.room.find(FIND_TOMBSTONES, { filter: { creep: { my: false } } }).length == undefined) && creep.room.find(FIND_TOMBSTONES, { filter: (i) => { i.store.getUsedCapacity() == 0 } })) || creep.ticksToLive < 100) {
 						creep.memory.invaderLooter = false;
 					}
 				}

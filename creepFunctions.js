@@ -129,9 +129,9 @@ Creep.prototype.harvestEnergy = function harvestEnergy() {
 	if (!storedSource) {
 		delete this.memory.source;
 		if (this.memory.role == 'harvester') {
-			storedSource = this.assignHarvestSource();
+			storedSource = this.assignHarvestSource(false);
 		} else if (this.memory.role == 'remoteharvester') {
-			storedSource = this.assignRemoteHarvestSource();
+			storedSource = this.assignRemoteHarvestSource(false);
 		}
 	}
 	
