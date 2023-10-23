@@ -10,12 +10,13 @@ const roleRunner 		= require('role.runner'		);
 const roleRebooter 	= require('role.rebooter'	);
 const roleRanger 		= require('role.ranger'		);
 const roleWarrior 	= require('role.warrior'	);
-const roleHealer = require('role.healer');
-const roleCrane = require('role.crane');
+const roleHealer 		= require('role.healer');
+const roleCrane 		= require('role.crane');
 
 const roleRemoteHarvester = require('role.remoteHarvester');
-const roleRemoteRunner = require('role.remoteRunner');
-const roleRemoteBuilder = require('role.remoteBuilder');
+const roleRemoteRunner 		= require('role.remoteRunner');
+const roleRemoteBuilder 	= require('role.remoteBuilder');
+const roleRemoteGuard 		= require('role.remoteGuard');
 
 // require other modules
 require('roomDefense'		);
@@ -75,7 +76,8 @@ let availableVariants = {
 	'upgrader': [],
 	'builder': [],
 	'repairer': [],
-	'runner': []
+	'runner': [],
+	'remoteGuard': [TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,TOUGH,ATTACK,ATTACK,ATTACK,ATTACK,ATTACK,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE]
 }
 
 // declare creep counting integers for spawning purposes
@@ -95,6 +97,7 @@ let craneCount 			= 0;
 let remoteHarvesterCount 	= 0;
 let remoteRunnerCount 		= 0;
 let remoteBuilderCount 		= 0;
+let remoteGuardCount 			= 0;
 
 // declare other global variables
 let tickCount = 0;
@@ -104,6 +107,7 @@ let harvesterDying 				= false;
 let remoteHarvesterDying 	= false;
 let reserverDying 				= false;
 let collectorDying 				= false;
+let remoteGuardDying 			= false;
 
 // main game loop function
 module.exports.loop = function () {
@@ -207,7 +211,8 @@ module.exports.loop = function () {
 
 			let remoteHarvesterTarget = _.get(room.memory, ['targets', 'remoteharvester'], 1);
 			let remoteRunnerTarget 		= _.get(room.memory, ['targets', 'remoterunner'		], 1);
-			let remoteBuilderTarget		= _.get(room.memory, ['targets', 'remotebuilder'	], 1);
+			let remoteBuilderTarget 	= _.get(room.memory, ['targets', 'remotebuilder'	], 1);
+			let remoteGuardTarget			= _.get(room.memory, ['targets', 'remoteguard'		], 1);
 
 			// pull current amount of creeps alive by role
 			let harvesters 	= _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester'	);
@@ -226,6 +231,7 @@ module.exports.loop = function () {
 			let remoteHarvesters 	= _.filter(Game.creeps, (creep) => creep.memory.role == 'remoteharvester'	);
 			let remoteRunners 		= _.filter(Game.creeps, (creep) => creep.memory.role == 'remoterunner'		);
 			let remoteBuilders 		= _.filter(Game.creeps, (creep) => creep.memory.role == 'remotebuilder'		);
+			let remoteGuards 			= _.filter(Game.creeps, (creep) => creep.memory.role == 'remoteguard'			);
 
 			let sites = room.find(FIND_CONSTRUCTION_SITES);
 			//let westSites = Game.rooms.E57S51.find(FIND_CONSTRUCTION_SITES);
@@ -353,6 +359,14 @@ module.exports.loop = function () {
 					break;
 				}
 			}
+
+			for (i = 0; i < remoteGuards.length; i++) {
+				remoteGuardDying = false;
+				if (remoteGuards[i].ticksToLive <= 110) {
+					remoteGuardDying = true;
+					break;
+				}
+			}
 			/* #endregion */
 			
 			
@@ -419,7 +433,7 @@ module.exports.loop = function () {
 				}
 			} else if ((reservers.length < reserverTarget) || (reservers.length <= reserverTarget && reserverDying)) {
 				newName = 'Rv' + (reservers.length + 1);
-				while (Game.spawns['Spawn1'].spawnCreep([MOVE,MOVE,CLAIM,CLAIM], newName, { memory: { role: 'reserver' } }) == ERR_NAME_EXISTS) {
+				while (Game.spawns['Spawn1'].spawnCreep([MOVE, MOVE, CLAIM, CLAIM], newName, { memory: { role: 'reserver' } }) == ERR_NAME_EXISTS) {
 					newName = 'Rv' + (reservers.length + 1 + reserverCount);
 					reserverCount++;
 				}
@@ -431,7 +445,7 @@ module.exports.loop = function () {
 				}
 			} else if (remoteRunners.length < remoteRunnerTarget) {
 				newName = 'RR' + (remoteRunners.length + 1);
-				while (Game.spawns['Spawn1'].spawnCreep([CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,MOVE,MOVE,MOVE,MOVE,MOVE, WORK], newName, { memory: { role: 'remoterunner' } }) == ERR_NAME_EXISTS) {
+				while (Game.spawns['Spawn1'].spawnCreep([CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE, MOVE, WORK], newName, { memory: { role: 'remoterunner' } }) == ERR_NAME_EXISTS) {
 					newName = 'RR' + (remoteRunners.length + 1 + remoteRunnerCount);
 					remoteRunnerCount++;
 				}
@@ -440,6 +454,12 @@ module.exports.loop = function () {
 				while (Game.spawns['Spawn1'].spawnCreep([WORK, WORK, WORK, WORK, WORK, WORK, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE], newName, { memory: { role: 'remotebuilder' } }) == ERR_NAME_EXISTS) {
 					newName = 'RB' + (remoteBuilders.length + 1 + remoteBuilderCount);
 					remoteBuilderCount++;
+				}
+			} else if ((remoteGuards.length < remoteGuardTarget) || (remoteGuards.length <= remoteGuardTarget && remoteGuardDying)) {
+				newName = 'RG' + (remoteGuards.length + 1);
+				while (Game.spawns['Spawn1'].spawnCreep(availableVariants.remoteGuard, newName, { memory: { role: 'remoteguard' } }) == ERR_NAME_EXISTS) {
+					newName = 'RG' + (remoteGuards.length + 1 + remoteGuardCount);
+					remoteGuardCount++;
 				}
 			}
 			if (cranes.length < craneTarget) {
@@ -517,6 +537,9 @@ module.exports.loop = function () {
 				break;
 			case 'remotebuilder':
 				roleRemoteBuilder.run(creep);
+				break;
+			case 'remoteguard':
+				roleRemoteGuard.run(creep);
 				break;
 			case 'crane':
 				roleCrane.run(creep);
