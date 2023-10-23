@@ -31,6 +31,7 @@ Creep.prototype.findEnergySource = function findEnergySource() {
 Creep.prototype.assignHarvestSource = function assignHarvestSource(noIncrement) {
 
 	const room = this.room;
+	const LA = room.memory.objects.lastAssigned;
 
 	if (!room.memory.objects)
 		room.cacheObjects();
@@ -44,30 +45,30 @@ Creep.prototype.assignHarvestSource = function assignHarvestSource(noIncrement) 
 	
 	let nextAssigned = room.memory.objects.lastAssigned + 1;
 	
-	if (nextAssigned >= roomSources.length) {
+	if (nextAssigned >= roomSources.length)
 		nextAssigned = 0;
-	}
 
 	let assignedSource = roomSources[nextAssigned];
 
 	this.memory.source = assignedSource;
 
-	if (!noIncrement) {
-		room.memory.objects.lastAssigned = room.memory.objects.lastAssigned + 1;
-	}
+	room.memory.objects.lastAssigned = room.memory.objects.lastAssigned + 1;
 
-	if (room.memory.objects.lastAssigned >= roomSources.length) {
-		room.memory.objects.lastAssigned = 0
-	}
+	if (room.memory.objects.lastAssigned >= roomSources.length)
+		room.memory.objects.lastAssigned = 0;
 
 	console.log('Assigned creep ' + this.name + ' to source ID ' + assignedSource)
+
+	if (noIncrement)
+		room.memory.objects.lastAssigned = LA;
 
 	return assignedSource;
 
 }
 
-Creep.prototype.assignRemoteHarvestSource = function assignRemoteHarvestSource() {
+Creep.prototype.assignRemoteHarvestSource = function assignRemoteHarvestSource(noIncrement) {
 	const room = this.room;
+	const LA = room.memory.objects.lastAssigned;
 
 	if (!room.memory.objects)
 		room.cacheObjects();
@@ -81,19 +82,20 @@ Creep.prototype.assignRemoteHarvestSource = function assignRemoteHarvestSource()
 	
 	let nextAssigned = room.memory.objects.lastAssigned;
 	
-	if (nextAssigned >= roomSources.length) {
+	if (nextAssigned >= roomSources.length)
 		nextAssigned = 0;
-	}
 
 	let assignedSource = roomSources[nextAssigned];
 
 	this.memory.source = assignedSource;
 
-	if (room.memory.objects.lastAssigned >= roomSources.length) {
+	if (room.memory.objects.lastAssigned >= roomSources.length)
 		room.memory.objects.lastAssigned = 0
-	}
 
 	console.log('Assigned creep ' + this.name + ' to remote source ID ' + assignedSource)
+
+	if (noIncrement)
+		room.memory.objects.lastAssigned = LA;
 
 	return assignedSource;
 
@@ -109,8 +111,8 @@ Creep.prototype.unloadEnergy = function unloadEnergy() {
 		const nearbyObj = this.room.find(FIND_STRUCTURES, { filter: (i) => (i.structureType == STRUCTURE_STORAGE || i.structureType == STRUCTURE_CONTAINER) && i.pos.isNearTo(this) });
 	
 		if (!nearbyObj.length) {
-			this.drop(RESOURCE_ENERGY);
-			console.log(this.name + ' dropped.');
+			if (this.drop(RESOURCE_ENERGY) == 0)
+				console.log(this.name + ' dropped.');
 			return;
 		} else {
 			const target = nearbyObj[0];

@@ -11,6 +11,7 @@ const roleRebooter 	= require('role.rebooter'	);
 const roleRanger 		= require('role.ranger'		);
 const roleWarrior 	= require('role.warrior'	);
 const roleHealer = require('role.healer');
+const roleCrane = require('role.crane');
 
 const roleRemoteHarvester = require('role.remoteHarvester');
 const roleRemoteRunner = require('role.remoteRunner');
@@ -26,7 +27,7 @@ require('roomFunctions'						);
 require('roomPositionFunctions'		);
 
 // define heap memory for use on various things and stuff
-let HEAP_MEMORY = {
+global.HEAP_MEMORY = {
 	'TOWER_DATA': {
 		'652e4025c40f9d0858e95789': {
 			'maxDistance': 15
@@ -38,35 +39,31 @@ global.manualCmdQueue = [];
 
 // define pre-configured creep bodypart arrays as key/value pairs in an object
 const spawnVariants = {
-	'harvester300':  [WORK, WORK, CARRY, MOVE],
-	'harvester400':  [WORK, WORK, WORK, CARRY, MOVE],
-	'harvester500': [WORK, WORK, WORK, CARRY, CARRY, MOVE, MOVE],
-	'harvester800': [WORK,WORK,WORK,WORK,WORK,WORK, CARRY,CARRY,CARRY,MOVE],
-	'harvester1000': [WORK, WORK, WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, MOVE, MOVE,
+	'harvester300':  	[	WORK, WORK,	 CARRY, MOVE],
+	'harvester400':  	[	WORK, WORK,		WORK, CARRY, MOVE],
+	'harvester500': 	[	WORK, WORK,		WORK, CARRY, CARRY, MOVE, MOVE],
+	'harvester800': 	[	WORK, WORK,		WORK,		WORK, WORK, WORK, CARRY, CARRY, MOVE],
+	'harvester1000': 	[	WORK, WORK,		WORK,		WORK, WORK, WORK, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE],
+	'collector300':  	[CARRY, CARRY, CARRY, 	MOVE, MOVE],
+	'collector500':  	[CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE],
+	'collector800':  	[CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE],
+	'collector1000': 	[CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE,MOVE, MOVE, MOVE],
+	'upgrader300':	 	[WORK, WORK, CARRY, MOVE],
+	'upgrader500':   	[WORK, WORK, WORK, WORK, CARRY, MOVE],
+	'upgrader800':   	[WORK, WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE],
+	'upgrader1000':  	[WORK, WORK, WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE,
 		MOVE],
-	'collector300':  [CARRY, CARRY, CARRY, MOVE, MOVE, MOVE],
-	'collector500':  [CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE, MOVE],
-	'collector800':  [CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE,
-		MOVE, MOVE, MOVE, MOVE],
-	'collector1000': [CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE,
-		MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE],
-	'upgrader300':	 [WORK, WORK, CARRY, MOVE],
-	'upgrader500':   [WORK, WORK, WORK, WORK, CARRY, MOVE],
-	'upgrader800':   [WORK, WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE],
-	'upgrader1000':  [WORK, WORK, WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE,
-		MOVE],
-	'builder300':  	 [WORK, WORK, CARRY, MOVE],
-	'builder500':  	 [WORK, WORK, WORK, WORK, CARRY, MOVE],
-	'builder800':  	 [WORK, WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE],
-	'builder1000':   [WORK, WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE,
-		MOVE, MOVE],
-	'repairer300':   [WORK, WORK, CARRY, MOVE],
+	'builder300':  	 	[WORK, WORK, CARRY, MOVE],
+	'builder500':  	 	[WORK, WORK, WORK, WORK, CARRY, MOVE],
+	'builder800':  	 	[WORK, WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE],
+	'builder1000':   	[WORK, WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE,MOVE, MOVE],
+	'repairer300':   	[WORK, WORK, CARRY, MOVE],
 	'repairer500':   [WORK, WORK, WORK, CARRY, CARRY, MOVE, MOVE],
 	'repairer800':   [WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE],
 	'repairer1000':  [WORK, WORK, WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE,
 		MOVE],
 	'repairer1300': [WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE],
-	'runner300': [MOVE, MOVE, MOVE, CARRY, CARRY, CARRY],
+	'runner300': [MOVE, MOVE, CARRY, CARRY, CARRY, CARRY],
 	'runner500': [MOVE, MOVE, MOVE, MOVE, MOVE, CARRY, CARRY, CARRY, CARRY, CARRY],
 	'runner800': [MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY]
 }
@@ -92,22 +89,21 @@ let rebooterCount 	= 0;
 let reserverCount 	= 0;
 let rangerCount 		= 0;
 let warriorCount 		= 0;
-let healerCount = 0;
+let healerCount 		= 0;
+let craneCount 			= 0;
 
-let remoteHarvesterCount = 0;
-let remoteRunnerCount = 0;
-let remoteBuilderCount = 0;
+let remoteHarvesterCount 	= 0;
+let remoteRunnerCount 		= 0;
+let remoteBuilderCount 		= 0;
 
 // declare other global variables
 let tickCount = 0;
-let newName = '';
-let spawnAnnounce = false;
-let harvesterDying = false;
-let remoteHarvesterDying = false;
-let reserverDying = false;
-
-// declare specific RoomPosition objects
-const badSourcePos = new RoomPosition(41, 7, 'E57S51');
+let newName 	= '';
+let spawnAnnounce 				= false;
+let harvesterDying 				= false;
+let remoteHarvesterDying 	= false;
+let reserverDying 				= false;
+let collectorDying 				= false;
 
 // main game loop function
 module.exports.loop = function () {
@@ -117,13 +113,63 @@ module.exports.loop = function () {
 
 	calcTickTime();
 
+	// remove creeps from memory who no longer exist
 	for (let name in Memory.creeps) {
 		if (!Game.creeps[name]) {
+			const role = Memory.creeps[name].role;
 			delete Memory.creeps[name];
 			console.log('Clearing nonexistent creep memory: ', name);
+			// reset naming counter for type of creep that died
+			switch (role) {
+				case 'harvester':
+					harvesterCount = 0;
+					break;
+				case 'collector':
+					collectorCount = 0;
+					break;
+				case 'upgrader':
+					upgraderCount = 0;
+					break;
+				case 'builder':
+					builderCount = 0;
+					break;
+				case 'runner':
+					runnerCount = 0;
+					break;
+				case 'repairer':
+					repairerCount = 0;
+					break;
+				case 'crane':
+					craneCount = 0;
+					break;
+				case 'ranger':
+					rangerCount = 0;
+					break;
+				case 'warrior':
+					warriorCount = 0;
+					break;
+				case 'healer':
+					healerCount = 0;
+					break;
+				case 'reserver':
+					reserverCount = 0;
+					break;
+				case 'rebooter':
+					rebooterCount = 0;
+					break;
+				case 'remoteharvester':
+					remoteHarvesterCount = 0;
+					break;
+				case 'remoterunner':
+					remoteRunnerCount = 0;
+					break;
+				case 'remotebuilder':
+					remoteBuilderCount = 0;
+					break;
+			}
 		}
 	}
-
+	
 	// main code loop to run inside each room containing our units or structures
 	_.forEach(Game.rooms, function (room) {
 		
@@ -133,44 +179,56 @@ module.exports.loop = function () {
 			// tower logic function
 			roomDefense(room);
 
-
+			// declare links
+			const linkToLocal 	= Game.getObjectById(room.memory.objects.links[0]);
+			const linkFromLocal = Game.getObjectById(room.memory.objects.links[1]);
+			
+			if (linkFromLocal.store[RESOURCE_ENERGY] > 400) { ;
+				if (linkFromLocal.cooldown == 0) {
+					console.log('[' + room.name + ']: Link transferring energy.');
+					linkFromLocal.transferEnergy(linkToLocal);
+				}
+			} 
+			
 			/* #region  SPAWNING QUOTA & CURRENT SPAWN COUNT DECLARATIONS  */
 			// pull creep role caps from room memory, or set to default value if none are set
 			let harvesterTarget = _.get(room.memory, ['targets', 'harvester'], 2);
 			let collectorTarget = _.get(room.memory, ['targets', 'collector'], 2);
-			let upgraderTarget = _.get(room.memory, ['targets', 'upgrader'], 2);
-			let builderTarget = _.get(room.memory, ['targets', 'builder'], 2);
-			let repairerTarget = _.get(room.memory, ['targets', 'repairer'], 1);
-			let runnerTarget = _.get(room.memory, ['targets', 'runner'], 0);
-			let rebooterTarget = _.get(room.memory, ['targets', 'rebooter'], 0);
-			let reserverTarget = _.get(room.memory, ['targets', 'reserver'], 0);
-			let rangerTarget = _.get(room.memory, ['targets', 'ranger'], 1);
-			let warriorTarget = _.get(room.memory, ['targets', 'warrior'], 1);
-			let healerTarget = _.get(room.memory, ['targets', 'healer'], 1);
+			let upgraderTarget 	= _.get(room.memory, ['targets', 'upgrader'	], 2);
+			let builderTarget 	= _.get(room.memory, ['targets', 'builder'	], 2);
+			let repairerTarget 	= _.get(room.memory, ['targets', 'repairer'	], 1);
+			let runnerTarget 		= _.get(room.memory, ['targets', 'runner'		], 0);
+			let rebooterTarget 	= _.get(room.memory, ['targets', 'rebooter'	], 0);
+			let reserverTarget 	= _.get(room.memory, ['targets', 'reserver'	], 0);
+			let rangerTarget 		= _.get(room.memory, ['targets', 'ranger'		], 1);
+			let warriorTarget 	= _.get(room.memory, ['targets', 'warrior'	], 1);
+			let healerTarget 		= _.get(room.memory, ['targets', 'healer'		], 1);
+			let craneTarget 		= _.get(room.memory, ['targets', 'crane'		], 1);
 
 			let remoteHarvesterTarget = _.get(room.memory, ['targets', 'remoteharvester'], 1);
-			let remoteRunnerTarget = _.get(room.memory, ['targets', 'remoterunner'], 1);
-			let remoteBuilderTarget = _.get(room.memory, ['targets', 'remotebuilder'], 1);
+			let remoteRunnerTarget 		= _.get(room.memory, ['targets', 'remoterunner'		], 1);
+			let remoteBuilderTarget		= _.get(room.memory, ['targets', 'remotebuilder'	], 1);
 
 			// pull current amount of creeps alive by role
-			let harvesters = _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester');
-			let collectors = _.filter(Game.creeps, (creep) => creep.memory.role == 'collector');
-			let upgraders = _.filter(Game.creeps, (creep) => creep.memory.role == 'upgrader');
-			let builders = _.filter(Game.creeps, (creep) => creep.memory.role == 'builder');
-			let repairers = _.filter(Game.creeps, (creep) => creep.memory.role == 'repairer');
-			let runners = _.filter(Game.creeps, (creep) => creep.memory.role == 'runner');
-			let rebooters = _.filter(Game.creeps, (creep) => creep.memory.role == 'rebooter');
-			let reservers = _.filter(Game.creeps, (creep) => creep.memory.role == 'reserver');
-			let rangers = _.filter(Game.creeps, (creep) => creep.memory.role == 'ranger');
-			let warriors = _.filter(Game.creeps, (creep) => creep.memory.role == 'warrior');
-			let healers = _.filter(Game.creeps, (creep) => creep.memory.role == 'healer');
+			let harvesters 	= _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester'	);
+			let collectors 	= _.filter(Game.creeps, (creep) => creep.memory.role == 'collector'	);
+			let upgraders 	= _.filter(Game.creeps, (creep) => creep.memory.role == 'upgrader'	);
+			let builders 		= _.filter(Game.creeps, (creep) => creep.memory.role == 'builder'		);
+			let repairers 	= _.filter(Game.creeps, (creep) => creep.memory.role == 'repairer'	);
+			let runners 		= _.filter(Game.creeps, (creep) => creep.memory.role == 'runner'		);
+			let rebooters 	= _.filter(Game.creeps, (creep) => creep.memory.role == 'rebooter'	);
+			let reservers 	= _.filter(Game.creeps, (creep) => creep.memory.role == 'reserver'	);
+			let rangers 		= _.filter(Game.creeps, (creep) => creep.memory.role == 'ranger'		);
+			let warriors 		= _.filter(Game.creeps, (creep) => creep.memory.role == 'warrior'		);
+			let healers 		= _.filter(Game.creeps, (creep) => creep.memory.role == 'healer'		);
+			let cranes 			= _.filter(Game.creeps, (creep) => creep.memory.role == 'crane'			);
 
-			let remoteHarvesters = _.filter(Game.creeps, (creep) => creep.memory.role == 'remoteharvester');
-			let remoteRunners = _.filter(Game.creeps, (creep) => creep.memory.role == 'remoterunner');
-			let remoteBuilders = _.filter(Game.creeps, (creep) => creep.memory.role == 'remotebuilder');
+			let remoteHarvesters 	= _.filter(Game.creeps, (creep) => creep.memory.role == 'remoteharvester'	);
+			let remoteRunners 		= _.filter(Game.creeps, (creep) => creep.memory.role == 'remoterunner'		);
+			let remoteBuilders 		= _.filter(Game.creeps, (creep) => creep.memory.role == 'remotebuilder'		);
 
 			let sites = room.find(FIND_CONSTRUCTION_SITES);
-			let westSites = Game.rooms.E57S51.find(FIND_CONSTRUCTION_SITES);
+			//let westSites = Game.rooms.E57S51.find(FIND_CONSTRUCTION_SITES);
 			/* #endregion */
 
 			if (room.find(FIND_HOSTILE_CREEPS).length) {
@@ -180,36 +238,38 @@ module.exports.loop = function () {
 			
 			/* #region  CONSOLE LOG - SPAWN INFO */
 			if (tickCount == 10) {
-				console.log('H:' + harvesters.length + '(' + harvesterTarget + ') | C:' + collectors.length + '(' + collectorTarget + ') | U:' + upgraders.length + '(' + upgraderTarget + ')| B:' + builders.length + '(' + builderTarget + ') | Rn:' + runners.length + '(' + runnerTarget + ') | Rp:' + repairers.length + '(' + repairerTarget + ') | Rb:' + rebooters.length + '(' + rebooterTarget + ') | Rv:' + reservers.length + '(' + reserverTarget + ') || Rng:' + rangers.length + '(' + rangerTarget + ') | War:' + warriors.length + '(' + warriorTarget + ') | Hlr:' + healers.length + '(' + healerTarget + ') || RH:' + remoteHarvesters.length + '(' + remoteHarvesterTarget + ') | RR:' + remoteRunners.length + '(' + remoteRunnerTarget + ') | RB:' + remoteBuilders.length + '(' + remoteBuilderTarget + ') || Energy: ' + room.energyAvailable + '(' + room.energyCapacityAvailable + ')');
+				console.log('H:' + harvesters.length + '(' + harvesterTarget + ') | C:' + collectors.length + '(' + collectorTarget + ') | U:' + upgraders.length + '(' + upgraderTarget + ')| B:' + builders.length + '(' + builderTarget + ') | Rn:' + runners.length + '(' + runnerTarget + ') | Rp:' + repairers.length + '(' + repairerTarget + ') | Cn:' + cranes.length + '(' + craneTarget + ') | Rb:' + rebooters.length + '(' + rebooterTarget + ') | Rv:' + reservers.length + '(' + reserverTarget + ') || Rng:' + rangers.length + '(' + rangerTarget + ') | War:' + warriors.length + '(' + warriorTarget + ') | Hlr:' + healers.length + '(' + healerTarget + ') || RH:' + remoteHarvesters.length + '(' + remoteHarvesterTarget + ') | RR:' + remoteRunners.length + '(' + remoteRunnerTarget + ') | RB:' + remoteBuilders.length + '(' + remoteBuilderTarget + ') || Energy: ' + room.energyAvailable + '(' + room.energyCapacityAvailable + ')');
 				tickCount = 0;
 			}
 			/* #endregion */
 	
 			/* #region  ROOM VISUAL - SPAWN INFO */
-			room.visual.text('H:' + harvesters.length + '(' + harvesterTarget + ') | C:' + collectors.length + '(' + collectorTarget + ') | U:' + upgraders.length + '(' + upgraderTarget + ') | B:' + builders.length + '(' + builderTarget + ')', 49, 45, { align: 'right' })
+			room.visual.text('H:' + harvesters.length + '(' + harvesterTarget + ') | C:' + collectors.length + '(' + collectorTarget + ') | U:' + upgraders.length + '(' + upgraderTarget + ') | B:' + builders.length + '(' + builderTarget + ') | Cn:' + cranes.length + '(' + craneTarget + ')', 49, 45, { align: 'right' })
 			room.visual.text('Rn:' + runners.length + '(' + runnerTarget + ') | Rp:' + repairers.length + '(' + repairerTarget + ') | Rb:' + rebooters.length + '(' + rebooterTarget + ') | Rv:' + reservers.length + '(' + reserverTarget + ')', 49, 46, { align: 'right' })
 			room.visual.text('Rng:' + rangers.length + '(' + rangerTarget + ') | War:' + warriors.length + '(' + warriorTarget + ') | Hlr:' + healers.length + '(' + healerTarget + ')', 49, 47, { align: 'right' })
 			room.visual.text('RH:' + remoteHarvesters.length + '(' + remoteHarvesterTarget + ') | RR:' + remoteRunners.length + '(' + remoteRunnerTarget + ') | RB:' + remoteBuilders.length + '(' + remoteBuilderTarget + ')', 49, 48, { align: 'right' })
 			room.visual.text('Energy: ' + room.energyAvailable + '(' + room.energyCapacityAvailable + ')', 49, 49, { align: 'right' });
 
-			room.visual.text('H:' + harvesters.length + '(' + harvesterTarget + ') | C:' + collectors.length + '(' + collectorTarget + ') | U:' + upgraders.length + '(' + upgraderTarget + ') | B:' + builders.length + '(' + builderTarget + ')', 49, 1, { align: 'right' })
+			room.visual.text('H:' + harvesters.length + '(' + harvesterTarget + ') | C:' + collectors.length + '(' + collectorTarget + ') | U:' + upgraders.length + '(' + upgraderTarget + ') | B:' + builders.length + '(' + builderTarget + ') | Cn:' + cranes.length + '(' + craneTarget + ')', 49, 1, { align: 'right' })
 			room.visual.text('Rn:' + runners.length + '(' + runnerTarget + ') | Rp:' + repairers.length + '(' + repairerTarget + ') | Rb:' + rebooters.length + '(' + rebooterTarget + ') | Rv:' + reservers.length + '(' + reserverTarget + ')', 49, 0, { align: 'right' })
 			room.visual.text('Rng:' + rangers.length + '(' + rangerTarget + ') | War:' + warriors.length + '(' + warriorTarget + ') | Hlr:' + healers.length + '(' + healerTarget + ')', 49, 2, { align: 'right' })
 			room.visual.text('RH:' + remoteHarvesters.length + '(' + remoteHarvesterTarget + ') | RR:' + remoteRunners.length + '(' + remoteRunnerTarget + ') | RB:' + remoteBuilders.length + '(' + remoteBuilderTarget + ')', 49, 3, { align: 'right' })
 			room.visual.text('Energy: ' + room.energyAvailable + '(' + room.energyCapacityAvailable + ')', 49, 4, { align: 'right' });
 			/* #endregion */
 
-			//let creepArray = Object.keys(Game.Memory.creeps);
-			//let creepCount = creepArray.length;
-			let capacity;
-			if (capacity)
-			//if (creepCount <= 2)
-				capacity = room.energyAvailable;
-			else
-				capacity = room.energyCapacityAvailable;
 
-			/* #region  AVAILABLE VARIANTS ASSIGNMENTS */
-			
+			let creepCount = Object.keys(Memory.creeps);
+			let capacity;
+			if (creepCount.length <= 2) {
+				capacity = room.energyAvailable;
+				room.memory.flags.runnerLogic = false;
+			}
+			else {
+				capacity = room.energyCapacityAvailable;
+				room.memory.flags.runnerLogic = true;
+			}
+
+			/* #region  AVAILABLE VARIANTS ASSIGNMENTS */		
 			if (room.energyCapacityAvailable < 500) {
 				availableVariants.harvester = spawnVariants.harvester300;
 				availableVariants.collector = spawnVariants.collector300;
@@ -285,6 +345,14 @@ module.exports.loop = function () {
 					break;
 				}
 			}
+
+			for (i = 0; i < collectors.length; i++) {
+				collectorDying = false;
+				if (collectors[i].ticksToLive <= 30) {
+					collectorDying = true;
+					break;
+				}
+			}
 			/* #endregion */
 			
 			
@@ -295,11 +363,17 @@ module.exports.loop = function () {
 					newName = 'H' + (harvesters.length + 1 + harvesterCount);
 					harvesterCount++;
 				}
-			} else if (collectors.length < collectorTarget) {
+			} else if ((collectors.length < collectorTarget) || (collectors.length <= collectorTarget && collectorDying == true)) {
 				newName = 'C' + (collectors.length + 1);
 				while (Game.spawns['Spawn1'].spawnCreep(availableVariants.collector, newName, { memory: { role: 'collector' } }) == ERR_NAME_EXISTS) {
 					newName = 'C' + (collectors.length + 1 + collectorCount);
 					collectorCount++;
+				}
+			} else if (runners.length < runnerTarget) {
+				newName = 'Rn' + (runners.length + 1);
+				while (Game.spawns['Spawn1'].spawnCreep(availableVariants.runner, newName, { memory: { role: 'runner' } }) == ERR_NAME_EXISTS) {
+					newName = 'Rn' + (runners.length + 1 + runnerCount);
+					runnerCount++;
 				}
 			} else if (upgraders.length < upgraderTarget) {
 				newName = 'U' + (upgraders.length + 1);
@@ -312,12 +386,6 @@ module.exports.loop = function () {
 				while (Game.spawns['Spawn1'].spawnCreep(availableVariants.builder, newName, { memory: { role: 'builder' } }) == ERR_NAME_EXISTS) {
 					newName = 'B' + (builders.length + 1 + builderCount);
 					builderCount++;
-				}
-			} else if (runners.length < runnerTarget) {
-				newName = 'Rn' + (runners.length + 1);
-				while (Game.spawns['Spawn1'].spawnCreep(availableVariants.runner, newName, { memory: { role: 'runner' } }) == ERR_NAME_EXISTS) {
-					newName = 'Rn' + (runners.length + 1 + runnerCount);
-					runnerCount++;
 				}
 			} else if (repairers.length < repairerTarget) {
 				newName = 'Rp' + (repairers.length + 1);
@@ -339,7 +407,7 @@ module.exports.loop = function () {
 				}
 			} else if (warriors.length < warriorTarget) {
 				newName = 'W' + (warriors.length + 1);
-				while (Game.spawns['Spawn1'].spawnCreep([TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, ATTACK, ATTACK, ATTACK, ATTACK, MOVE, MOVE, MOVE, MOVE], newName, { memory: { role: 'warrior' } }) == ERR_NAME_EXISTS) {
+				while (Game.spawns['Spawn1'].spawnCreep([TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, ATTACK, ATTACK, ATTACK, ATTACK, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE], newName, { memory: { role: 'warrior' } }) == ERR_NAME_EXISTS) {
 					newName = 'W' + (warriors.length + 1 + warriorCount);
 					warriorCount++;
 				}
@@ -363,15 +431,22 @@ module.exports.loop = function () {
 				}
 			} else if (remoteRunners.length < remoteRunnerTarget) {
 				newName = 'RR' + (remoteRunners.length + 1);
-				while (Game.spawns['Spawn1'].spawnCreep([CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE], newName, { memory: { role: 'remoterunner' } }) == ERR_NAME_EXISTS) {
+				while (Game.spawns['Spawn1'].spawnCreep([CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,MOVE,MOVE,MOVE,MOVE,MOVE, WORK], newName, { memory: { role: 'remoterunner' } }) == ERR_NAME_EXISTS) {
 					newName = 'RR' + (remoteRunners.length + 1 + remoteRunnerCount);
 					remoteRunnerCount++;
 				}
-			} else if (westSites.length > 0 && remoteBuilders.length < remoteBuilderTarget) {
+			} else if (sites.length > 0 && remoteBuilders.length < remoteBuilderTarget) {
 				newName = 'RB' + (remoteBuilders.length + 1);
 				while (Game.spawns['Spawn1'].spawnCreep([WORK, WORK, WORK, WORK, WORK, WORK, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE], newName, { memory: { role: 'remotebuilder' } }) == ERR_NAME_EXISTS) {
 					newName = 'RB' + (remoteBuilders.length + 1 + remoteBuilderCount);
 					remoteBuilderCount++;
+				}
+			}
+			if (cranes.length < craneTarget) {
+				newName = 'Cn' + (cranes.length + 1);
+				while (Game.spawns['Spawn1'].spawnCreep([CARRY,CARRY,CARRY,CARRY,MOVE], newName, { memory: { role: 'crane' } }) == ERR_NAME_EXISTS) {
+					newName = 'Cr' + (cranes.length + 1 + craneCount);
+					craneCount++;
 				}
 			}
 		}
@@ -396,7 +471,7 @@ module.exports.loop = function () {
 		} else {
 			spawnAnnounce = false;
 		}
-	
+		
 	for(let name in Game.creeps) {
 		let creep = Game.creeps[name];
 
@@ -442,6 +517,9 @@ module.exports.loop = function () {
 				break;
 			case 'remotebuilder':
 				roleRemoteBuilder.run(creep);
+				break;
+			case 'crane':
+				roleCrane.run(creep);
 				break;
 		}
 	

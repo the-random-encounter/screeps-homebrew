@@ -16,6 +16,7 @@ Room.prototype.cacheObjects = function cacheObjects() {
 	let containers 	= this.find(FIND_STRUCTURES		, { filter: { structureType: STRUCTURE_CONTAINER 	} });
 	let storage 		= this.find(FIND_STRUCTURES		, { filter: { structureType: STRUCTURE_STORAGE 		} });
 	let ramparts 		= this.find(FIND_STRUCTURES		, { filter: { structureType: STRUCTURE_RAMPART 		} });
+    let links = this.find(FIND_STRUCTURES, {filter: {structureType: STRUCTURE_LINK}});
 
 	// check if the 'objects' object exists in room memory & create it if not
 	if (!this.memory.objects) {
@@ -147,6 +148,20 @@ Room.prototype.cacheObjects = function cacheObjects() {
 		}
 		storageArray = [];
 	}
+	
+	// if links are found, add their IDs to array and add array to room's 'objects' memory
+	if (links) {
+		for (i = 0; i < links.length; i++)
+			storageArray.push(links[i].id);
+		if (storageArray.length) {
+			this.memory.objects.links = storageArray;
+			if (storageArray.length > 1)
+				console.log('Cached ' + storageArray.length + ' links.');
+			else
+				console.log('Cached 1 link.');
+		}
+		storageArray = [];
+	}
 
 	timer = (Date.now() - timer);
 	return 'Caching objects for room ' + this.name + ' completed in ' + timer + 'ms.';
@@ -157,4 +172,14 @@ Room.prototype.initTargets = function initTargets(array) {
 	const targetArray = array || [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
 	this.memory.targets = {};
+}
+
+Room.prototype.setTarget = function setTarget(roleTarget, newTarget) {
+
+	const oldTarget = this.memory.targets[roleTarget];
+
+	console.log(oldTarget);
+	this.memory.targets[roleTarget] = newTarget;
+
+	return ('[' + this.name + ']: Set role \'' + roleTarget + '\' target to ' + newTarget + ' (was ' + oldTarget + ').');
 }

@@ -2,29 +2,43 @@ const roleRemoteHarvester = {
 
 	run: function (creep) {
 		
-		if (creep.ticksToLive <= 2) {
-			creep.unloadEnergy();
-			creep.say('☠️');
-		}
-
-		if (!creep.memory.working && creep.store[RESOURCE_ENERGY] > 0) {
-			creep.memory.working = true;
-			creep.say('⛏️');
-		}
+		if (!creep.memory.disableAI) {
 		
-		if (creep.memory.working && creep.store.getFreeCapacity() < (creep.getActiveBodyparts(WORK) * 2))
+			creep.memory.disableAI = false;
+		
+			if (creep.ticksToLive <= 2) {
+				creep.unloadEnergy();
+				creep.say('☠️');
+			}
+
+			// a specific fix for a remote harvesting source, to ensure position near container
+			if (creep.room.name == 'E57S51') {
+				if (creep.pos.x == 11 && creep.pos.y == 6)
+					creep.move(1);
+				else if (creep.pos.x == 11 && creep.pos.y == 7)
+					creep.move(1);
+			}
+
+			if (!creep.memory.working && creep.store[RESOURCE_ENERGY] > 0) {
+				creep.memory.working = true;
+				creep.say('⛏️');
+			}
+			
+			if (creep.memory.working && creep.store.getFreeCapacity() < (creep.getActiveBodyparts(WORK) * 2))
 				creep.memory.working = false;
 
-		if (creep.store.getFreeCapacity() == 0 || creep.store.getFreeCapacity() < (creep.getActiveBodyparts(WORK) * 2)) {
-			const containers = creep.room.find(FIND_STRUCTURES, { filter: { structureType: STRUCTURE_CONTAINER } });
-			const target = creep.pos.findClosestByRange(containers);
-			if (target)
-				creep.repair(target);
+			if (creep.store.getFreeCapacity() == 0 || creep.store.getFreeCapacity() < (creep.getActiveBodyparts(WORK) * 2)) {
+				const containers = creep.room.find(FIND_STRUCTURES, { filter: (i) => (i.structureType == STRUCTURE_CONTAINER && (i.hits < i.hitsMax)) });
+				const target = creep.pos.findClosestByRange(containers);
+				if (target)
+					creep.repair(target);
+				else
+					creep.unloadEnergy();
+			}
 			else
-				creep.unloadEnergy();
+				creep.harvestEnergy();
+			
 		}
-		else
-			creep.harvestEnergy();
 	}
 }
 
