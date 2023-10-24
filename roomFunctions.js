@@ -297,3 +297,28 @@ Room.prototype.sendEnergy = function sendEnergy() {
 		return '[' + this.name + ']: On cooldown, ' + linkFromLocal.cooldown + ' ticks remaining.';
 	}
 }
+
+Room.prototype.initRoomFlags = function initRoomFlags(flag1 = false, flag2 = false, flag3 = false) {
+
+	if (this.memory.flags.runnerLogic === undefined)
+		this.memory.flags.runnerLogic = flag1;
+
+	if (this.memory.flags.repairRamparts === undefined)
+		this.memory.flags.repairRamparts = flag2;
+
+	if (this.memory.flags.towerRepair === undefined)
+		this.memory.flags.towerRepair = flag3;
+
+	return '[' + this.name + ']: Room flags initialized: runnerLogic(' + flag1 + ') repairRamparts(' + flag2 + ') towerRepair(' + flag3 + ')';
+}
+
+Room.prototype.setRoomFlags = function setRoomFlags(flag1 = false, flag2 = false, flag3 = false) {
+
+		this.memory.flags.runnerLogic = flag1;
+
+		this.memory.flags.repairRamparts = flag2;
+
+		this.memory.flags.towerRepair = flag3;
+
+	return '[' + this.name + ']: Room flags set: runnerLogic(' + flag1 + ') repairRamparts(' + flag2 + ') towerRepair(' + flag3 + ')';
+}

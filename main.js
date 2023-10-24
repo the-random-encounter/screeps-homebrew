@@ -58,16 +58,17 @@ const spawnVariants = {
 	'builder300':  	 	[WORK, WORK, CARRY, MOVE],
 	'builder500':  	 	[WORK, WORK, WORK, WORK, CARRY, MOVE],
 	'builder800':  	 	[WORK, WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE],
-	'builder1000':   	[WORK, WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE,MOVE, MOVE],
+	'builder1000': 		[WORK, WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE],
+	'builder1600': 		[WORK, WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE],
 	'repairer300':   	[WORK, WORK, CARRY, MOVE],
-	'repairer500':   [WORK, WORK, WORK, CARRY, CARRY, MOVE, MOVE],
-	'repairer800':   [WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE],
-	'repairer1000':  [WORK, WORK, WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE,
+	'repairer500':   	[WORK, WORK, WORK, CARRY, CARRY, MOVE, MOVE],
+	'repairer800':   	[WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE],
+	'repairer1000':  	[WORK, WORK, WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE,
 		MOVE],
-	'repairer1300': [WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE],
-	'runner300': [MOVE, MOVE, CARRY, CARRY, CARRY, CARRY],
-	'runner500': [MOVE, MOVE, MOVE, MOVE, MOVE, CARRY, CARRY, CARRY, CARRY, CARRY],
-	'runner800': [MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY]
+	'repairer1300': 	[WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE],
+	'runner300': 			[MOVE, MOVE, CARRY, CARRY, CARRY, CARRY],
+	'runner500': 			[MOVE, MOVE, MOVE, MOVE, MOVE, CARRY, CARRY, CARRY, CARRY, CARRY],
+	'runner800': 			[MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY]
 }
 
 // define working variant set for use in the main loop, assigned based on current energy capacity limits
@@ -338,7 +339,7 @@ module.exports.loop = function () {
 				availableVariants.harvester = spawnVariants.harvester800;
 				availableVariants.collector = spawnVariants.collector500;
 				availableVariants.upgrader = spawnVariants.upgrader800;
-				availableVariants.builder = spawnVariants.builder1000;
+				availableVariants.builder = spawnVariants.builder1600;
 				availableVariants.repairer = spawnVariants.repairer1300;
 				availableVariants.runner = spawnVariants.runner300;
 			}

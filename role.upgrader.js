@@ -3,9 +3,10 @@ const roleUpgrader = {
 			/** @param {Creep} creep **/
 		run: function(creep) {
 
-		if (!creep.memory.disableAI) {
-		
+		if (creep.memory.disableAI === undefined)
 			creep.memory.disableAI = false;
+		
+		if (!creep.memory.disableAI) {
 
 			const badPosC = new RoomPosition(39, 9, 'E58S51');
 			const badPosSW = new RoomPosition(38, 9, 'E58S51');
@@ -91,6 +92,10 @@ const roleUpgrader = {
 					}
 				}
 			}
+		}
+		else {
+			console.log('[' + creep.room.name + ']: WARNING: Creep ' + creep.name + '\'s AI is disabled.');
+			creep.say('AI Disabled');
 		}
 	}
 };

@@ -113,7 +113,7 @@ Creep.prototype.unloadEnergy = function unloadEnergy() {
 		this.transfer(target, RESOURCE_ENERGY);
 		return;
 	} else {
-		const nearbyObj = this.room.find(FIND_STRUCTURES, { filter: (i) => (i.structureType == STRUCTURE_STORAGE || i.structureType == STRUCTURE_CONTAINER) && i.pos.isNearTo(this) });
+		const nearbyObj = this.room.find(FIND_STRUCTURES, { filter: (obj) => (obj.structureType == STRUCTURE_STORAGE || obj.structureType == STRUCTURE_CONTAINER || obj.structureType == STRUCTURE_LINK) && obj.pos.isNearTo(this) });
 	
 		if (!nearbyObj.length) {
 			if (this.drop(RESOURCE_ENERGY) == 0)
@@ -152,21 +152,24 @@ Creep.prototype.harvestEnergy = function harvestEnergy() {
 	}
 }
 
-Creep.prototype.getDroppedResource = function getDroppedResource() {
+Creep.prototype.getDroppedResource = function getDroppedResource(pileID) {
 
-	const target = this.pos.findClosestByRange(FIND_DROPPED_RESOURCES);
-			if (target) {
-				if (this.pickup(target) == ERR_NOT_IN_RANGE) {
-					this.moveTo(target);
-				}
-			}
+	if (pileID === undefined)
+		pileID = this.pos.findClosestByRange(FIND_DROPPED_RESOURCES).id;
+
+	if (pileID) {
+		const target = Game.getObjectById(pileID);
+		if (target) {
+			if (this.pickup(target) == ERR_NOT_IN_RANGE)
+				this.moveTo(target);
+		}
+	}
 }
 
 Creep.prototype.pickupClosestEnergy = function pickupClosestEnergy() {
 	
 	const containersWithEnergy = this.room.find(FIND_STRUCTURES, {
-		filter: (i) => (i.structureType == STRUCTURE_CONTAINER || i.structureType == STRUCTURE_STORAGE) &&
-			i.store[RESOURCE_ENERGY] > 0
+		filter: (obj) => (obj.structureType == STRUCTURE_CONTAINER || obj.structureType == STRUCTURE_STORAGE) && obj.store[RESOURCE_ENERGY] > 0
 	});
 
 	const droppedPiles = this.room.find(FIND_DROPPED_RESOURCES);
@@ -174,7 +177,7 @@ Creep.prototype.pickupClosestEnergy = function pickupClosestEnergy() {
 	const target = this.pos.findClosestByRange(resourceList);
 
 	if (target) {
-			if (this.pickup(target) == ERR_NOT_IN_RANGE) {
+			if (this.pickup(target) == ERR_NOT_IN_RANGE || this.withdraw(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
 					this.moveTo(target);
 			}
 	}
@@ -189,7 +192,7 @@ Creep.prototype.unloadMineral = function unloadMineral() {
 		this.transfer(target, mineral);
 		return;
 	} else {
-		const nearbyObj = this.room.find(FIND_STRUCTURES, { filter: (i) => (i.structureType == STRUCTURE_STORAGE || i.structureType == STRUCTURE_CONTAINER) && i.pos.isNearTo(this) });
+		const nearbyObj = this.room.find(FIND_STRUCTURES, { filter: (obj) => (obj.structureType == STRUCTURE_STORAGE || obj.structureType == STRUCTURE_CONTAINER || obj.structureType == STRUCTURE_LINK) && obj.pos.isNearTo(this) });
 	
 		if (!nearbyObj.length) {
 			if (this.drop(mineral) == 0)
@@ -221,7 +224,7 @@ Creep.prototype.harvestMineral = function harvestMineral() {
 			}
 			this.harvest(storedMineral);
 		} else {
-			this.moveTo(storedMineral, { visualizePathStyle: { stroke: '#ffaa00' } });
+			this.moveTo(storedMineral, { visualizePathStyle: { stroke: '#ff00ff' } });
 		}
 	}
 }

@@ -2,9 +2,10 @@ const roleRemoteRunner = {
 
 	run: function (creep) {
 
-		if (!creep.memory.disableAI) {
-		
+		if (creep.memory.disableAI === undefined)
 			creep.memory.disableAI = false;
+		
+		if (!creep.memory.disableAI) {
 
 			if (creep.ticksToLive <= 2)
 				creep.say('☠️');
@@ -39,6 +40,10 @@ const roleRemoteRunner = {
 					}
 				}
 			}
+		}
+		else {
+			console.log('[' + creep.room.name + ']: WARNING: Creep ' + creep.name + '\'s AI is disabled.');
+			creep.say('AI Disabled');
 		}
 	}
 }

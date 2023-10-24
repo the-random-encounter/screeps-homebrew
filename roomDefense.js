@@ -20,11 +20,13 @@ global.roomDefense = function (room) {
 				}
 			}
 			
-			const repairTargets = tower.room.find(FIND_STRUCTURES, {
-				filter: (i) => ((i.structureType == STRUCTURE_CONTAINER || i.structureType == STRUCTURE_TOWER || i.structureType == STRUCTURE_ROAD || i.structureType == STRUCTURE_STORAGE || i.structureType == STRUCTURE_SPAWN || i.structureType == STRUCTURE_LINK || i.structureType == STRUCTURE_EXTENSION/* || i.structureType == STRUCTURE_RAMPART*/) && (i.hits < i.hitsMax))
-			});
-			const target = repairTargets[0];
-			tower.repair(target);
+			if (room.memory.flags.towerRepair == true) {
+				const repairTargets = tower.room.find(FIND_STRUCTURES, {
+					filter: (i) => ((i.structureType == STRUCTURE_CONTAINER || i.structureType == STRUCTURE_TOWER || i.structureType == STRUCTURE_ROAD || i.structureType == STRUCTURE_STORAGE || i.structureType == STRUCTURE_SPAWN || i.structureType == STRUCTURE_LINK || i.structureType == STRUCTURE_EXTENSION/* || i.structureType == STRUCTURE_RAMPART*/) && (i.hits < i.hitsMax))
+				});
+				const target = repairTargets[0];
+				tower.repair(target);
+			}
 		}
 	});
 }

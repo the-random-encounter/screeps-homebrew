@@ -3,10 +3,11 @@ const roleBuilder = {
     /** @param {Creep} creep **/
     run: function(creep) {
 
-        if (!creep.memory.disableAI) {
-		
+        if (creep.memory.disableAI === undefined)
             creep.memory.disableAI = false;
-            
+        
+        if (!creep.memory.disableAI) {
+		            
             if (creep.ticksToLive <= 2) {
                 creep.drop(RESOURCE_ENERGY);
                 creep.say('☠️');
@@ -25,20 +26,17 @@ const roleBuilder = {
         
                 switch (creep.room.memory.flags.runnerLogic || false) {
                     case true: {
-                        const containersWithEnergy = Game.getObjectById(creep.room.memory.objects.storage[0]) || creep.room.find(FIND_MY_STRUCTURES, {
-                            filter: (i) => (i.structureType == STRUCTURE_STORAGE) && i.store[RESOURCE_ENERGY] > 0
-                        });
-                        let target;
                         
-                        if (containersWithEnergy.length) {
-                            target = creep.pos.findClosestByRange(containersWithEnergy);
-                        } else if (containersWithEnergy) {
-                            target = containersWithEnergy;
-                        }
-                            
+                        // look for the closest pile of energy, storage, or container for energy to use
+                        const droppedPiles = creep.room.find(FIND_DROPPED_RESOURCES);
+                        const containersWithEnergy = Game.getObjectById(creep.room.memory.objects.storage[0]) || creep.room.find(FIND_MY_STRUCTURES, {
+                            filter: (i) => ((i.structureType == STRUCTURE_STORAGE || i.structureType == STRUCTURE_CONTAINER) && i.store[RESOURCE_ENERGY] > 0)
+                        });
+                        const targets = droppedPiles.concat(containersWithEnergy);
+                        let target = creep.pos.findClosestByRange(targets);
                         if (target) {
-                            if (creep.withdraw(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE)
-                                creep.moveTo(target, { visualizePathStyle: { stroke: '#ffff00', opacity: 0.3, lineStyle: 'dotted' } });
+                            if (creep.pickup(target) == ERR_NOT_IN_RANGE || creep.withdraw(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE)
+                                creep.moveTo(target, { visualizePathStyle: { stroke: '#0000ff', opacity: 0.3, lineStyle: 'dotted' } });
                             else
                                 creep.withdraw(target, RESOURCE_ENERGY);
                         }
@@ -46,6 +44,8 @@ const roleBuilder = {
                     }
                     case false:
                     default: {
+
+                        // look for the closest pile of energy, container, or storage for energy to use
                         const containersWithEnergy = creep.room.find(FIND_STRUCTURES, {
                             filter: (i) => (i.structureType == STRUCTURE_CONTAINER || i.structureType == STRUCTURE_STORAGE) && i.store[RESOURCE_ENERGY] > 0
                         });
@@ -56,7 +56,7 @@ const roleBuilder = {
                             
                         if (target) {
                             if (creep.pickup(target) == ERR_NOT_IN_RANGE || creep.withdraw(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                                creep.moveTo(target, { visualizePathStyle: { stroke: '#ffff00', opacity: 0.3, lineStyle: 'dotted' } });
+                                creep.moveTo(target, { visualizePathStyle: { stroke: '#0000ff', opacity: 0.3, lineStyle: 'dotted' } });
                             }
                             else {
                                 switch (target.structureType) {
@@ -74,6 +74,7 @@ const roleBuilder = {
                     }
                 }
             } else {
+                // seek construction sites to work on and build!
                 var targets = creep.room.find(FIND_CONSTRUCTION_SITES);
                 if (targets.length) {
                     if (creep.build(targets[0]) == ERR_NOT_IN_RANGE) {
@@ -81,6 +82,10 @@ const roleBuilder = {
                     }
                 }
             }
+        }
+        else {
+            console.log('[' + creep.room.name + ']: WARNING: Creep ' + creep.name + '\'s AI is disabled.');
+            creep.say('AI Disabled');
         }
     }
 };
