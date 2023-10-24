@@ -10,13 +10,14 @@ const roleRunner 		= require('role.runner'		);
 const roleRebooter 	= require('role.rebooter'	);
 const roleRanger 		= require('role.ranger'		);
 const roleWarrior 	= require('role.warrior'	);
-const roleHealer 		= require('role.healer');
-const roleCrane 		= require('role.crane');
+const roleHealer 		= require('role.healer'		);
+const roleCrane 		= require('role.crane'		);
+const roleMiner 		= require('role.miner'		);
 
 const roleRemoteHarvester = require('role.remoteHarvester');
-const roleRemoteRunner 		= require('role.remoteRunner');
-const roleRemoteBuilder 	= require('role.remoteBuilder');
-const roleRemoteGuard 		= require('role.remoteGuard');
+const roleRemoteRunner 		= require('role.remoteRunner'		);
+const roleRemoteBuilder 	= require('role.remoteBuilder'	);
+const roleRemoteGuard 		= require('role.remoteGuard'		);
 
 // require other modules
 require('roomDefense'		);
@@ -93,6 +94,7 @@ let rangerCount 		= 0;
 let warriorCount 		= 0;
 let healerCount 		= 0;
 let craneCount 			= 0;
+let minerCount			= 0;
 
 let remoteHarvesterCount 	= 0;
 let remoteRunnerCount 		= 0;
@@ -109,6 +111,7 @@ let reserverDying 				= false;
 let collectorDying 				= false;
 let remoteHarvesterDying 	= false;
 let remoteGuardDying 			= false;
+let minerDying 						= false;
 
 // main game loop function
 module.exports.loop = function () {
@@ -179,6 +182,9 @@ module.exports.loop = function () {
 				case 'remoteguard':
 					remoteGuardCount = 0;
 					break;
+				case 'miner':
+					minerCount = 0;
+					break;
 			}
 		}
 	}
@@ -217,6 +223,7 @@ module.exports.loop = function () {
 			let warriorTarget 	= _.get(room.memory, ['targets', 'warrior'	], 1);
 			let healerTarget 		= _.get(room.memory, ['targets', 'healer'		], 1);
 			let craneTarget 		= _.get(room.memory, ['targets', 'crane'		], 1);
+			let minerTarget 		= _.get(room.memory, ['targets', 'miner'		], 1);
 
 			let remoteHarvesterTarget = _.get(room.memory, ['targets', 'remoteharvester'], 1);
 			let remoteRunnerTarget 		= _.get(room.memory, ['targets', 'remoterunner'		], 1);
@@ -236,6 +243,7 @@ module.exports.loop = function () {
 			let warriors 		= _.filter(Game.creeps, (creep) => creep.memory.role == 'warrior'		);
 			let healers 		= _.filter(Game.creeps, (creep) => creep.memory.role == 'healer'		);
 			let cranes 			= _.filter(Game.creeps, (creep) => creep.memory.role == 'crane'			);
+			let miners 			= _.filter(Game.creeps, (creep) => creep.memory.role == 'miner'			);
 
 			let remoteHarvesters 	= _.filter(Game.creeps, (creep) => creep.memory.role == 'remoteharvester'	);
 			let remoteRunners 		= _.filter(Game.creeps, (creep) => creep.memory.role == 'remoterunner'		);
@@ -262,25 +270,25 @@ module.exports.loop = function () {
 
 			// BOTTOM RIGHT CORNER
 			// Harvesters, Collectors, Upgraders, Builders, Cranes
-			room.visual.text('H:' + harvesters.length + '(' + harvesterTarget + ') | C:' + collectors.length + '(' + collectorTarget + ') | U:' + upgraders.length + '(' + upgraderTarget + ') | B:' + builders.length + '(' + builderTarget + ') | Cn:' + cranes.length + '(' + craneTarget + ')', 49, 49, { align: 'right' })
+			room.visual.text('H:' + harvesters.length + '(' + harvesterTarget + ') | C:' + collectors.length + '(' + collectorTarget + ') | U:' + upgraders.length + '(' + upgraderTarget + ') | B:' + builders.length + '(' + builderTarget + ') | Cn:' + cranes.length + '(' + craneTarget + ')', 49, 49, { align: 'right' });
 			// Remote Harvesters, Remote Runners, Remote Builders, Remote Guards
-			room.visual.text('RH:' + remoteHarvesters.length + '(' + remoteHarvesterTarget + ') | RR:' + remoteRunners.length + '(' + remoteRunnerTarget + ') | RB:' + remoteBuilders.length + '(' + remoteBuilderTarget + ') | RG:' + remoteGuards.length + '(' + remoteGuardTarget + ')', 49, 48, { align: 'right' })
+			room.visual.text('RH:' + remoteHarvesters.length + '(' + remoteHarvesterTarget + ') | RR:' + remoteRunners.length + '(' + remoteRunnerTarget + ') | RB:' + remoteBuilders.length + '(' + remoteBuilderTarget + ') | RG:' + remoteGuards.length + '(' + remoteGuardTarget + ')', 49, 48, { align: 'right' });
 			// Runners, Repaireres, Rebooters, Reservers
-			room.visual.text('Rn:' + runners.length + '(' + runnerTarget + ') | Rp:' + repairers.length + '(' + repairerTarget + ') | Rb:' + rebooters.length + '(' + rebooterTarget + ') | Rv:' + reservers.length + '(' + reserverTarget + ')', 49, 47, { align: 'right' })
+			room.visual.text('Rn:' + runners.length + '(' + runnerTarget + ') | Rp:' + repairers.length + '(' + repairerTarget + ') | Rb:' + rebooters.length + '(' + rebooterTarget + ') | Rv:' + reservers.length + '(' + reserverTarget + ')', 49, 47, { align: 'right' });
 			// Rangers, Warriors, Healers
-			room.visual.text('Rng:' + rangers.length + '(' + rangerTarget + ') | War:' + warriors.length + '(' + warriorTarget + ') | Hlr:' + healers.length + '(' + healerTarget + ')', 49, 46, { align: 'right' })
+			room.visual.text('Rng:' + rangers.length + '(' + rangerTarget + ') | War:' + warriors.length + '(' + warriorTarget + ') | Hlr:' + healers.length + '(' + healerTarget + ')', 49, 46, { align: 'right' });
 			// Energy Available, Energy Capacity
 			room.visual.text('Energy: ' + room.energyAvailable + '(' + room.energyCapacityAvailable + ')', 49, 45, { align: 'right' });
 
 			// TOP RIGHT CORNER
 			// Harvesters, Collectors, Upgraders, Builders, Cranes
-			room.visual.text('H:' + harvesters.length + '(' + harvesterTarget + ') | C:' + collectors.length + '(' + collectorTarget + ') | U:' + upgraders.length + '(' + upgraderTarget + ') | B:' + builders.length + '(' + builderTarget + ') | Cn:' + cranes.length + '(' + craneTarget + ')', 49, 0, { align: 'right' })
+			room.visual.text('H:' + harvesters.length + '(' + harvesterTarget + ') | C:' + collectors.length + '(' + collectorTarget + ') | U:' + upgraders.length + '(' + upgraderTarget + ') | B:' + builders.length + '(' + builderTarget + ') | Cn:' + cranes.length + '(' + craneTarget + ')', 49, 0, { align: 'right' });
 			// Remote Harvesters, Remote Runners, Remote Builders, Remote Guards
-			room.visual.text('RH:' + remoteHarvesters.length + '(' + remoteHarvesterTarget + ') | RR:' + remoteRunners.length + '(' + remoteRunnerTarget + ') | RB:' + remoteBuilders.length + '(' + remoteBuilderTarget + ') | RG:' + remoteGuards.length + '(' + remoteGuardTarget + ')', 49, 1, { align: 'right' })
+			room.visual.text('RH:' + remoteHarvesters.length + '(' + remoteHarvesterTarget + ') | RR:' + remoteRunners.length + '(' + remoteRunnerTarget + ') | RB:' + remoteBuilders.length + '(' + remoteBuilderTarget + ') | RG:' + remoteGuards.length + '(' + remoteGuardTarget + ')', 49, 1, { align: 'right' });
 			// Runners, Repaireres, Rebooters, Reservers
-			room.visual.text('Rn:' + runners.length + '(' + runnerTarget + ') | Rp:' + repairers.length + '(' + repairerTarget + ') | Rb:' + rebooters.length + '(' + rebooterTarget + ') | Rv:' + reservers.length + '(' + reserverTarget + ')', 49, 2, { align: 'right' })
+			room.visual.text('Rn:' + runners.length + '(' + runnerTarget + ') | Rp:' + repairers.length + '(' + repairerTarget + ') | Rb:' + rebooters.length + '(' + rebooterTarget + ') | Rv:' + reservers.length + '(' + reserverTarget + ')', 49, 2, { align: 'right' });
 			// Rangers, Warriors, Healers
-			room.visual.text('Rng:' + rangers.length + '(' + rangerTarget + ') | War:' + warriors.length + '(' + warriorTarget + ') | Hlr:' + healers.length + '(' + healerTarget + ')', 49, 3, { align: 'right' })
+			room.visual.text('Rng:' + rangers.length + '(' + rangerTarget + ') | War:' + warriors.length + '(' + warriorTarget + ') | Hlr:' + healers.length + '(' + healerTarget + ')', 49, 3, { align: 'right' });
 			// Energy Available, Energy Capacity
 			room.visual.text('Energy: ' + room.energyAvailable + '(' + room.energyCapacityAvailable + ')', 49, 4, { align: 'right' });
 			/* #endregion */
@@ -505,6 +513,13 @@ module.exports.loop = function () {
 					craneCount++;
 				}
 			}
+			if (miners.length < minerTarget) {
+				newName = 'M' + (miners.length + 1);
+				while (Game.spawns['Spawn1'].spawnCreep(availableVariants.harvester, newName, { memory: { role: 'miner' } }) == ERR_NAME_EXISTS) {
+					newName = 'M' + (miners.length + 1 + minerCount);
+					minerCount++;
+				}
+			}
 		}
 		/* #endregion */
 
@@ -579,6 +594,9 @@ module.exports.loop = function () {
 				break;
 			case 'crane':
 				roleCrane.run(creep);
+				break;
+			case 'miner':
+				roleMiner.run(creep);
 				break;
 		}
 	

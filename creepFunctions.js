@@ -36,6 +36,11 @@ Creep.prototype.assignHarvestSource = function assignHarvestSource(noIncrement) 
 	if (!room.memory.objects)
 		room.cacheObjects();
 
+	if (this.role == 'miner') {
+		const assignedMineral = room.memory.objects.minerals[0];
+		console.log('Assigned miner ' + this.name + ' to ' + assignedMineral);
+		return assignedMineral;
+	}
 	const roomSources = room.memory.objects.sources;
 
 	if (room.memory.objects.lastAssigned == undefined) {
@@ -57,7 +62,7 @@ Creep.prototype.assignHarvestSource = function assignHarvestSource(noIncrement) 
 	if (room.memory.objects.lastAssigned >= roomSources.length)
 		room.memory.objects.lastAssigned = 0;
 
-	console.log('Assigned creep ' + this.name + ' to source ID ' + assignedSource)
+	console.log('Assigned harvester ' + this.name + ' to source ID ' + assignedSource)
 
 	if (noIncrement)
 		room.memory.objects.lastAssigned = LA;
@@ -92,7 +97,7 @@ Creep.prototype.assignRemoteHarvestSource = function assignRemoteHarvestSource(n
 	if (room.memory.objects.lastAssigned >= roomSources.length)
 		room.memory.objects.lastAssigned = 0
 
-	console.log('Assigned creep ' + this.name + ' to remote source ID ' + assignedSource)
+	console.log('Assigned remote harvester ' + this.name + ' to remote source ID ' + assignedSource)
 
 	if (noIncrement)
 		room.memory.objects.lastAssigned = LA;
@@ -172,5 +177,51 @@ Creep.prototype.pickupClosestEnergy = function pickupClosestEnergy() {
 			if (this.pickup(target) == ERR_NOT_IN_RANGE) {
 					this.moveTo(target);
 			}
+	}
+}
+
+Creep.prototype.unloadMineral = function unloadMineral() {
+
+	const mineral = Object.keys(this.store).toString();
+	
+	if (this.memory.bucket) {
+		const target = Game.getObjectById(this.memory.bucket);
+		this.transfer(target, mineral);
+		return;
+	} else {
+		const nearbyObj = this.room.find(FIND_STRUCTURES, { filter: (i) => (i.structureType == STRUCTURE_STORAGE || i.structureType == STRUCTURE_CONTAINER) && i.pos.isNearTo(this) });
+	
+		if (!nearbyObj.length) {
+			if (this.drop(mineral) == 0)
+				console.log(this.name + ' dropped ' + mineral + '.');
+			return;
+		} else {
+			const target = nearbyObj[0];
+			this.memory.bucket = target.id;
+			this.transfer(target, mineral);
+			return;
+		}
+	}
+}
+
+Creep.prototype.harvestMineral = function harvestMineral() {
+	
+	let storedMineral = Game.getObjectById(this.memory.extractor);
+
+	if (!storedMineral) {
+		delete this.memory.extractor;
+		if (this.memory.role == 'miner')
+			storedMineral = this.assignHarvestSource(false)
+	}
+	
+	if (storedMineral) {
+		if (this.pos.isNearTo(storedMineral)) {
+			if (storedMineral.mineralAmount == 0 && this.store.getUsedCapacity() > 0) {
+				this.unloadMineral();
+			}
+			this.harvest(storedMineral);
+		} else {
+			this.moveTo(storedMineral, { visualizePathStyle: { stroke: '#ffaa00' } });
+		}
 	}
 }
