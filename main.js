@@ -253,29 +253,42 @@ module.exports.loop = function () {
 			
 			/* #region  CONSOLE LOG - SPAWN INFO */
 			if (tickCount == 10) {
-				console.log('H:' + harvesters.length + '(' + harvesterTarget + ') | C:' + collectors.length + '(' + collectorTarget + ') | U:' + upgraders.length + '(' + upgraderTarget + ')| B:' + builders.length + '(' + builderTarget + ') | Rn:' + runners.length + '(' + runnerTarget + ') | Rp:' + repairers.length + '(' + repairerTarget + ') | Cn:' + cranes.length + '(' + craneTarget + ') | Rb:' + rebooters.length + '(' + rebooterTarget + ') | Rv:' + reservers.length + '(' + reserverTarget + ') || Rng:' + rangers.length + '(' + rangerTarget + ') | War:' + warriors.length + '(' + warriorTarget + ') | Hlr:' + healers.length + '(' + healerTarget + ') || RH:' + remoteHarvesters.length + '(' + remoteHarvesterTarget + ') | RR:' + remoteRunners.length + '(' + remoteRunnerTarget + ') | RB:' + remoteBuilders.length + '(' + remoteBuilderTarget + ') || Energy: ' + room.energyAvailable + '(' + room.energyCapacityAvailable + ')');
+				console.log('H:' + harvesters.length + '(' + harvesterTarget + ') | C:' + collectors.length + '(' + collectorTarget + ') | U:' + upgraders.length + '(' + upgraderTarget + ')| B:' + builders.length + '(' + builderTarget + ') | Rn:' + runners.length + '(' + runnerTarget + ') | Rp:' + repairers.length + '(' + repairerTarget + ') | Cn:' + cranes.length + '(' + craneTarget + ') | Rb:' + rebooters.length + '(' + rebooterTarget + ') | Rv:' + reservers.length + '(' + reserverTarget + ') || Rng:' + rangers.length + '(' + rangerTarget + ') | War:' + warriors.length + '(' + warriorTarget + ') | Hlr:' + healers.length + '(' + healerTarget + ') || RH:' + remoteHarvesters.length + '(' + remoteHarvesterTarget + ') | RR:' + remoteRunners.length + '(' + remoteRunnerTarget + ') | RB:' + remoteBuilders.length + '(' + remoteBuilderTarget + ') | RG:' + remoteGuards.length + '(' + remoteGuardTarget + ') || Energy: ' + room.energyAvailable + '(' + room.energyCapacityAvailable + ')');
 				tickCount = 0;
 			}
 			/* #endregion */
 	
 			/* #region  ROOM VISUAL - SPAWN INFO */
+
+			// BOTTOM RIGHT CORNER
+			// Harvesters, Collectors, Upgraders, Builders, Cranes
 			room.visual.text('H:' + harvesters.length + '(' + harvesterTarget + ') | C:' + collectors.length + '(' + collectorTarget + ') | U:' + upgraders.length + '(' + upgraderTarget + ') | B:' + builders.length + '(' + builderTarget + ') | Cn:' + cranes.length + '(' + craneTarget + ')', 49, 49, { align: 'right' })
-			room.visual.text('Rn:' + runners.length + '(' + runnerTarget + ') | Rp:' + repairers.length + '(' + repairerTarget + ') | Rb:' + rebooters.length + '(' + rebooterTarget + ') | Rv:' + reservers.length + '(' + reserverTarget + ')', 49, 48, { align: 'right' })
-			room.visual.text('Rng:' + rangers.length + '(' + rangerTarget + ') | War:' + warriors.length + '(' + warriorTarget + ') | Hlr:' + healers.length + '(' + healerTarget + ')', 49, 47, { align: 'right' })
-			room.visual.text('RH:' + remoteHarvesters.length + '(' + remoteHarvesterTarget + ') | RR:' + remoteRunners.length + '(' + remoteRunnerTarget + ') | RB:' + remoteBuilders.length + '(' + remoteBuilderTarget + ')', 49, 46, { align: 'right' })
+			// Remote Harvesters, Remote Runners, Remote Builders, Remote Guards
+			room.visual.text('RH:' + remoteHarvesters.length + '(' + remoteHarvesterTarget + ') | RR:' + remoteRunners.length + '(' + remoteRunnerTarget + ') | RB:' + remoteBuilders.length + '(' + remoteBuilderTarget + ') | RG:' + remoteGuards.length + '(' + remoteGuardTarget + ')', 49, 48, { align: 'right' })
+			// Runners, Repaireres, Rebooters, Reservers
+			room.visual.text('Rn:' + runners.length + '(' + runnerTarget + ') | Rp:' + repairers.length + '(' + repairerTarget + ') | Rb:' + rebooters.length + '(' + rebooterTarget + ') | Rv:' + reservers.length + '(' + reserverTarget + ')', 49, 47, { align: 'right' })
+			// Rangers, Warriors, Healers
+			room.visual.text('Rng:' + rangers.length + '(' + rangerTarget + ') | War:' + warriors.length + '(' + warriorTarget + ') | Hlr:' + healers.length + '(' + healerTarget + ')', 49, 46, { align: 'right' })
+			// Energy Available, Energy Capacity
 			room.visual.text('Energy: ' + room.energyAvailable + '(' + room.energyCapacityAvailable + ')', 49, 45, { align: 'right' });
 
+			// TOP RIGHT CORNER
+			// Harvesters, Collectors, Upgraders, Builders, Cranes
 			room.visual.text('H:' + harvesters.length + '(' + harvesterTarget + ') | C:' + collectors.length + '(' + collectorTarget + ') | U:' + upgraders.length + '(' + upgraderTarget + ') | B:' + builders.length + '(' + builderTarget + ') | Cn:' + cranes.length + '(' + craneTarget + ')', 49, 0, { align: 'right' })
-			room.visual.text('Rn:' + runners.length + '(' + runnerTarget + ') | Rp:' + repairers.length + '(' + repairerTarget + ') | Rb:' + rebooters.length + '(' + rebooterTarget + ') | Rv:' + reservers.length + '(' + reserverTarget + ')', 49, 1, { align: 'right' })
-			room.visual.text('Rng:' + rangers.length + '(' + rangerTarget + ') | War:' + warriors.length + '(' + warriorTarget + ') | Hlr:' + healers.length + '(' + healerTarget + ')', 49, 2, { align: 'right' })
-			room.visual.text('RH:' + remoteHarvesters.length + '(' + remoteHarvesterTarget + ') | RR:' + remoteRunners.length + '(' + remoteRunnerTarget + ') | RB:' + remoteBuilders.length + '(' + remoteBuilderTarget + ')', 49, 3, { align: 'right' })
+			// Remote Harvesters, Remote Runners, Remote Builders, Remote Guards
+			room.visual.text('RH:' + remoteHarvesters.length + '(' + remoteHarvesterTarget + ') | RR:' + remoteRunners.length + '(' + remoteRunnerTarget + ') | RB:' + remoteBuilders.length + '(' + remoteBuilderTarget + ') | RG:' + remoteGuards.length + '(' + remoteGuardTarget + ')', 49, 1, { align: 'right' })
+			// Runners, Repaireres, Rebooters, Reservers
+			room.visual.text('Rn:' + runners.length + '(' + runnerTarget + ') | Rp:' + repairers.length + '(' + repairerTarget + ') | Rb:' + rebooters.length + '(' + rebooterTarget + ') | Rv:' + reservers.length + '(' + reserverTarget + ')', 49, 2, { align: 'right' })
+			// Rangers, Warriors, Healers
+			room.visual.text('Rng:' + rangers.length + '(' + rangerTarget + ') | War:' + warriors.length + '(' + warriorTarget + ') | Hlr:' + healers.length + '(' + healerTarget + ')', 49, 3, { align: 'right' })
+			// Energy Available, Energy Capacity
 			room.visual.text('Energy: ' + room.energyAvailable + '(' + room.energyCapacityAvailable + ')', 49, 4, { align: 'right' });
 			/* #endregion */
 
 
 			let creepCount = Object.keys(Memory.creeps);
 			let capacity;
-			if (creepCount.length <= 2) {
+			if (creepCount.length < 2) {
 				capacity = room.energyAvailable;
 				room.memory.flags.runnerLogic = false;
 			}
@@ -324,14 +337,14 @@ module.exports.loop = function () {
 			/* #endregion */
 
 			if (!collectors.length) {
-				if (room.energyAvailable <= 1000) {
-					availableVariants.collector = spawnVariants.collector1000;
-				} else if (room.energyAvailable <= 800) {
-					availableVariants.collector = spawnVariants.collector800;
-				} else if (room.energyAvailable <= 500) {
-					availableVariants.collector = spawnVariants.collector500;
-				} else if (room.energyAvailable <= 300) {
+				if (capacity <= 300) {
 					availableVariants.collector = spawnVariants.collector300;
+				} else if (capacity <= 500) {
+					availableVariants.collector = spawnVariants.collector500;
+				} else if (capacity <= 800) {
+					availableVariants.collector = spawnVariants.collector800;
+				} else if (capacity <= 1000) {
+					availableVariants.collector = spawnVariants.collector1000;
 				}
 			}
 
@@ -388,19 +401,31 @@ module.exports.loop = function () {
 			
 			
 			/* #region  SPAWN QUEUE LOGIC CHAIN */
+
+			if (creepCount == 0 && rebooters.length < 1 && GOBI(room.memory.objects.storage[0]).store[RESOURCE_ENERGY] <= 1000) {
+				newName = 'Rb' + (rebooters.length + 1);
+				while (Game.spawns['Spawn1'].spawnCreep([WORK, WORK, MOVE, CARRY], newName, { memory: { role: 'rebooter' } }) == ERR_NAME_EXISTS) {
+					newName = 'Rb' + (rebooters.length + 1 + rebooterCount);
+					rebooterCount++;
+				}
+			}
+
+			if ((collectors.length < collectorTarget) || (collectors.length <= collectorTarget && collectorDying == true)) {
+				newName = 'C' + (collectors.length + 1);
+				while (Game.spawns['Spawn1'].spawnCreep(availableVariants.collector, newName, { memory: { role: 'collector' } }) == ERR_NAME_EXISTS) {
+					newName = 'C' + (collectors.length + 1 + collectorCount);
+					collectorCount++;
+				}
+			}
 			if ((harvesters.length < harvesterTarget) || (harvesters.length <= harvesterTarget && harvesterDying == true)) {
 				newName = 'H' + (harvesters.length + 1);
 				while (Game.spawns['Spawn1'].spawnCreep(availableVariants.harvester, newName, { memory: { role: 'harvester' } }) == ERR_NAME_EXISTS) {
 					newName = 'H' + (harvesters.length + 1 + harvesterCount);
 					harvesterCount++;
 				}
-			} else if ((collectors.length < collectorTarget) || (collectors.length <= collectorTarget && collectorDying == true)) {
-				newName = 'C' + (collectors.length + 1);
-				while (Game.spawns['Spawn1'].spawnCreep(availableVariants.collector, newName, { memory: { role: 'collector' } }) == ERR_NAME_EXISTS) {
-					newName = 'C' + (collectors.length + 1 + collectorCount);
-					collectorCount++;
-				}
-			} else if ((runners.length < runnerTarget) || (runners.length <= runnerTarget && runnerDying)) {
+			}
+			
+			if ((runners.length < runnerTarget) || (runners.length <= runnerTarget && runnerDying)) {
 				newName = 'Rn' + (runners.length + 1);
 				while (Game.spawns['Spawn1'].spawnCreep(availableVariants.runner, newName, { memory: { role: 'runner' } }) == ERR_NAME_EXISTS) {
 					newName = 'Rn' + (runners.length + 1 + runnerCount);
@@ -441,12 +466,6 @@ module.exports.loop = function () {
 				while (Game.spawns['Spawn1'].spawnCreep([TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, ATTACK, ATTACK, ATTACK, ATTACK, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE], newName, { memory: { role: 'warrior' } }) == ERR_NAME_EXISTS) {
 					newName = 'W' + (warriors.length + 1 + warriorCount);
 					warriorCount++;
-				}
-			} else if (Memory.creeps.length == 0 && rebooters.length < 1) {
-				newName = 'Rb' + (rebooters.length + 1);
-				while (Game.spawns['Spawn1'].spawnCreep([WORK, WORK, MOVE, CARRY], newName, { memory: { role: 'rebooter' } }) == ERR_NAME_EXISTS) {
-					newName = 'Rb' + (rebooters.length + 1 + rebooterCount);
-					rebooterCount++;
 				}
 			} else if ((reservers.length < reserverTarget) || (reservers.length <= reserverTarget && reserverDying)) {
 				newName = 'Rv' + (reservers.length + 1);

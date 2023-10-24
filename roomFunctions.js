@@ -7,16 +7,24 @@ Room.prototype.cacheObjects = function cacheObjects() {
 	let storageArray = [];
 
 	// search room for each object type
-	let sources 		= this.find(FIND_SOURCES	);
-	let minerals 		= this.find(FIND_MINERALS	);
-	let deposits 		= this.find(FIND_DEPOSITS	);
-	let controller 	= this.find(FIND_STRUCTURES		, { filter: { structureType: STRUCTURE_CONTROLLER } });
-	let spawns 			= this.find(FIND_STRUCTURES		,	{ filter: { structureType: STRUCTURE_SPAWN 			} });
-	let towers 			= this.find(FIND_STRUCTURES		, { filter: { structureType: STRUCTURE_TOWER 			} });
-	let containers 	= this.find(FIND_STRUCTURES		, { filter: { structureType: STRUCTURE_CONTAINER 	} });
-	let storage 		= this.find(FIND_STRUCTURES		, { filter: { structureType: STRUCTURE_STORAGE 		} });
-	let ramparts 		= this.find(FIND_STRUCTURES		, { filter: { structureType: STRUCTURE_RAMPART 		} });
-    let links = this.find(FIND_STRUCTURES, {filter: {structureType: STRUCTURE_LINK}});
+	const sources 		= this.find(FIND_SOURCES	);
+	const minerals 		= this.find(FIND_MINERALS	);
+	const deposits 		= this.find(FIND_DEPOSITS	);
+	const controller 	= this.find(FIND_STRUCTURES, { filter: { structureType: STRUCTURE_CONTROLLER  } });
+	const spawns 			= this.find(FIND_STRUCTURES, { filter: { structureType: STRUCTURE_SPAWN 			} });
+	const towers 			= this.find(FIND_STRUCTURES, { filter: { structureType: STRUCTURE_TOWER 			} });
+	const containers 	= this.find(FIND_STRUCTURES, { filter: { structureType: STRUCTURE_CONTAINER 	} });
+	const storage 		= this.find(FIND_STRUCTURES, { filter: { structureType: STRUCTURE_STORAGE 		} });
+	const ramparts 		= this.find(FIND_STRUCTURES, { filter: { structureType: STRUCTURE_RAMPART 		} });
+  const links 			= this.find(FIND_STRUCTURES, { filter: { structureType: STRUCTURE_LINK				} });
+	const extractors 	= this.find(FIND_STRUCTURES, { filter: { structureType: STRUCTURE_EXTRACTOR 	} });
+	const labs 				= this.find(FIND_STRUCTURES, { filter: { structureType: STRUCTURE_LAB 				} });
+	const terminal 		= this.find(FIND_STRUCTURES, { filter: { structureType: STRUCTURE_TERMINAL 		} });
+	const factory 		= this.find(FIND_STRUCTURES, { filter: { structureType: STRUCTURE_FACTORY 		} });
+	const observer 		= this.find(FIND_STRUCTURES, { filter: { structureType: STRUCTURE_OBSERVER 		} });
+	const powerspawn 	= this.find(FIND_STRUCTURES, { filter: { structureType: STRUCTURE_POWER_SPAWN } });
+	const nuker 			= this.find(FIND_STRUCTURES, { filter: { structureType: STRUCTURE_NUKER 			} });
+
 
 	// check if the 'objects' object exists in room memory & create it if not
 	if (!this.memory.objects) {
@@ -163,9 +171,102 @@ Room.prototype.cacheObjects = function cacheObjects() {
 		storageArray = [];
 	}
 
+	// if extractors are found, add their IDs to array and add array to room's 'objects' memory
+	if (extractors) {
+		for (i = 0; i < extractors.length; i++)
+			storageArray.push(extractors[i].id);
+		if (storageArray.length) {
+			this.memory.objects.extractors = storageArray;
+			if (storageArray.length > 1)
+				console.log('Cached ' + storageArray.length + ' extractors.');
+			else
+				console.log('Cached 1 extractor.');
+		}
+		storageArray = [];
+	}
+
+	// if labs are found, add their IDs to array and add array to room's 'objects' memory
+	if (labs) {
+		for (i = 0; i < labs.length; i++)
+			storageArray.push(labs[i].id);
+		if (storageArray.length) {
+			this.memory.objects.labs = storageArray;
+			if (storageArray.length > 1)
+				console.log('Cached ' + storageArray.length + ' labs.');
+			else
+				console.log('Cached 1 lab.');
+		}
+		storageArray = [];
+	}
+
+	// if terminals are found, add their IDs to array and add array to room's 'objects' memory
+	if (terminal) {
+		for (i = 0; i < terminal.length; i++)
+			storageArray.push(terminal[i].id);
+		if (storageArray.length) {
+			this.memory.objects.terminal = storageArray;
+			if (storageArray.length > 1)
+				console.log('Cached 1 terminal.');
+		}
+		storageArray = [];
+	}
+
+	// if factory are found, add their IDs to array and add array to room's 'objects' memory
+	if (factory) {
+		for (i = 0; i < factory.length; i++)
+			storageArray.push(factory[i].id);
+		if (storageArray.length) {
+			this.memory.objects.factory = storageArray;
+			if (storageArray.length > 1)
+				console.log('Cached 1 factory.');
+		}
+		storageArray = [];
+	}
+
+	// if observers are found, add their IDs to array and add array to room's 'objects' memory
+	if (observer) {
+		for (i = 0; i < observer.length; i++)
+			storageArray.push(observer[i].id);
+		if (storageArray.length) {
+			this.memory.objects.observer = storageArray;
+			if (storageArray.length > 1)
+				console.log('Cached ' + storageArray.length + ' observers.');
+			else
+				console.log('Cached 1 observer.');
+		}
+		storageArray = [];
+	}
+
+	// if power spawns are found, add their IDs to array and add array to room's 'objects' memory
+	if (powerspawn) {
+		for (i = 0; i < powerspawn.length; i++)
+			storageArray.push(powerspawn[i].id);
+		if (storageArray.length) {
+			this.memory.objects.powerspawn = storageArray;
+			if (storageArray.length > 1)
+				console.log('Cached ' + storageArray.length + ' power spawns.');
+			else
+				console.log('Cached 1 power spawn.');
+		}
+		storageArray = [];
+	}
+
+	// if nukers are found, add their IDs to array and add array to room's 'objects' memory
+	if (nuker) {
+		for (i = 0; i < nuker.length; i++)
+			storageArray.push(nuker[i].id);
+		if (storageArray.length) {
+			this.memory.objects.nuker = storageArray;
+			if (storageArray.length > 1)
+				console.log('Cached 1 nuker.');
+		}
+		storageArray = [];
+	}
+
 	timer = (Date.now() - timer);
 	return 'Caching objects for room ' + this.name + ' completed in ' + timer + 'ms.';
 }
+
 
 Room.prototype.initTargets = function initTargets(array) {
 
