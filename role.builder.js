@@ -80,6 +80,13 @@ const roleBuilder = {
                     if (creep.build(targets[0]) == ERR_NOT_IN_RANGE) {
                         creep.moveTo(targets[0], { visualizePathStyle: { stroke: '#0000ff', opacity: 0.3, lineStyle: 'dotted' } });
                     }
+                } else {
+                    const remoteSites = Game.rooms.E57S51.find(FIND_CONSTRUCTION_SITES);
+                    if (remoteSites.length) {
+                        if (creep.build(remoteSites[0]) == ERR_NOT_IN_RANGE) {
+                            creep.moveTo(remoteSites[0], {visualizePathStyle: { stroke: '#0000ff', opacity: 0.3, lineStyle: 'dashed'}})
+                        }
+                    }
                 }
             }
         }

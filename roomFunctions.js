@@ -298,7 +298,7 @@ Room.prototype.sendEnergy = function sendEnergy() {
 	}
 }
 
-Room.prototype.initRoomFlags = function initRoomFlags(flag1 = false, flag2 = false, flag3 = false) {
+Room.prototype.initRoomFlags = function initRoomFlags(flag1 = false, flag2 = false, flag3 = false, flag4 = false, flag5 = false) {
 
 	if (this.memory.flags.runnerLogic === undefined)
 		this.memory.flags.runnerLogic = flag1;
@@ -309,16 +309,37 @@ Room.prototype.initRoomFlags = function initRoomFlags(flag1 = false, flag2 = fal
 	if (this.memory.flags.towerRepair === undefined)
 		this.memory.flags.towerRepair = flag3;
 
-	return '[' + this.name + ']: Room flags initialized: runnerLogic(' + flag1 + ') repairRamparts(' + flag2 + ') towerRepair(' + flag3 + ')';
+	if (this.memory.flags.wallRepair === undefined)
+		this.memory.flags.wallRepair = flag4;
+	
+	if (this.memory.flags.runnersDoMinerals === undefined)
+		this.memory.flags.runnersDoMinerals = flag5;
+
+	return '[' + this.name + ']: Room flags initialized: runnerLogic(' + this.memory.flags.runnerLogic + ') repairRamparts(' + this.memory.flags.repairRamparts + ') towerRepair(' + this.memory.flags.towerRepair + ') wallRepair(' + this.memory.flags.wallRepair + ') runnersDoMinerals(' + this.memory.flags.runnersDoMinerals + ')';
 }
 
-Room.prototype.setRoomFlags = function setRoomFlags(flag1 = false, flag2 = false, flag3 = false) {
+Room.prototype.setRoomFlags = function setRoomFlags([flags]) {
 
+	const flag1 = flags[0];
+	const flag2 = flags[1];
+	const flag3 = flags[2];
+	const flag4 = flags[3];
+	const flag5 = flags[4];
+
+	if(flag1)
 		this.memory.flags.runnerLogic = flag1;
 
+	if (flag2)
 		this.memory.flags.repairRamparts = flag2;
-
+	
+	if (flag3)
 		this.memory.flags.towerRepair = flag3;
+	
+	if (flag4)
+		this.memory.flags.wallRepair = flag4;
+	
+	if (flag5)
+		this.memory.flags.runnersDoMinerals = flag5;
 
-	return '[' + this.name + ']: Room flags set: runnerLogic(' + flag1 + ') repairRamparts(' + flag2 + ') towerRepair(' + flag3 + ')';
+	return '[' + this.name + ']: Room flags set: runnerLogic(' + this.memory.flags.runnerLogic + ') repairRamparts(' + this.memory.flags.repairRamparts + ') towerRepair(' + this.memory.flags.towerRepair + ') wallRepair(' + this.memory.flags.wallRepair + ') runnersDoMinerals(' + this.memory.flags.runnersDoMinerals + ')';
 }

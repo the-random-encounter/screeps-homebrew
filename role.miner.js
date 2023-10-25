@@ -22,8 +22,10 @@ const roleMiner = {
 
 			if (creep.store.getFreeCapacity() == 0 || creep.store.getFreeCapacity() < (creep.getActiveBodyparts(WORK) * 2))
 				creep.unloadMineral();
-			else
-				creep.harvestMineral();
+			else {
+				if (Game.getObjectById(creep.room.memory.objects.extractors[0]).cooldown == 0)
+					creep.harvestMineral();
+			}
 		}
 		else {
 			console.log('[' + creep.room.name + ']: WARNING: Creep ' + creep.name + '\'s AI is disabled.');

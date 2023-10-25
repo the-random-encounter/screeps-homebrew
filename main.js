@@ -202,13 +202,21 @@ module.exports.loop = function () {
 			// declare links
 			const linkToLocal 	= Game.getObjectById(room.memory.objects.links[0]);
 			const linkFromLocal = Game.getObjectById(room.memory.objects.links[1]);
+			const linkFromLocal2 = Game.getObjectById(room.memory.objects.links[2]);
 			
-			if (linkFromLocal.store[RESOURCE_ENERGY] > 400) { ;
+			if (linkFromLocal.store[RESOURCE_ENERGY] > 400) { 
 				if (linkFromLocal.cooldown == 0) {
 					console.log('[' + room.name + ']: Link transferring energy.');
 					linkFromLocal.transferEnergy(linkToLocal);
 				}
-			} 
+			}
+			
+			if (linkFromLocal2.store[RESOURCE_ENERGY] > 700) {
+				if (linkFromLocal2.cooldown == 0) {
+					console.log('[' + room.name + ']: Link2 transferring energy.');
+					linkFromLocal2.transferEnergy(linkToLocal);
+				}
+			}
 			
 			/* #region  SPAWNING QUOTA & CURRENT SPAWN COUNT DECLARATIONS  */
 			// pull creep role caps from room memory, or set to default value if none are set
@@ -357,6 +365,21 @@ module.exports.loop = function () {
 				}
 			}
 
+			// ensure that two harvesters never use the same source for harvesting
+			// if it happens, send the older one to the opposite source
+			if (harvesters.length >= 2) {
+				if (harvesters[0].memory.source == harvesters[1].memory.source) {
+					if (harvesters[0].ticksToLive > harvesters[1].ticksToLive) {
+						harvesters[1].assignHarvestSource(true);
+						console.log('[' + room.name + ']: Reassigned ' + harvesters[1].name + '\'s source due to conflict.')
+					}
+					if (harvesters[1].ticksToLive > harvesters[0].ticksToLive) {
+						harvesters[0].assignHarvestSource(true);
+						console.log('[' + room.name + ']: Reassigned ' + harvesters[0].name + '\'s source due to conflict.')
+					}
+				}
+			}
+
 			/* #region  LOGIC TO ALLOW FOR PRE-SPAWNING HARVESTERS/REMOTE HARVESTERS/RESERVERS */
 			
 			for (i = 0; i < harvesters.length; i++) {
@@ -403,6 +426,14 @@ module.exports.loop = function () {
 				remoteGuardDying = false;
 				if (remoteGuards[i].ticksToLive <= 110) {
 					remoteGuardDying = true;
+					break;
+				}
+			}
+
+			for (i = 0; i < miners.length; i++) {
+				minerDying = false;
+				if (miners[i].ticksToLive <= 60) {
+					minerDying = true;
 					break;
 				}
 			}
@@ -516,7 +547,7 @@ module.exports.loop = function () {
 			}
 			if (miners.length < minerTarget) {
 				newName = 'M' + (miners.length + 1);
-				while (Game.spawns['Spawn1'].spawnCreep(availableVariants.harvester, newName, { memory: { role: 'miner' } }) == ERR_NAME_EXISTS) {
+				while (Game.spawns['Spawn1'].spawnCreep([WORK,WORK,WORK,WORK,WORK,WORK,CARRY,MOVE,MOVE,MOVE], newName, { memory: { role: 'miner' } }) == ERR_NAME_EXISTS) {
 					newName = 'M' + (miners.length + 1 + minerCount);
 					minerCount++;
 				}

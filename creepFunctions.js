@@ -36,11 +36,13 @@ Creep.prototype.assignHarvestSource = function assignHarvestSource(noIncrement) 
 	if (!room.memory.objects)
 		room.cacheObjects();
 
-	if (this.role == 'miner') {
+	if (this.memory.role == 'miner') {
 		const assignedMineral = room.memory.objects.minerals[0];
-		console.log('Assigned miner ' + this.name + ' to ' + assignedMineral);
+		console.log('Assigned miner ' + this.name + ' to mineral ID ' + assignedMineral);
+		this.memory.mineral = assignedMineral;
 		return assignedMineral;
 	}
+
 	const roomSources = room.memory.objects.sources;
 
 	if (room.memory.objects.lastAssigned == undefined) {
@@ -80,6 +82,12 @@ Creep.prototype.assignRemoteHarvestSource = function assignRemoteHarvestSource(n
 
 	const roomSources = Memory.rooms.E57S51.objects.sources;
 
+	if (this.memory.role == 'remoteminer') {
+		const assignedMineral = Memory.rooms.E57S51.objects.minerals[0];
+		console.log('Assigned remote miner ' + this.name + ' to remote mineral ID ' + assignedMineral);
+		return assignedMineral;
+	}
+
 	if (room.memory.objects.lastAssigned == undefined) {
 		room.memory.objects.lastAssigned = 0;
 		console.log('Creating \'lastAssigned\' memory object.')
@@ -115,6 +123,7 @@ Creep.prototype.unloadEnergy = function unloadEnergy() {
 	} else {
 		const nearbyObj = this.room.find(FIND_STRUCTURES, { filter: (obj) => (obj.structureType == STRUCTURE_STORAGE || obj.structureType == STRUCTURE_CONTAINER || obj.structureType == STRUCTURE_LINK) && obj.pos.isNearTo(this) });
 	
+		console.log(nearbyObj);
 		if (!nearbyObj.length) {
 			if (this.drop(RESOURCE_ENERGY) == 0)
 				console.log(this.name + ' dropped.');
@@ -133,9 +142,9 @@ Creep.prototype.harvestEnergy = function harvestEnergy() {
 
 	if (!storedSource) {
 		delete this.memory.source;
-		if (this.memory.role == 'harvester') {
+		if (this.memory.role == 'harvester' || this.memory.role == 'miner') {
 			storedSource = this.assignHarvestSource(false);
-		} else if (this.memory.role == 'remoteharvester') {
+		} else if (this.memory.role == 'remoteharvester' || this.memory.role == 'remoteminer') {
 			storedSource = this.assignRemoteHarvestSource(false);
 		}
 	}
@@ -209,10 +218,10 @@ Creep.prototype.unloadMineral = function unloadMineral() {
 
 Creep.prototype.harvestMineral = function harvestMineral() {
 	
-	let storedMineral = Game.getObjectById(this.memory.extractor);
+	let storedMineral = Game.getObjectById(this.memory.mineral);
 
 	if (!storedMineral) {
-		delete this.memory.extractor;
+		delete this.memory.mineral;
 		if (this.memory.role == 'miner')
 			storedMineral = this.assignHarvestSource(false)
 	}
