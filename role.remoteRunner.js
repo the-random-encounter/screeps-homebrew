@@ -18,7 +18,7 @@ const roleRemoteRunner = {
 				const target = Game.getObjectById(creep.memory.container)
 				if (target) {
 					if (creep.withdraw(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE)
-						creep.moveTo(target, { visualizePathStyle: { stroke: '#880088', opacity: 0.3, lineStyle: 'dotted' } });
+						creep.moveTo(target, { visualizePathStyle: { stroke: '#880088', opacity: 0.3, lineStyle: 'dotted', ignoreCreeps: true } });
 				}
 			}
 			
@@ -35,7 +35,7 @@ const roleRemoteRunner = {
 						if (roadTarget) {
 							creep.repair(roadTarget);
 						} else {
-							creep.moveTo(target, { visualizePathStyle: { stroke: '#880088', opacity: 0.3, lineStyle: 'dotted' } });
+							creep.moveTo(target, { visualizePathStyle: { stroke: '#880088', opacity: 0.3, lineStyle: 'dotted', ignoreCreeps: true } });
 						}
 					}
 				}

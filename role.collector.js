@@ -39,7 +39,7 @@ const roleCollector = {
 									break;
 							}
 						} else {
-							creep.moveTo(target, { visualizePathStyle: { stroke: '#ff0000', opacity: 0.5, lineStyle: 'undefined' } });
+							creep.moveTo(target, { visualizePathStyle: { stroke: '#ff0000', opacity: 0.5, lineStyle: 'undefined', ignoreCreeps: true } });
 						}
 					} else {
 						const storage = Game.getObjectById(creep.room.memory.objects.storage[0]) || creep.pos.findClosestByRange(FIND_MY_STRUCTURES, { filter: { structureType: STRUCTURE_STORAGE } });
@@ -50,7 +50,7 @@ const roleCollector = {
 								creep.transfer(storage, creepLootTypes[i]);
 							}
 						} else {
-							creep.moveTo(storage, { visualizePathStyle: { stroke: '#ff0000', opacity: 0.5, lineStyle: 'undefined' } });
+							creep.moveTo(storage, { visualizePathStyle: { stroke: '#ff0000', opacity: 0.5, lineStyle: 'undefined', ignoreCreeps: true } });
 						}
 					}
 					const zeroLengthTomb = creep.room.find(FIND_TOMBSTONES, { filter: { creep: { my: false } } }).length;
@@ -82,7 +82,7 @@ const roleCollector = {
 							const tombstone = creep.pos.findClosestByRange(tombstones);
 							if (tombstone) {
 								if (creep.withdraw(tombstone, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-									creep.moveTo(tombstone, { visualizePathStyle: { stroke: '#00ffff', opacity: 0.3, lineStyle: 'dotted' } });
+									creep.moveTo(tombstone, { visualizePathStyle: { stroke: '#00ffff', opacity: 0.3, lineStyle: 'dotted', ignoreCreeps: true } });
 								}
 							}
 							// secondarily, prioritize saving any energy dropped by a creep (usually when near death)
@@ -90,7 +90,7 @@ const roleCollector = {
 							const droppedPile = creep.pos.findClosestByRange(FIND_DROPPED_RESOURCES);
 
 							if (creep.pickup(droppedPile) == ERR_NOT_IN_RANGE)
-								creep.moveTo(droppedPile, { visualizePathStyle: { stroke: '#00ffff', opacity: 0.3, lineStyle: 'dotted' } });
+								creep.moveTo(droppedPile, { visualizePathStyle: { stroke: '#00ffff', opacity: 0.3, lineStyle: 'dotted', ignoreCreeps: true } });
 						}
 
 						// if collector is carrying nothing, collect energy from nearest storage
@@ -100,7 +100,7 @@ const roleCollector = {
 						
 							if (target) {
 								if (creep.withdraw(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-									creep.moveTo(target, { visualizePathStyle: { stroke: '#00ffff', opacity: 0.3, lineStyle: 'dotted' } });
+									creep.moveTo(target, { visualizePathStyle: { stroke: '#00ffff', opacity: 0.3, lineStyle: 'dotted', ignoreCreeps: true } });
 								}
 							}
 					
@@ -124,7 +124,7 @@ const roleCollector = {
 									// transfer energy
 									creep.transfer(target, RESOURCE_ENERGY);
 								} else {
-									creep.moveTo(target, { visualizePathStyle: { stroke: '#00ffff', opacity: 0.3, lineStyle: 'dotted' } });
+									creep.moveTo(target, { visualizePathStyle: { stroke: '#00ffff', opacity: 0.3, lineStyle: 'dotted', ignoreCreeps: true } });
 								}
 							} else {
 								var towers = creep.room.find(FIND_STRUCTURES);
@@ -143,7 +143,7 @@ const roleCollector = {
 											// transfer energy
 											creep.transfer(towerTarget, RESOURCE_ENERGY);
 										} else {
-											creep.moveTo(towerTarget, { visualizePathStyle: { stroke: '#ff6600', opacity: 0.3 } });
+											creep.moveTo(towerTarget, { visualizePathStyle: { stroke: '#ff6600', opacity: 0.3, ignoreCreeps: true } });
 										}
 									}
 								}
@@ -160,7 +160,7 @@ const roleCollector = {
 							for (i = 0; i < tombstones.length; i++) {
 								if (tombstones[i].store[RESOURCE_ENERGY] > 0) {
 									if (creep.withdraw(tombstones[i], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-										creep.moveTo(tombstones[i], { visualizePathStyle: { stroke: '#00ffff', opacity: 0.3 } });
+										creep.moveTo(tombstones[i], { visualizePathStyle: { stroke: '#00ffff', opacity: 0.3, ignoreCreeps: true } });
 									}
 								}
 							}
@@ -173,13 +173,13 @@ const roleCollector = {
 						
 							if (target) {
 								if (creep.pickup(target) == ERR_NOT_IN_RANGE) {
-									creep.moveTo(target, { visualizePathStyle: { stroke: '#00ffff', opacity: 0.3 } });
+									creep.moveTo(target, { visualizePathStyle: { stroke: '#00ffff', opacity: 0.3, ignoreCreeps: true } });
 								}
 							} else {
 								target = creep.pos.findClosestByRange(FIND_MY_STRUCTURES, { filter: { structureType: STRUCTURE_CONTAINER } })
 								if (target) {
 									if (creep.withdraw(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-										creep.moveTo(target, { visualizePathStyle: { stroke: '#00ffff', opacity: 0.3 } });
+										creep.moveTo(target, { visualizePathStyle: { stroke: '#00ffff', opacity: 0.3, ignoreCreeps: true } });
 									}
 								}
 							}
@@ -204,7 +204,7 @@ const roleCollector = {
 									// transfer energy
 									creep.transfer(target, RESOURCE_ENERGY);
 								} else {
-									creep.moveTo(target, { visualizePathStyle: { stroke: '#00ffff', opacity: 0.3 } });
+									creep.moveTo(target, { visualizePathStyle: { stroke: '#00ffff', opacity: 0.3, ignoreCreeps: true } });
 								}
 
 								// spawns & extensions are full, so deposit in towers, containers, and storage
@@ -226,7 +226,7 @@ const roleCollector = {
 										// transfer energy
 										creep.transfer(target, RESOURCE_ENERGY);
 									} else {
-										creep.moveTo(target, { visualizePathStyle: { stroke: '#00ffff', opacity: 0.3 } });
+										creep.moveTo(target, { visualizePathStyle: { stroke: '#00ffff', opacity: 0.3, ignoreCreeps: true } });
 									}
 								}
 							}

@@ -21,12 +21,12 @@ const roleWarrior = {
 			const target = creep.pos.findClosestByRange(hostiles);
 
 			if (!target) {
-				creep.moveTo(Game.flags.WestRoomRally, { visualizePathStyle: { stroke: '#ff0000', opacity: 0.3, lineStyle: 'dotted' } });
+				creep.moveTo(Game.flags.WestRoomRally, { visualizePathStyle: { stroke: '#ff0000', opacity: 0.3, lineStyle: 'dotted', ignoreCreeps: true } });
 
 			} else {
 	
 				if (creep.attack(target) == ERR_NOT_IN_RANGE)
-					creep.moveTo(target, { visualizePathStyle: { stroke: '#ff0000', opacity: 0.3, lineStyle: 'undefined' } });
+					creep.moveTo(target, { visualizePathStyle: { stroke: '#ff0000', opacity: 0.3, lineStyle: 'undefined', ignoreCreeps: true } });
 			}
 		}
 		else {

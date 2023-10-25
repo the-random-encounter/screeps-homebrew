@@ -27,7 +27,7 @@ const roleRemoteBuilder = {
 			}
 
 			if (creep.room.name == 'E58S51')
-				creep.moveTo(Game.getObjectById(Game.rooms.E57S51.memory.objects.sources[0]))
+				creep.moveTo(Game.getObjectById(Game.rooms.E57S51.memory.objects.sources[0]), { visualizePathStyle: { stroke: '#ffff00', opaciy: 0.3, ignroeCreeps: true } });
 
 			if (creep.room.name == 'E57S51' && creep.pos.x == 49)
 				creep.move(LEFT);
@@ -41,7 +41,7 @@ const roleRemoteBuilder = {
 						if (containersWithEnergy) {
 							
 							if (creep.withdraw(containersWithEnergy, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE)
-								creep.moveTo(containersWithEnergy, { visualizePathStyle: { stroke: '#ffff00', opacity: 0.3, lineStyle: 'dotted' } });
+								creep.moveTo(containersWithEnergy, { visualizePathStyle: { stroke: '#ffff00', opacity: 0.3, lineStyle: 'dotted', ignoreCreeps: true } });
 							else
 								creep.withdraw(containersWithEnergy, RESOURCE_ENERGY);
 						}
@@ -59,7 +59,7 @@ const roleRemoteBuilder = {
 		
 						if (target) {
 							if (creep.pickup(target) == ERR_NOT_IN_RANGE || creep.withdraw(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-								creep.moveTo(target, { visualizePathStyle: { stroke: '#ffff00', opacity: 0.3, lineStyle: 'dotted' } });
+								creep.moveTo(target, { visualizePathStyle: { stroke: '#ffff00', opacity: 0.3, lineStyle: 'dotted', ignoreCreeps: true } });
 							} else {
 								switch (target.structureType) {
 									case STRUCTURE_CONTAINER:
@@ -79,7 +79,7 @@ const roleRemoteBuilder = {
 				var targets = Game.rooms.E57S51.find(FIND_CONSTRUCTION_SITES);
 				if (targets.length) {
 					if (creep.build(targets[0]) == ERR_NOT_IN_RANGE) {
-						creep.moveTo(targets[0], { visualizePathStyle: { stroke: '#0000ff', opacity: 0.3, lineStyle: 'dotted' } });
+						creep.moveTo(targets[0], { visualizePathStyle: { stroke: '#0000ff', opacity: 0.3, lineStyle: 'dotted', ignoreCreeps: true } });
 					}
 				}
 			}

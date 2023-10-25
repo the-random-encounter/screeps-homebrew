@@ -300,6 +300,9 @@ Room.prototype.initRoomData = function initRoomData() {
 	if (!this.memory.settings)
 		this.memory.settings = {};
 
+	if (!this.memory.paths)
+		this.memory.paths = {};
+
 	if (this.memory.objects.lastAssigned === undefined)
 		this.memory.objects.lastAssigned = 0;
 		
@@ -414,4 +417,29 @@ Room.prototype.setRoomSettings = function setRoomSettings(settingsArray) {
 		this.memory.settings.repairWallsTo = wallsPercent;
 
 	return '[' + this.name + ']: Room settings set: repairRampartsTo(' + this.memory.settings.	repairRampartsTo + ') repairWallsTo(' + this.memory.settings.repairWallsTo + ')';
+}
+
+Room.prototype.calcPath = function calcPath(pathName, start, end, walkOnCreeps = true, serializeData = false, maxOps) {
+
+	PathFinder.use(true);
+	if (typeof start === 'string' || start instanceof String)
+		start = Game.getObjectById(start);
+
+	if (typeof end === 'string' || end instanceof String)
+		end = Game.getObjectById(end);
+
+	let path;
+	if (maxOps)
+		path = this.findPath(start, end, { ignoreCreeps: walkOnCreeps, serialize: serializeData, maxOps: maxOps });
+
+	if (!maxOps)
+		path = this.findPath(start, end, { ignoreCreeps: walkOnCreeps, serialize: serializeData });
+
+	if (path) {
+		this.memory.paths[pathName] = path;
+		return path;
+	} else if (!path){
+		console.log('Could not generate path.');
+		return null;
+	}	
 }

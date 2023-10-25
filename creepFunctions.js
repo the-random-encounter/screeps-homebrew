@@ -149,7 +149,7 @@ Creep.prototype.harvestEnergy = function harvestEnergy() {
 			}
 			this.harvest(storedSource);
 		} else {
-			this.moveTo(storedSource, { visualizePathStyle: { stroke: '#ffaa00' } });
+			this.moveTo(storedSource, { visualizePathStyle: { stroke: '#ffaa00', ignoreCreeps: true } });
 		}
 	}
 }
@@ -226,7 +226,24 @@ Creep.prototype.harvestMineral = function harvestMineral() {
 			}
 			this.harvest(storedMineral);
 		} else {
-			this.moveTo(storedMineral, { visualizePathStyle: { stroke: '#ff00ff' } });
+			this.moveTo(storedMineral, { visualizePathStyle: { stroke: '#ff00ff', ignoreCreeps: true } });
 		}
 	}
+}
+
+Creep.prototype.moveBySerializedPath = function moveBySerializedPath(serializedPath) {
+
+	const path = Room.deserializePath(serializedPath);
+	this.moveByPath(path);
+}
+
+Creep.prototype.recursivePathMove = function recursivePathMove(serializedPath, stepNum = 0) {
+
+	const path = Room.deserializePath(serializedPath);
+
+	if (this.move(path[stepNum].direction) == OK)
+		stepNum++;
+
+	if (stepNum < serializedPath.length)
+		return recursivePathMove(serializedPath, stepNum);
 }

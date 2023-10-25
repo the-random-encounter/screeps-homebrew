@@ -45,7 +45,8 @@ const roleRunner = {
 				if (creep.store.getUsedCapacity() == 0) {
 					if (target) {
 						if (creep.withdraw(target, mineral) == ERR_NOT_IN_RANGE)
-							creep.moveTo(target, { visualizePathStyle: { stroke: '#880088', opacity: 0.3, lineStyle: 'dotted' } });
+							creep.moveByPath(creep.room.memory.paths.storeToMin, { visualizePathStyle: { stroke: '#880088', opacity: 0.3, lineStyle: 'dotted' } });
+							//creep.moveTo(target, { visualizePathStyle: { stroke: '#880088', opacity: 0.3, lineStyle: 'dotted' } });
 					}
 				} else {
 					let target = Game.getObjectById(creep.memory.storage);
@@ -53,7 +54,8 @@ const roleRunner = {
 						if (creep.pos.isNearTo(target))
 							creep.transfer(target, mineral);
 						else
-							creep.moveTo(target, { visualizePathStyle: { stroke: '#880088', opacity: 0.3, lineStyle: 'dotted' } });
+							creep.moveByPath(creep.room.memory.paths.minToStore, { visualizePathStyle: { stroke: '#880088', opacity: 0.3, lineStyle: 'dotted' } });
+							//creep.moveTo(target, { visualizePathStyle: { stroke: '#880088', opacity: 0.3, lineStyle: 'dotted' } });
 					}
 				}
 			}
