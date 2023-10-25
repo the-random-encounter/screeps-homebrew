@@ -4,3 +4,5 @@ spawnDaemon.js
 \.vscode
 .gitignore
 .gitattributes
+role.remoteMiner.js
+calcTickTimeInGame.js

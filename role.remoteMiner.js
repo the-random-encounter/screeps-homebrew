@@ -25,17 +25,16 @@ const roleRemoteMiner = {
 				if (target)
 					creep.repair(target);
 				else
-					creep.unloadEnergy();
+					creep.unloadMineral();
 			}
 			else
-				creep.harvestEnergy();
+				creep.harvestMineral();
 			
 		}
 		else {
 			console.log('[' + creep.room.name + ']: WARNING: Creep ' + creep.name + '\'s AI is disabled.');
 			creep.say('AI Disabled');
 		}
-	}
 	}
 };
 
