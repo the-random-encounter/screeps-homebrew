@@ -7,12 +7,6 @@ Creep.prototype.findEnergySource = function findEnergySource() {
 		let source = _.find(sources, function (s) {
 			return s.pos.getOpenPositions().length == 1 || s.pos.getOpenPositions().length > 0 && !s.room.lookForAtArea(LOOK_CREEPS, s.pos.y - 1, s.pos.x - 1, s.pos.y + 1, s.pos.x + 1, true).length
 		});
-
-		
-		//nearbyCreeps = this.room.lookForAtArea(LOOK_CREEPS, source.pos.y - 1, source.pos.x - 1, source.pos.y + 1, source.pos.x + 1, true)
-		
-		//this.room.memory.nearbyObj = nearbyCreeps;
-		//console.log(nearbyCreeps);
 		
 		if (source) {
 			this.memory.source = source.id;
@@ -123,7 +117,6 @@ Creep.prototype.unloadEnergy = function unloadEnergy() {
 	} else {
 		const nearbyObj = this.room.find(FIND_STRUCTURES, { filter: (obj) => (obj.structureType == STRUCTURE_STORAGE || obj.structureType == STRUCTURE_CONTAINER || obj.structureType == STRUCTURE_LINK) && obj.pos.isNearTo(this) });
 	
-		console.log(nearbyObj);
 		if (!nearbyObj.length) {
 			if (this.drop(RESOURCE_ENERGY) == 0)
 				console.log(this.name + ' dropped.');

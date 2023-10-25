@@ -17,13 +17,6 @@ const roleHarvester = {
             if (creep.room.name == 'E58S51') {
                 if (creep.pos.x == 41 && creep.pos.y == 7)
                     creep.move(7);
-                if (creep.pos.x == 41 && creep.pos.y == 18)
-                    creep.move(1);
-                
-                if (creep.pos.x == 40 && creep.pos.y == 7) {
-                    if (Game.getObjectById(creep.room.memory.objects.links[0]).store.getUsedCapacity() > 0)
-                        creep.withdraw(Game.getObjectById(creep.room.memory.objects.links[0]), RESOURCE_ENERGY)
-                }
             }
 
             if (!creep.memory.working && creep.store[RESOURCE_ENERGY] > 0) {
@@ -34,11 +27,24 @@ const roleHarvester = {
             if (creep.memory.working && creep.store.getFreeCapacity() < (creep.getActiveBodyparts(WORK) * 2))
                 creep.memory.working = false;
 
-            if (creep.store.getFreeCapacity() == 0 || creep.store.getFreeCapacity() < (creep.getActiveBodyparts(WORK) * 2))
+            // deposit energy into container, storage, or link when close to full
+            if (creep.store.getFreeCapacity() < (creep.getActiveBodyparts(WORK) * 2))
                 creep.unloadEnergy();
-            else
-                creep.harvestEnergy();
-
+            else {
+                // if the crane isn't there but the link has energy, go ahead and pull it out
+                if (creep.pos.x == 40 && creep.pos.y == 7) {
+                    const crane = creep.pos.findInRange(FIND_MY_CREEPS, 1, { filter: (creep) => creep.memory.role == 'crane' });
+                    
+                    if (!creep.pos.isNearTo(crane[0])) {
+                        if (Game.getObjectById(creep.room.memory.objects.links[0]).store.getUsedCapacity() > 0)
+                            creep.withdraw(Game.getObjectById(creep.room.memory.objects.links[0]), RESOURCE_ENERGY);
+                    } else {
+                        creep.harvestEnergy();
+                    }
+                } else {
+                    creep.harvestEnergy();
+                }
+            }
         }
         else {
             console.log('[' + creep.room.name + ']: WARNING: Creep ' + creep.name + '\'s AI is disabled.');
