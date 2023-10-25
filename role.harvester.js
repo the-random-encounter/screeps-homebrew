@@ -30,20 +30,17 @@ const roleHarvester = {
             // deposit energy into container, storage, or link when close to full
             if (creep.store.getFreeCapacity() < (creep.getActiveBodyparts(WORK) * 2))
                 creep.unloadEnergy();
-            else {
+            
+            if (!creep.pos.findInRange(FIND_MY_CREEPS, 1, { filter: (creep) => creep.memory.role == 'crane' }) && Game.getObjectById(creep.room.memory.objects.links[0]).store.getUsedCapacity() > 0) {
                 // if the crane isn't there but the link has energy, go ahead and pull it out
                 if (creep.pos.x == 40 && creep.pos.y == 7) {
-                    const crane = creep.pos.findInRange(FIND_MY_CREEPS, 1, { filter: (creep) => creep.memory.role == 'crane' });
-                    
-                    if (!creep.pos.isNearTo(crane[0])) {
-                        if (Game.getObjectById(creep.room.memory.objects.links[0]).store.getUsedCapacity() > 0)
-                            creep.withdraw(Game.getObjectById(creep.room.memory.objects.links[0]), RESOURCE_ENERGY);
-                    } else {
-                        creep.harvestEnergy();
-                    }
+                    creep.withdraw(Game.getObjectById(creep.room.memory.objects.links[0]), RESOURCE_ENERGY);
+                    console.log('[' + creep.room.name + ']: Harvester \'' + creep.name + '\' filling in as crane due to full link.');
                 } else {
                     creep.harvestEnergy();
                 }
+            } else {
+                creep.harvestEnergy();
             }
         }
         else {

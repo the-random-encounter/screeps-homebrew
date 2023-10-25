@@ -1,8 +1,5 @@
 Room.prototype.cacheObjects = function cacheObjects() {
 
-	// begin timer for function time cost calculation
-	let timer = Date.now();
-
 	// declare storage array for objects to cache
 	let storageArray = [];
 
@@ -24,7 +21,6 @@ Room.prototype.cacheObjects = function cacheObjects() {
 	const observer 		= this.find(FIND_STRUCTURES, { filter: { structureType: STRUCTURE_OBSERVER 		} });
 	const powerspawn 	= this.find(FIND_STRUCTURES, { filter: { structureType: STRUCTURE_POWER_SPAWN } });
 	const nuker 			= this.find(FIND_STRUCTURES, { filter: { structureType: STRUCTURE_NUKER 			} });
-
 
 	// check if the 'objects' object exists in room memory & create it if not
 	if (!this.memory.objects) {
@@ -137,7 +133,7 @@ Room.prototype.cacheObjects = function cacheObjects() {
 			this.memory.objects.storage = storageArray;
 			if (storageArray.length > 1)
 				console.log('Cached ' + storageArray.length + ' storages.');
-			else
+			elseu
 				console.log('Cached 1 storage.');
 		}
 		storageArray = [];
@@ -205,7 +201,7 @@ Room.prototype.cacheObjects = function cacheObjects() {
 			storageArray.push(terminal[i].id);
 		if (storageArray.length) {
 			this.memory.objects.terminal = storageArray;
-			if (storageArray.length > 1)
+			if (storageArray.length >= 1)
 				console.log('Cached 1 terminal.');
 		}
 		storageArray = [];
@@ -217,7 +213,7 @@ Room.prototype.cacheObjects = function cacheObjects() {
 			storageArray.push(factory[i].id);
 		if (storageArray.length) {
 			this.memory.objects.factory = storageArray;
-			if (storageArray.length > 1)
+			if (storageArray.length >= 1)
 				console.log('Cached 1 factory.');
 		}
 		storageArray = [];
@@ -229,9 +225,7 @@ Room.prototype.cacheObjects = function cacheObjects() {
 			storageArray.push(observer[i].id);
 		if (storageArray.length) {
 			this.memory.objects.observer = storageArray;
-			if (storageArray.length > 1)
-				console.log('Cached ' + storageArray.length + ' observers.');
-			else
+			if (storageArray.length >= 1)
 				console.log('Cached 1 observer.');
 		}
 		storageArray = [];
@@ -243,9 +237,7 @@ Room.prototype.cacheObjects = function cacheObjects() {
 			storageArray.push(powerspawn[i].id);
 		if (storageArray.length) {
 			this.memory.objects.powerspawn = storageArray;
-			if (storageArray.length > 1)
-				console.log('Cached ' + storageArray.length + ' power spawns.');
-			else
+			if (storageArray.length >= 1)
 				console.log('Cached 1 power spawn.');
 		}
 		storageArray = [];
@@ -257,14 +249,13 @@ Room.prototype.cacheObjects = function cacheObjects() {
 			storageArray.push(nuker[i].id);
 		if (storageArray.length) {
 			this.memory.objects.nuker = storageArray;
-			if (storageArray.length > 1)
+			if (storageArray.length >= 1)
 				console.log('Cached 1 nuker.');
 		}
 		storageArray = [];
 	}
 
-	timer = (Date.now() - timer);
-	return 'Caching objects for room ' + this.name + ' completed in ' + timer + 'ms.';
+	return 'Caching objects for room ' + this.name + ' completed.';
 }
 
 
@@ -319,27 +310,30 @@ Room.prototype.initRoomData = function initRoomData() {
 	this.initRoomSettings();
 }
 
-Room.prototype.initRoomFlags = function initRoomFlags(flag1 = false, flag2 = false, flag3 = false, flag4 = false, flag5 = false, flag6 = false) {
+Room.prototype.initRoomFlags = function initRoomFlags(flag1 = false, flag2 = false, flag3 = false, flag4 = false, flag5 = false, flag6 = false, flag7 = false) {
 
-	if (this.memory.flags.repairRamparts === undefined)
-		this.memory.flags.repairRamparts = flag1;
+	if (this.memory.flags.craneUpgrades 			=== undefined)
+		this.memory.flags.craneUpgrades 				= flag1;
+
+	if (this.memory.flags.repairRamparts 			=== undefined)
+		this.memory.flags.repairRamparts 				= flag2;
 	
-	if (this.memory.flags.repairWalls === undefined)
-		this.memory.flags.repairWalls = flag2;
+	if (this.memory.flags.repairWalls 				=== undefined)
+		this.memory.flags.repairWalls 					= flag3;
 
-	if (this.memory.flags.runnerLogic === undefined)
-		this.memory.flags.runnerLogic = flag3;
+	if (this.memory.flags.runnerLogic 				=== undefined)
+		this.memory.flags.runnerLogic 					= flag4;
 
-	if (this.memory.flags.runnersDoMinerals === undefined)
-		this.memory.flags.runnersDoMinerals = flag4;
+	if (this.memory.flags.runnersDoMinerals 	=== undefined)
+		this.memory.flags.runnersDoMinerals 		= flag5;
 
-	if (this.memory.flags.towerRepairBasic === undefined)
-		this.memory.flags.towerRepair = flag5;
+	if (this.memory.flags.towerRepairBasic 		=== undefined)
+		this.memory.flags.towerRepair 					= flag6;
 
 	if (this.memory.flags.towerRepairDefenses === undefined)
-		this.memory.flags.towerRepairDefenses = flag6;
+		this.memory.flags.towerRepairDefenses 	= flag7;
 
-	return '[' + this.name + ']: Room flags initialized: runnerLogic(' + this.memory.flags.runnerLogic + ') repairRamparts(' + this.memory.flags.repairRamparts + ') repairWalls(' + this.memory.flags.repairWalls + ') runnersDoMinerals(' + this.memory.flags.runnersDoMinerals + ') towerRepairBasic(' + this.memory.flags.towerRepairBasic + ') towerRepairDefenses(' + this.memory.flags.towerRepairDefenses + ')';
+	return '[' + this.name + ']: Room flags initialized: craneUpgrades(' + this.memory.flags.craneUpgrades + ') runnerLogic(' + this.memory.flags.runnerLogic + ') repairRamparts(' + this.memory.flags.repairRamparts + ') repairWalls(' + this.memory.flags.repairWalls + ') runnersDoMinerals(' + this.memory.flags.runnersDoMinerals + ') towerRepairBasic(' + this.memory.flags.towerRepairBasic + ') towerRepairDefenses(' + this.memory.flags.towerRepairDefenses + ')';
 }
 
 Room.prototype.setRoomFlags = function setRoomFlags([flags]) {
@@ -350,24 +344,28 @@ Room.prototype.setRoomFlags = function setRoomFlags([flags]) {
 	const flag4 = flags[3];
 	const flag5 = flags[4];
 	const flag6 = flags[5];
+	const flag7 = flags[6];
 
 	if (flag1)
-		this.memory.flags.repairRamparts = flag1;
-	
-	if (flag2)
-		this.memory.flags.repairWalls = flag2;
+		this.memory.flags.craneUpgrades 			= flag1;
 
+	if (flag2)
+		this.memory.flags.repairRamparts 			= flag2;
+	
 	if (flag3)
-		this.memory.flags.runnerLogic = flag3;
+		this.memory.flags.repairWalls 				= flag3;
 
 	if (flag4)
-		this.memory.flags.runnersDoMinerals = flag4;
+		this.memory.flags.runnerLogic 				= flag4;
 
 	if (flag5)
-		this.memory.flags.towerRepair = flag5;
+		this.memory.flags.runnersDoMinerals 	= flag5;
 
 	if (flag6)
-		this.memory.flags.towerRepairDefenses = flag6;
+		this.memory.flags.towerRepair 				= flag6;
+
+	if (flag7)
+		this.memory.flags.towerRepairDefenses = flag7;
 
 	return '[' + this.name + ']: Room flags set: runnerLogic(' + this.memory.flags.runnerLogic + ') repairRamparts(' + this.memory.flags.repairRamparts + ') repairWalls(' + this.memory.flags.repairWalls + ') runnersDoMinerals(' + this.memory.flags.runnersDoMinerals + ') towerRepairBasic(' + this.memory.flags.towerRepairBasic + ') towerRepairDefenses(' + this.memory.flags.towerRepairDefenses + ')';
 }
