@@ -167,4 +167,31 @@ Object.assign(exports, {
 		strokeWidth: 0.1,
 		lineStyle: 'dashed'
 	}
-}) 
+})
+
+global.link1Fire = function() {
+    
+    const linkTo    = Game.getObjectById('65348e6c42580f28c7f68e55');
+    const linkFrom  = Game.getObjectById('65334b1a8ff0f85732868edc');
+    
+    if (linkTo.cooldown === 0) {
+        linkTo.transferEnergy(linkFrom);
+        return 'Fired link 1 manually.'
+    } else {
+        return 'Link is on cooldown.'
+    }
+}
+
+global.link2Fire = function() {
+    
+    const linkTo    = Game.getObjectById('653840abc40f9da7b4ebe67a');
+    const linkFrom  = Game.getObjectById('65334b1a8ff0f85732868edc');
+    
+    if (linkTo.cooldown === 0) {
+        linkTo.transferEnergy(linkFrom);
+        return 'Fired link 2 manually.'
+    } else {
+        return 'Link is on cooldown.'
+    }
+}
+        

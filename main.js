@@ -20,8 +20,9 @@ const roleRemoteBuilder 	= require('role.remoteBuilder'	);
 const roleRemoteGuard 		= require('role.remoteGuard'		);
 
 // require other modules
-require('roomDefense'		);
-require('miscFunctions'	);
+require('roomDefense'			);
+require('miscFunctions'		);
+require('marketFunctions'	);
 
 // require prototype extension modules
 require('creepFunctions'					);
@@ -63,9 +64,8 @@ const spawnVariants = {
 	'repairer300':   	[WORK, WORK, CARRY, MOVE],
 	'repairer500':   	[WORK, WORK, WORK, CARRY, CARRY, MOVE, MOVE],
 	'repairer800':   	[WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE],
-	'repairer1000':  	[WORK, WORK, WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE,
-		MOVE],
-	'repairer1300': 	[WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE],
+	'repairer1000':  	[WORK, WORK, WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE],
+	'repairer1400': 	[WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE],
 	'runner300': 			[MOVE, MOVE, CARRY, CARRY, CARRY, CARRY],
 	'runner500': 			[MOVE, MOVE, MOVE, MOVE, MOVE, CARRY, CARRY, CARRY, CARRY, CARRY],
 	'runner800': 			[MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY]
@@ -114,20 +114,23 @@ let remoteHarvesterDying 	= false;
 let remoteGuardDying 			= false;
 let minerDying 						= false;
 
-// main game loop function
+/* #region MAIN LOOP, ENTIRE FUNCTION */
 module.exports.loop = function () {
 
+	/* #region  MAIN LOOP, ONCE EACH TICK SECTION */
+	// This is code to run in the main loop, just once each tick
 	if (manualCmdQueue.length)
 		manualCmdQueue.shift()();
 
 	calcTickTime();
 	
+	// Generate pixels with extra CPU time
 	if (Game.cpu.bucket == 10000) {
 	    Game.cpu.generatePixel()
 	    console.log('CPU Bucket at limit, generating pixel...');
 	}
 
-	// remove creeps from memory who no longer exist
+	/* #region CREEP MEMORY GARBAGE COLLECTION */
 	for (let name in Memory.creeps) {
 		if (!Game.creeps[name]) {
 			const role = Memory.creeps[name].role;
@@ -189,10 +192,14 @@ module.exports.loop = function () {
 			}
 		}
 	}
+	/* #endregion */
 	
-	// main code loop to run inside each room containing our units or structures
+	/* #region  MAIN LOOP, ONCE FOR EVERY ROOM SECTION */
+	// main code loop to run inside each room containing our units/structures
 	_.forEach(Game.rooms, function (room) {
 		
+
+		/* #region  EACH ROOM LOOP, FOR OWNED ROOMS */
 		// code to run if room contains a controller owned by us
 		if (room && room.controller && room.controller.my) {
 			
@@ -344,20 +351,15 @@ module.exports.loop = function () {
 				availableVariants.collector = spawnVariants.collector500;
 				availableVariants.upgrader = spawnVariants.upgrader800;
 				availableVariants.builder = spawnVariants.builder1600;
-				availableVariants.repairer = spawnVariants.repairer1300;
+				availableVariants.repairer = spawnVariants.repairer1400;
 				availableVariants.runner = spawnVariants.runner300;
 			}
 			/* #endregion */
 
+			// if we have no collectors, and our energy supply is not enough for a 500 energy spawn, do a 300.
 			if (!collectors.length) {
-				if (capacity <= 300)
+				if (capacity < 500)
 					availableVariants.collector = spawnVariants.collector300;
-				else if (capacity <= 500)
-					availableVariants.collector = spawnVariants.collector500;
-				else if (capacity <= 800)
-					availableVariants.collector = spawnVariants.collector800;
-				else if (capacity <= 1000)
-					availableVariants.collector = spawnVariants.collector1000;
 			}
 
 			// ensure that two harvesters never use the same source for harvesting
@@ -434,8 +436,7 @@ module.exports.loop = function () {
 			}
 			/* #endregion */
 			
-			
-			/* #region  SPAWN QUEUE LOGIC CHAIN */
+			/* #region  SPAWN MANAGEMENT SYSTEM */
 
 			if (creepCount == 0 && rebooters.length < 1 && GOBI(room.memory.objects.storage[0]).store[RESOURCE_ENERGY] <= 1000) {
 				newName = 'Rb' + (rebooters.length + 1);
@@ -444,7 +445,6 @@ module.exports.loop = function () {
 					rebooterCount++;
 				}
 			}
-
 			if ((collectors.length < collectorTarget) || (collectors.length <= collectorTarget && collectorDying == true)) {
 				newName = 'C' + (collectors.length + 1);
 				while (Game.spawns['Spawn1'].spawnCreep(availableVariants.collector, newName, { memory: { role: 'collector', roleForQuota: 'collector' } }) == ERR_NAME_EXISTS) {
@@ -459,7 +459,6 @@ module.exports.loop = function () {
 					harvesterCount++;
 				}
 			}
-			
 			if ((runners.length < runnerTarget) || (runners.length <= runnerTarget && runnerDying)) {
 				newName = 'Rn' + (runners.length + 1);
 				while (Game.spawns['Spawn1'].spawnCreep(availableVariants.runner, newName, { memory: { role: 'runner', roleForQuota: 'runner' } }) == ERR_NAME_EXISTS) {
@@ -547,29 +546,33 @@ module.exports.loop = function () {
 					minerCount++;
 				}
 			}
+			/* #endregion */
 		}
 		/* #endregion */
 
-		visualRCProgress(room.memory.objects.controller[0]);
+	visualRCProgress(room.memory.objects.controller[0]);
 
 	});
-	
-		if (Game.spawns['Spawn1'].spawning) {
-			
-			let spawningCreep = Game.creeps[Game.spawns['Spawn1'].spawning.name];
-			if (!spawnAnnounce) {
-				console.log('Spawning new creep: ' + spawningCreep.memory.role + ' (' + spawningCreep.name + ')');
-				spawnAnnounce = true;
-			}
-			Game.spawns['Spawn1'].room.visual.text('     ' + spawningCreep.memory.role + ' - ' +
-				Game.spawns['Spawn1'].spawning.remainingTime + '/' + Game.spawns['Spawn1'].spawning.needTime,
-				Game.spawns['Spawn1'].pos.x + 1,
-				Game.spawns['Spawn1'].pos.y - 1,
-				{ align: 'left', opacity: 0.8, font: 0.4 });
-		} else {
-			spawnAnnounce = false;
-		}
+	/* #endregion */
+
+	// Display creep spawning information next to spawn
+	if (Game.spawns['Spawn1'].spawning) {
 		
+		let spawningCreep = Game.creeps[Game.spawns['Spawn1'].spawning.name];
+		if (!spawnAnnounce) {
+			console.log('Spawning new creep: ' + spawningCreep.memory.role + ' (' + spawningCreep.name + ')');
+			spawnAnnounce = true;
+		}
+		Game.spawns['Spawn1'].room.visual.text('     ' + spawningCreep.memory.role + ' - ' +
+			Game.spawns['Spawn1'].spawning.remainingTime + '/' + Game.spawns['Spawn1'].spawning.needTime,
+			Game.spawns['Spawn1'].pos.x + 1,
+			Game.spawns['Spawn1'].pos.y - 1,
+			{ align: 'left', opacity: 0.8, font: 0.4 });
+	} else {
+		spawnAnnounce = false;
+	}
+	
+	// Assign what actions for each creep to take by role
 	for(let name in Game.creeps) {
 		let creep = Game.creeps[name];
 
@@ -637,9 +640,10 @@ module.exports.loop = function () {
 			{ align: 'left', opacity: 0.5, color: '#aa5500', font: 0.4 });
 		
 	}
-
+/* #endregion */
 	tickCount++;
 }
+/* #endregion */
 
 function getBody(segment, room) {
 	let body = [];

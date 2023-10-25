@@ -67,7 +67,7 @@ const roleCollector = {
 					const creepGonnaDie = creep.ticksToLive; //< 100
 					console.log('zeroLengthTomb: ' + zeroLengthTomb + ', nullTomb: ' + nullTomb + ', emptyTomb: ' + emptyTomb + ', creepGonnaDie: ' + creepGonnaDie);
 
-					if (zeroLengthTomb || nullTomb || emptyTomb || creepGonnaDie < 100) {
+					if (zeroLengthTomb == 0 || nullTomb || emptyTomb || creepGonnaDie < 100) {
 						creep.memory.invaderLooter = false;
 					}
 				}

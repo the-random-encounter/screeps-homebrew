@@ -77,6 +77,7 @@ const roleRepairer = {
 					}
 				} else {
 			
+					let basics = [];
 					let ramparts = [];
 					let walls = [];
 					let validTargets = [];
@@ -85,12 +86,13 @@ const roleRepairer = {
 					const wallsMax 		= creep.room.memory.settings.repairWallsTo;
 
 					// search for roads, spawns, extensions, or towers under 95%
-					let targets = creep.room.find(FIND_STRUCTURES, {
-						filter: (i) => (i.hits < i.hitsMax) && (i.structureType ==
-							STRUCTURE_TOWER 		|| i.structureType == STRUCTURE_SPAWN 		|| i.structureType == STRUCTURE_EXTENSION || i.structureType == STRUCTURE_ROAD 			|| i.structureType == STRUCTURE_CONTAINER || i.structureType == STRUCTURE_EXTRACTOR || i.structureType == STRUCTURE_LAB 			|| i.structureType == STRUCTURE_LINK 			|| i.structureType == STRUCTURE_STORAGE 	|| i.structureType == STRUCTURE_TERMINAL)
-					});
-				 
-					validTargets = validTargets.concat(targets);
+					if (creep.room.memory.flags.repairBasics) {
+						basics = creep.room.find(FIND_STRUCTURES, {
+							filter: (i) => (i.hits < i.hitsMax) && (i.structureType ==
+								STRUCTURE_TOWER || i.structureType == STRUCTURE_SPAWN || i.structureType == STRUCTURE_EXTENSION || i.structureType == STRUCTURE_ROAD || i.structureType == STRUCTURE_CONTAINER || i.structureType == STRUCTURE_EXTRACTOR || i.structureType == STRUCTURE_LAB || i.structureType == STRUCTURE_LINK || i.structureType == STRUCTURE_STORAGE || i.structureType == STRUCTURE_TERMINAL)
+						});
+						validTargets = validTargets.concat(basics);
+					}
 					
 					if (creep.room.memory.flags.repairRamparts) {
 						ramparts = creep.room.find(FIND_STRUCTURES, { filter: (i) => ((i.hits / i.hitsMax * 100) <= rampartsMax) && (i.structureType == STRUCTURE_RAMPART) });
@@ -101,9 +103,10 @@ const roleRepairer = {
 						walls = creep.room.find(FIND_STRUCTURES, { filter: (i) => (i.structureType == STRUCTURE_WALL && (i.hits / i.hitsMax * 100) <= wallsMax) })
 						validTargets = validTargets.concat(walls);
 					}
-					
+
 					const target = creep.pos.findClosestByRange(validTargets);
 
+					console.log(target.pos.x + ' ' + target.pos.y);
 					// travel to closest object within repair criteria and start repairing!
 					if (target) {
 						if (creep.repair(target) == ERR_NOT_IN_RANGE)

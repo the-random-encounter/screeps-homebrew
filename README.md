@@ -71,13 +71,18 @@
     - [visualRCProgress](#visualrcprogress)
     - [queue](#queue)
 - [Future Goals](#future-goals)
-      - [Spawn Manager Daemon](#spawn-manager-daemon)
-      - [Offensive Creep Code](#offensive-creep-code)
-      - [Improved Room Defense](#improved-room-defense)
-      - [Labs Implementation](#labs-implementation)
-      - [Factory Implementation](#factory-implementation)
-      - [Power Creeps](#power-creeps)
-      - [Automated Construction Goals](#automated-construction-goals)
+  - [Spawn Manager Daemon](#spawn-manager-daemon)
+    - [Dynamic Spawning Queue](#dynamic-spawning-queue)
+    - [Dynamic Creep Roles](#dynamic-creep-roles)
+    - [Need & Capacity-based Creep Bodies](#need-capacity-based-creep-bodies)
+  - [Combat AI](#combat-ai)
+    - [Offensive Creep Code](#offensive-creep-code)
+    - [Improved Room Defense](#improved-room-defense)
+  - [Level 7+8 RCL Structures](#level-78-rcl-structures)
+    - [Labs Implementation](#labs-implementation)
+    - [Factory Implementation](#factory-implementation)
+    - [Power Creeps](#power-creeps)
+  - [Automated Construction Goals](#automated-construction-goals)
 
 ---
 
@@ -333,18 +338,27 @@
 
 ---
 
-## Future Goals
+# Future Goals
 
-##### Spawn Manager Daemon
+## Spawn Manager Daemon
+### Dynamic Spawning Queue
+  Description
+### Dynamic Creep Roles
+  Description
+### Need & Capacity-based Creep Bodies
+  Description
+## Combat AI
 
-##### Offensive Creep Code
-
-##### Improved Room Defense
-
-##### Labs Implementation
-
-##### Factory Implementation
-
-##### Power Creeps
-
-##### Automated Construction Goals
+### Offensive Creep Code
+  Description
+### Improved Room Defense
+  Description
+## RCL 7+8 Structures
+### Labs Implementation
+  Description
+### Factory Implementation
+  Description
+### Power Creeps
+  Description
+## Automated Construction Goals
+  Description

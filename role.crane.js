@@ -25,7 +25,7 @@ const roleCrane = {
                 creep.memory.dropLink = false;
             }
 
-            if (objLink.store[RESOURCE_ENERGY] >= 200) {
+            if (objLink.store[RESOURCE_ENERGY] >= 30) {
                 creep.withdraw(objLink, RESOURCE_ENERGY);
                 creep.memory.dropLink = true;
             } else if (creep.room.memory.flags.craneUpgrades) {
