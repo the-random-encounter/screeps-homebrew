@@ -53,7 +53,21 @@ const roleCollector = {
 							creep.moveTo(storage, { visualizePathStyle: { stroke: '#ff0000', opacity: 0.5, lineStyle: 'undefined' } });
 						}
 					}
-					if (((creep.room.find(FIND_TOMBSTONES, { filter: { creep: { my: false } } }).length == 0 || creep.room.find(FIND_TOMBSTONES, { filter: { creep: { my: false } } }).length == undefined) && creep.room.find(FIND_TOMBSTONES, { filter: (i) => { i.store.getUsedCapacity() == 0 } })) || creep.ticksToLive < 100) {
+					const zeroLengthTomb = creep.room.find(FIND_TOMBSTONES, { filter: { creep: { my: false } } }).length;
+					let nullTomb;
+					let emptyTomb;
+
+					if (creep.room.find(FIND_TOMBSTONES, { filter: { creep: { my: false } } }).length == undefined) {
+						nullTomb = true;
+					}
+
+					if (creep.room.find(FIND_TOMBSTONES, { filter: (i) => { i.store.getUsedCapacity() == 0 } })) {
+						emptyTomb = true;
+					}
+					const creepGonnaDie = creep.ticksToLive; //< 100
+					console.log('zeroLengthTomb: ' + zeroLengthTomb + ', nullTomb: ' + nullTomb + ', emptyTomb: ' + emptyTomb + ', creepGonnaDie: ' + creepGonnaDie);
+
+					if (zeroLengthTomb || nullTomb || emptyTomb || creepGonnaDie < 100) {
 						creep.memory.invaderLooter = false;
 					}
 				}

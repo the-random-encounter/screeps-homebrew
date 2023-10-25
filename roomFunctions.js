@@ -298,24 +298,48 @@ Room.prototype.sendEnergy = function sendEnergy() {
 	}
 }
 
-Room.prototype.initRoomFlags = function initRoomFlags(flag1 = false, flag2 = false, flag3 = false, flag4 = false, flag5 = false) {
+Room.prototype.initRoomData = function initRoomData() {
 
-	if (this.memory.flags.runnerLogic === undefined)
-		this.memory.flags.runnerLogic = flag1;
+	if (!this.memory.objects)
+		this.memory.objects = {};
+
+	if (!this.memory.flags)
+		this.memory.flags = {};
+
+	if (!this.memory.settings)
+		this.memory.settings = {};
+
+	if (this.memory.objects.lastAssigned === undefined)
+		this.memory.objects.lastAssigned = 0;
+		
+	this.cacheObjects();
+	
+	this.initRoomFlags();
+
+	this.initRoomSettings();
+}
+
+Room.prototype.initRoomFlags = function initRoomFlags(flag1 = false, flag2 = false, flag3 = false, flag4 = false, flag5 = false, flag6 = false) {
 
 	if (this.memory.flags.repairRamparts === undefined)
-		this.memory.flags.repairRamparts = flag2;
-
-	if (this.memory.flags.towerRepair === undefined)
-		this.memory.flags.towerRepair = flag3;
-
-	if (this.memory.flags.wallRepair === undefined)
-		this.memory.flags.wallRepair = flag4;
+		this.memory.flags.repairRamparts = flag1;
 	
-	if (this.memory.flags.runnersDoMinerals === undefined)
-		this.memory.flags.runnersDoMinerals = flag5;
+	if (this.memory.flags.repairWalls === undefined)
+		this.memory.flags.repairWalls = flag2;
 
-	return '[' + this.name + ']: Room flags initialized: runnerLogic(' + this.memory.flags.runnerLogic + ') repairRamparts(' + this.memory.flags.repairRamparts + ') towerRepair(' + this.memory.flags.towerRepair + ') wallRepair(' + this.memory.flags.wallRepair + ') runnersDoMinerals(' + this.memory.flags.runnersDoMinerals + ')';
+	if (this.memory.flags.runnerLogic === undefined)
+		this.memory.flags.runnerLogic = flag3;
+
+	if (this.memory.flags.runnersDoMinerals === undefined)
+		this.memory.flags.runnersDoMinerals = flag4;
+
+	if (this.memory.flags.towerRepairBasic === undefined)
+		this.memory.flags.towerRepair = flag5;
+
+	if (this.memory.flags.towerRepairDefenses === undefined)
+		this.memory.flags.towerRepairDefenses = flag6;
+
+	return '[' + this.name + ']: Room flags initialized: runnerLogic(' + this.memory.flags.runnerLogic + ') repairRamparts(' + this.memory.flags.repairRamparts + ') repairWalls(' + this.memory.flags.repairWalls + ') runnersDoMinerals(' + this.memory.flags.runnersDoMinerals + ') towerRepairBasic(' + this.memory.flags.towerRepairBasic + ') towerRepairDefenses(' + this.memory.flags.towerRepairDefenses + ')';
 }
 
 Room.prototype.setRoomFlags = function setRoomFlags([flags]) {
@@ -325,21 +349,71 @@ Room.prototype.setRoomFlags = function setRoomFlags([flags]) {
 	const flag3 = flags[2];
 	const flag4 = flags[3];
 	const flag5 = flags[4];
+	const flag6 = flags[5];
 
-	if(flag1)
-		this.memory.flags.runnerLogic = flag1;
-
+	if (flag1)
+		this.memory.flags.repairRamparts = flag1;
+	
 	if (flag2)
-		this.memory.flags.repairRamparts = flag2;
-	
-	if (flag3)
-		this.memory.flags.towerRepair = flag3;
-	
-	if (flag4)
-		this.memory.flags.wallRepair = flag4;
-	
-	if (flag5)
-		this.memory.flags.runnersDoMinerals = flag5;
+		this.memory.flags.repairWalls = flag2;
 
-	return '[' + this.name + ']: Room flags set: runnerLogic(' + this.memory.flags.runnerLogic + ') repairRamparts(' + this.memory.flags.repairRamparts + ') towerRepair(' + this.memory.flags.towerRepair + ') wallRepair(' + this.memory.flags.wallRepair + ') runnersDoMinerals(' + this.memory.flags.runnersDoMinerals + ')';
+	if (flag3)
+		this.memory.flags.runnerLogic = flag3;
+
+	if (flag4)
+		this.memory.flags.runnersDoMinerals = flag4;
+
+	if (flag5)
+		this.memory.flags.towerRepair = flag5;
+
+	if (flag6)
+		this.memory.flags.towerRepairDefenses = flag6;
+
+	return '[' + this.name + ']: Room flags set: runnerLogic(' + this.memory.flags.runnerLogic + ') repairRamparts(' + this.memory.flags.repairRamparts + ') repairWalls(' + this.memory.flags.repairWalls + ') runnersDoMinerals(' + this.memory.flags.runnersDoMinerals + ') towerRepairBasic(' + this.memory.flags.towerRepairBasic + ') towerRepairDefenses(' + this.memory.flags.towerRepairDefenses + ')';
+}
+
+Room.prototype.initRoomSettings = function initRoomSettings() {
+
+	if (this.memory.settings === undefined)
+		this.memory.settings = {};
+
+	if (this.memory.settings.repairRampartsTo === undefined)
+		this.memory.settings.repairRampartsTo = 1;
+
+	if (this.memory.settings.repairWallsTo === undefined)
+		this.memory.settings.repairWallsTo = 1;
+
+	return '[' + this.name + ']: Room settings initialized: repairRampartsTo(' + this.memory.settings.repairRampartsTo + ') repairWallsTo(' + this.memory.settings.repairWallsTo + ')';
+}
+
+Room.prototype.setRepairRampartsTo = function setRepairRampartsTo(percentMax) {
+
+	if (percentMax === undefined || percentMax < 0 || percentMax > 100)
+		return 'Requires a value 0-100.';
+
+	this.memory.settings.repairRampartsTo = percentMax;
+	return 'Ramparts will now repair to ' + this.memory.settings.repairRampartsTo + '% max.';
+}
+
+Room.prototype.setRepairWallsTo = function setRepairWallsTo(percentMax) {
+
+	if (percentMax === undefined || percentMax < 0 || percentMax > 100)
+		return 'Requires a value 0-100.';
+
+	this.memory.settings.repairWallsTo = percentMax;
+	return 'Walls will now repair to ' + this.memory.settings.repairWallsTo + '% max.';
+}
+
+Room.prototype.setRoomSettings = function setRoomSettings(settingsArray) {
+	
+	const rampartsPercent = settingsArray[0];
+	const wallsPercent 		= settingsArray[1];
+
+	if (rampartsPercent)
+		this.memory.settings.repairRampartsTo = rampartsPercent;
+
+	if (wallsPercent)
+		this.memory.settings.repairWallsTo = wallsPercent;
+
+	return '[' + this.name + ']: Room settings set: repairRampartsTo(' + this.memory.settings.	repairRampartsTo + ') repairWallsTo(' + this.memory.settings.repairWallsTo + ')';
 }

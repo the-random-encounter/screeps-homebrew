@@ -80,6 +80,9 @@ const roleRepairer = {
 					let ramparts = [];
 					let walls = [];
 					let validTargets = [];
+					
+					const rampartsMax 	= creep.room.memory.settings.repairRampartsTo;
+					const wallsMax 		= creep.room.memory.settings.repairWallsTo;
 
 					// search for roads, spawns, extensions, or towers under 95%
 					let targets = creep.room.find(FIND_STRUCTURES, { filter: (i) => (i.hits < i.hitsMax) && (i.structureType == STRUCTURE_TOWER || i.structureType == STRUCTURE_SPAWN || i.structureType == STRUCTURE_EXTENSION || i.structureType == STRUCTURE_ROAD || i.structureType == STRUCTURE_CONTAINER || i.structureType == STRUCTURE_EXTRACTOR || i.structureType == STRUCTURE_LAB || i.structureType == STRUCTURE_LINK || i.structureType == STRUCTURE_STORAGE || i.structureType == STRUCTURE_TERMINAL) });
@@ -87,12 +90,12 @@ const roleRepairer = {
 					validTargets = validTargets.concat(targets);
 					
 					if (creep.room.memory.flags.repairRamparts) {
-						ramparts = creep.room.find(FIND_STRUCTURES, { filter: (i) => ((i.hits / i.hitsMax * 100) <= 90) && (i.structureType == STRUCTURE_RAMPART) });
+						ramparts = creep.room.find(FIND_STRUCTURES, { filter: (i) => ((i.hits / i.hitsMax * 100) <= rampartsMax) && (i.structureType == STRUCTURE_RAMPART) });
 						validTargets = validTargets.concat(ramparts);
 					}
 
 					if (creep.room.memory.flags.repairWalls) {
-						walls = creep.room.find(FIND_STRUCTURES, { filter: (i) => (i.structureType == STRUCTURE_WALL && (i.hits / i.hitsMax * 100) <= 50) })
+						walls = creep.room.find(FIND_STRUCTURES, { filter: (i) => (i.structureType == STRUCTURE_WALL && (i.hits / i.hitsMax * 100) <= wallsMax) })
 						validTargets = validTargets.concat(walls);
 					}
 					
