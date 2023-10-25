@@ -23,7 +23,7 @@ const roleRepairer = {
 						const target = creep.pos.findClosestByRange(containersWithEnergy);
 						if (target) {
 							if (creep.withdraw(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE)
-								creep.moveTo(target, { visualizePathStyle: { stroke: '#ff6600', opacity: 0.3, lineStyle: 'dotted' } });
+								creep.moveTo(target, { visualizePathStyle: { stroke: '#ff6600', opacity: 0.3, lineStyle: 'dotted', ignoreCreeps: true } });
 							else
 								creep.withdraw(target, RESOURCE_ENERGY);
 						}
@@ -42,7 +42,7 @@ const roleRepairer = {
 						const target = creep.pos.findClosestByRange(resourceList);
 						if (target) {
 							if (creep.pickup(target) == ERR_NOT_IN_RANGE || creep.withdraw(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-								creep.moveTo(target, { visualizePathStyle: { stroke: '#ff6600', opacity: 0.3, lineStyle: 'dotted' } });
+								creep.moveTo(target, { visualizePathStyle: { stroke: '#ff6600', opacity: 0.3, lineStyle: 'dotted', ignoreCreeps: true } });
 							}
 							else {
 								creep.withdraw(target, RESOURCE_ENERGY);
@@ -72,7 +72,7 @@ const roleRepairer = {
 							// transfer energy
 							creep.transfer(towerTarget, RESOURCE_ENERGY);
 						} else {
-							creep.moveTo(towerTarget, { visualizePathStyle: { stroke: '#ff6600', opacity: 0.3 } });
+							creep.moveTo(towerTarget, { visualizePathStyle: { stroke: '#ff6600', opacity: 0.3, ignoreCreeps: true } });
 						}
 					}
 				} else {
@@ -85,7 +85,10 @@ const roleRepairer = {
 					const wallsMax 		= creep.room.memory.settings.repairWallsTo;
 
 					// search for roads, spawns, extensions, or towers under 95%
-					let targets = creep.room.find(FIND_STRUCTURES, { filter: (i) => (i.hits < i.hitsMax) && (i.structureType == STRUCTURE_TOWER || i.structureType == STRUCTURE_SPAWN || i.structureType == STRUCTURE_EXTENSION || i.structureType == STRUCTURE_ROAD || i.structureType == STRUCTURE_CONTAINER || i.structureType == STRUCTURE_EXTRACTOR || i.structureType == STRUCTURE_LAB || i.structureType == STRUCTURE_LINK || i.structureType == STRUCTURE_STORAGE || i.structureType == STRUCTURE_TERMINAL) });
+					let targets = creep.room.find(FIND_STRUCTURES, {
+						filter: (i) => (i.hits < i.hitsMax) && (i.structureType ==
+							STRUCTURE_TOWER 		|| i.structureType == STRUCTURE_SPAWN 		|| i.structureType == STRUCTURE_EXTENSION || i.structureType == STRUCTURE_ROAD 			|| i.structureType == STRUCTURE_CONTAINER || i.structureType == STRUCTURE_EXTRACTOR || i.structureType == STRUCTURE_LAB 			|| i.structureType == STRUCTURE_LINK 			|| i.structureType == STRUCTURE_STORAGE 	|| i.structureType == STRUCTURE_TERMINAL)
+					});
 				 
 					validTargets = validTargets.concat(targets);
 					
@@ -104,7 +107,7 @@ const roleRepairer = {
 					// travel to closest object within repair criteria and start repairing!
 					if (target) {
 						if (creep.repair(target) == ERR_NOT_IN_RANGE)
-							creep.moveTo(target, { visualizePathStyle: { stroke: '#ff6600', opacity: 0.3 } });
+							creep.moveTo(target, { visualizePathStyle: { stroke: '#ff6600', opacity: 0.3, ignoreCreeps: true } });
 					}
 				}
 			}

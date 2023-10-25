@@ -20,11 +20,36 @@ global.roomDefense = function (room) {
 					tower.heal(closestDamagedCreep);
 				} else {
 					
-					if (room.memory.flags.towerRepair == true) {
-						const repairTargets = tower.room.find(FIND_STRUCTURES, {filter: (i) => ((i.structureType == STRUCTURE_CONTAINER || i.structureType == STRUCTURE_TOWER || i.structureType == STRUCTURE_ROAD || i.structureType == STRUCTURE_STORAGE || i.structureType == STRUCTURE_SPAWN || i.structureType == STRUCTURE_LINK || i.structureType == STRUCTURE_EXTENSION/* || i.structureType == STRUCTURE_RAMPART*/) && (i.hits < i.hitsMax))
-						});
+					if (room.memory.flags.towerRepairBasic == true) {
+
+						let ramparts = [];
+						let walls = [];
+						let validTargets = [];
 						
-						const target = repairTargets[0];
+						const rampartsMax 	= tower.room.memory.settings.repairRampartsTo;
+						const wallsMax 			= tower.room.memory.settings.repairWallsTo;
+
+						// search for roads, spawns, extensions, or towers under 95%
+						let targets = tower.room.find(FIND_STRUCTURES, {
+							filter: (i) => (i.hits < i.hitsMax) && (i.structureType ==
+								STRUCTURE_TOWER 		|| i.structureType == STRUCTURE_SPAWN 		|| i.structureType == STRUCTURE_EXTENSION || i.structureType == STRUCTURE_ROAD 			|| i.structureType == STRUCTURE_CONTAINER || i.structureType == STRUCTURE_EXTRACTOR || i.structureType == STRUCTURE_LAB 			|| i.structureType == STRUCTURE_LINK 			|| i.structureType == STRUCTURE_STORAGE 	|| i.structureType == STRUCTURE_TERMINAL)
+						});
+					
+						validTargets = validTargets.concat(targets);
+						
+						if (tower.room.memory.flags.towerRepairDefenses) {
+							if (tower.room.memory.flags.repairRamparts) {
+								ramparts = tower.room.find(FIND_STRUCTURES, { filter: (i) => ((i.hits / i.hitsMax * 100) < rampartsMax) && (i.structureType == STRUCTURE_RAMPART) });
+								validTargets = validTargets.concat(ramparts);
+							}
+
+							if (tower.room.memory.flags.repairWalls) {
+								walls = tower.room.find(FIND_STRUCTURES, { filter: (i) => (i.structureType == STRUCTURE_WALL && (i.hits / i.hitsMax * 100) < wallsMax) })
+								validTargets = validTargets.concat(walls);
+							}
+						}
+						
+						const target = tower.pos.findClosestByRange(validTargets);
 						tower.repair(target);
 					}
 				}

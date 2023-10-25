@@ -239,25 +239,25 @@ module.exports.loop = function () {
 			let remoteBuilderTarget 	= _.get(room.memory, ['targets', 'remotebuilder'	], 1);
 			let remoteGuardTarget			= _.get(room.memory, ['targets', 'remoteguard'		], 1);
 
-			// pull current amount of creeps alive by role
-			let harvesters 	= _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester'	);
-			let collectors 	= _.filter(Game.creeps, (creep) => creep.memory.role == 'collector'	);
-			let upgraders 	= _.filter(Game.creeps, (creep) => creep.memory.role == 'upgrader'	);
-			let builders 		= _.filter(Game.creeps, (creep) => creep.memory.role == 'builder'		);
-			let repairers 	= _.filter(Game.creeps, (creep) => creep.memory.role == 'repairer'	);
-			let runners 		= _.filter(Game.creeps, (creep) => creep.memory.role == 'runner'		);
-			let rebooters 	= _.filter(Game.creeps, (creep) => creep.memory.role == 'rebooter'	);
-			let reservers 	= _.filter(Game.creeps, (creep) => creep.memory.role == 'reserver'	);
-			let rangers 		= _.filter(Game.creeps, (creep) => creep.memory.role == 'ranger'		);
-			let warriors 		= _.filter(Game.creeps, (creep) => creep.memory.role == 'warrior'		);
-			let healers 		= _.filter(Game.creeps, (creep) => creep.memory.role == 'healer'		);
-			let cranes 			= _.filter(Game.creeps, (creep) => creep.memory.role == 'crane'			);
-			let miners 			= _.filter(Game.creeps, (creep) => creep.memory.role == 'miner'			);
+			// pull current amount of creeps alive by roleForQuota
+			let harvesters 	= _.filter(Game.creeps, (creep) => creep.memory.roleForQuota == 'harvester'	);
+			let collectors 	= _.filter(Game.creeps, (creep) => creep.memory.roleForQuota == 'collector'	);
+			let upgraders 	= _.filter(Game.creeps, (creep) => creep.memory.roleForQuota == 'upgrader'	);
+			let builders 		= _.filter(Game.creeps, (creep) => creep.memory.roleForQuota == 'builder'		);
+			let repairers 	= _.filter(Game.creeps, (creep) => creep.memory.roleForQuota == 'repairer'	);
+			let runners 		= _.filter(Game.creeps, (creep) => creep.memory.roleForQuota == 'runner'		);
+			let rebooters 	= _.filter(Game.creeps, (creep) => creep.memory.roleForQuota == 'rebooter'	);
+			let reservers 	= _.filter(Game.creeps, (creep) => creep.memory.roleForQuota == 'reserver'	);
+			let rangers 		= _.filter(Game.creeps, (creep) => creep.memory.roleForQuota == 'ranger'		);
+			let warriors 		= _.filter(Game.creeps, (creep) => creep.memory.roleForQuota == 'warrior'		);
+			let healers 		= _.filter(Game.creeps, (creep) => creep.memory.roleForQuota == 'healer'		);
+			let cranes 			= _.filter(Game.creeps, (creep) => creep.memory.roleForQuota == 'crane'			);
+			let miners 			= _.filter(Game.creeps, (creep) => creep.memory.roleForQuota == 'miner'			);
 
-			let remoteHarvesters 	= _.filter(Game.creeps, (creep) => creep.memory.role == 'remoteharvester'	);
-			let remoteRunners 		= _.filter(Game.creeps, (creep) => creep.memory.role == 'remoterunner'		);
-			let remoteBuilders 		= _.filter(Game.creeps, (creep) => creep.memory.role == 'remotebuilder'		);
-			let remoteGuards 			= _.filter(Game.creeps, (creep) => creep.memory.role == 'remoteguard'			);
+			let remoteHarvesters 	= _.filter(Game.creeps, (creep) => creep.memory.roleForQuota == 'remoteharvester'	);
+			let remoteRunners 		= _.filter(Game.creeps, (creep) => creep.memory.roleForQuota == 'remoterunner'		);
+			let remoteBuilders 		= _.filter(Game.creeps, (creep) => creep.memory.roleForQuota == 'remotebuilder'		);
+			let remoteGuards 			= _.filter(Game.creeps, (creep) => creep.memory.roleForQuota == 'remoteguard'			);
 
 			let sites = room.find(FIND_CONSTRUCTION_SITES);
 			//let westSites = Game.rooms.E57S51.find(FIND_CONSTRUCTION_SITES);
@@ -305,14 +305,10 @@ module.exports.loop = function () {
 
 			let creepCount = Object.keys(Memory.creeps);
 			let capacity;
-			if (creepCount.length < 2) {
+			if (creepCount.length < 2)
 				capacity = room.energyAvailable;
-				room.memory.flags.runnerLogic = false;
-			}
-			else {
+			else
 				capacity = room.energyCapacityAvailable;
-				room.memory.flags.runnerLogic = true;
-			}
 
 			/* #region  AVAILABLE VARIANTS ASSIGNMENTS */		
 			if (room.energyCapacityAvailable < 500) {
@@ -354,15 +350,14 @@ module.exports.loop = function () {
 			/* #endregion */
 
 			if (!collectors.length) {
-				if (capacity <= 300) {
+				if (capacity <= 300)
 					availableVariants.collector = spawnVariants.collector300;
-				} else if (capacity <= 500) {
+				else if (capacity <= 500)
 					availableVariants.collector = spawnVariants.collector500;
-				} else if (capacity <= 800) {
+				else if (capacity <= 800)
 					availableVariants.collector = spawnVariants.collector800;
-				} else if (capacity <= 1000) {
+				else if (capacity <= 1000)
 					availableVariants.collector = spawnVariants.collector1000;
-				}
 			}
 
 			// ensure that two harvesters never use the same source for harvesting
@@ -444,7 +439,7 @@ module.exports.loop = function () {
 
 			if (creepCount == 0 && rebooters.length < 1 && GOBI(room.memory.objects.storage[0]).store[RESOURCE_ENERGY] <= 1000) {
 				newName = 'Rb' + (rebooters.length + 1);
-				while (Game.spawns['Spawn1'].spawnCreep([WORK, WORK, MOVE, CARRY], newName, { memory: { role: 'rebooter' } }) == ERR_NAME_EXISTS) {
+				while (Game.spawns['Spawn1'].spawnCreep([WORK, WORK, MOVE, CARRY], newName, { memory: { role: 'rebooter', roleForQuota: 'rebooter' } }) == ERR_NAME_EXISTS) {
 					newName = 'Rb' + (rebooters.length + 1 + rebooterCount);
 					rebooterCount++;
 				}
@@ -452,14 +447,14 @@ module.exports.loop = function () {
 
 			if ((collectors.length < collectorTarget) || (collectors.length <= collectorTarget && collectorDying == true)) {
 				newName = 'C' + (collectors.length + 1);
-				while (Game.spawns['Spawn1'].spawnCreep(availableVariants.collector, newName, { memory: { role: 'collector' } }) == ERR_NAME_EXISTS) {
+				while (Game.spawns['Spawn1'].spawnCreep(availableVariants.collector, newName, { memory: { role: 'collector', roleForQuota: 'collector' } }) == ERR_NAME_EXISTS) {
 					newName = 'C' + (collectors.length + 1 + collectorCount);
 					collectorCount++;
 				}
 			}
 			if ((harvesters.length < harvesterTarget) || (harvesters.length <= harvesterTarget && harvesterDying == true)) {
 				newName = 'H' + (harvesters.length + 1);
-				while (Game.spawns['Spawn1'].spawnCreep(availableVariants.harvester, newName, { memory: { role: 'harvester' } }) == ERR_NAME_EXISTS) {
+				while (Game.spawns['Spawn1'].spawnCreep(availableVariants.harvester, newName, { memory: { role: 'harvester', roleForQuota: 'harvester' } }) == ERR_NAME_EXISTS) {
 					newName = 'H' + (harvesters.length + 1 + harvesterCount);
 					harvesterCount++;
 				}
@@ -467,87 +462,87 @@ module.exports.loop = function () {
 			
 			if ((runners.length < runnerTarget) || (runners.length <= runnerTarget && runnerDying)) {
 				newName = 'Rn' + (runners.length + 1);
-				while (Game.spawns['Spawn1'].spawnCreep(availableVariants.runner, newName, { memory: { role: 'runner' } }) == ERR_NAME_EXISTS) {
+				while (Game.spawns['Spawn1'].spawnCreep(availableVariants.runner, newName, { memory: { role: 'runner', roleForQuota: 'runner' } }) == ERR_NAME_EXISTS) {
 					newName = 'Rn' + (runners.length + 1 + runnerCount);
 					runnerCount++;
 				}
 			} else if (upgraders.length < upgraderTarget) {
 				newName = 'U' + (upgraders.length + 1);
-				while (Game.spawns['Spawn1'].spawnCreep(availableVariants.upgrader, newName, { memory: { role: 'upgrader' } }) == ERR_NAME_EXISTS) {
+				while (Game.spawns['Spawn1'].spawnCreep(availableVariants.upgrader, newName, { memory: { role: 'upgrader', roleForQuota: 'upgrader' } }) == ERR_NAME_EXISTS) {
 					newName = 'U' + (upgraders.length + 1 + upgraderCount);
 					upgraderCount++;
 				}
 			} else if (sites.length > 0 && builders.length < builderTarget) {
 				newName = 'B' + (builders.length + 1);
-				while (Game.spawns['Spawn1'].spawnCreep(availableVariants.builder, newName, { memory: { role: 'builder' } }) == ERR_NAME_EXISTS) {
+				while (Game.spawns['Spawn1'].spawnCreep(availableVariants.builder, newName, { memory: { role: 'builder', roleForQuota: 'builder' } }) == ERR_NAME_EXISTS) {
 					newName = 'B' + (builders.length + 1 + builderCount);
 					builderCount++;
 				}
 			} else if (repairers.length < repairerTarget) {
 				newName = 'Rp' + (repairers.length + 1);
-				while (Game.spawns['Spawn1'].spawnCreep(availableVariants.repairer, newName, { memory: { role: 'repairer' } }) == ERR_NAME_EXISTS) {
+				while (Game.spawns['Spawn1'].spawnCreep(availableVariants.repairer, newName, { memory: { role: 'repairer', roleForQuota: 'repairer' } }) == ERR_NAME_EXISTS) {
 					newName = 'Rp' + (repairers.length + 1 + repairerCount);
 					repairerCount++;
 				}
 			} else if (rangers.length < rangerTarget) {
-				newName = 'R' + (rangers.length + 1);
-				while (Game.spawns['Spawn1'].spawnCreep([TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, RANGED_ATTACK, RANGED_ATTACK, MOVE, MOVE], newName, { memory: { role: 'ranger' } }) == ERR_NAME_EXISTS) {
-					newName = 'R' + (rangers.length + 1 + rangerCount);
+				newName = 'Rng' + (rangers.length + 1);
+				while (Game.spawns['Spawn1'].spawnCreep([TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, RANGED_ATTACK, RANGED_ATTACK, MOVE, MOVE], newName, { memory: { role: 'ranger', roleForQuota: 'ranger' } }) == ERR_NAME_EXISTS) {
+					newName = 'Rng' + (rangers.length + 1 + rangerCount);
 					rangerCount++;
 				}
 			} else if (warriors.length < warriorTarget) {
-				newName = 'W' + (warriors.length + 1);
-				while (Game.spawns['Spawn1'].spawnCreep([TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, ATTACK, ATTACK, ATTACK, ATTACK, MOVE, MOVE, MOVE, MOVE], newName, { memory: { role: 'warrior' } }) == ERR_NAME_EXISTS) {
-					newName = 'W' + (warriors.length + 1 + warriorCount);
+				newName = 'War' + (warriors.length + 1);
+				while (Game.spawns['Spawn1'].spawnCreep([TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, ATTACK, ATTACK, ATTACK, ATTACK, MOVE, MOVE, MOVE, MOVE], newName, { memory: { role: 'warrior', roleForQuota: 'warrior' } }) == ERR_NAME_EXISTS) {
+					newName = 'War' + (warriors.length + 1 + warriorCount);
 					warriorCount++;
 				}
-			} else if (warriors.length < warriorTarget) {
-				newName = 'W' + (warriors.length + 1);
-				while (Game.spawns['Spawn1'].spawnCreep([TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, ATTACK, ATTACK, ATTACK, ATTACK, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE], newName, { memory: { role: 'warrior' } }) == ERR_NAME_EXISTS) {
-					newName = 'W' + (warriors.length + 1 + warriorCount);
-					warriorCount++;
+			} else if (healers.length < healerTarget) {
+				newName = 'Hlr' + (healers.length + 1);
+				while (Game.spawns['Spawn1'].spawnCreep([TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, ATTACK, ATTACK, ATTACK, ATTACK, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE], newName, { memory: { role: 'healer', roleForQuota: 'healer' } }) == ERR_NAME_EXISTS) {
+					newName = 'Hlr' + (healers.length + 1 + healerCount);
+					healerCount++;
 				}
 			} else if ((reservers.length < reserverTarget) || (reservers.length <= reserverTarget && reserverDying)) {
 				newName = 'Rv' + (reservers.length + 1);
-				while (Game.spawns['Spawn1'].spawnCreep([MOVE, MOVE, CLAIM, CLAIM], newName, { memory: { role: 'reserver' } }) == ERR_NAME_EXISTS) {
+				while (Game.spawns['Spawn1'].spawnCreep([MOVE, MOVE, CLAIM, CLAIM], newName, { memory: { role: 'reserver', roleForQuota: 'reserver' } }) == ERR_NAME_EXISTS) {
 					newName = 'Rv' + (reservers.length + 1 + reserverCount);
 					reserverCount++;
 				}
 			} else if ((remoteHarvesters.length < remoteHarvesterTarget) || (remoteHarvesters.length <= remoteHarvesterTarget && remoteHarvesterDying)) {
 				newName = 'RH' + (remoteHarvesters.length + 1);
-				while (Game.spawns['Spawn1'].spawnCreep([WORK, WORK, WORK, WORK, WORK, WORK, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE], newName, { memory: { role: 'remoteharvester' } }) == ERR_NAME_EXISTS) {
+				while (Game.spawns['Spawn1'].spawnCreep([WORK, WORK, WORK, WORK, WORK, WORK, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE], newName, { memory: { role: 'remoteharvester', roleForQuota: 'remoteharvester' } }) == ERR_NAME_EXISTS) {
 					newName = 'RH' + (remoteHarvesters.length + 1 + remoteHarvesterCount);
 					remoteHarvesterCount++;
 				}
 			} else if (remoteRunners.length < remoteRunnerTarget) {
 				newName = 'RR' + (remoteRunners.length + 1);
-				while (Game.spawns['Spawn1'].spawnCreep([CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE, MOVE, WORK], newName, { memory: { role: 'remoterunner' } }) == ERR_NAME_EXISTS) {
+				while (Game.spawns['Spawn1'].spawnCreep([CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE, MOVE, WORK], newName, { memory: { role: 'remoterunner', roleForQuota: 'remoterunner' } }) == ERR_NAME_EXISTS) {
 					newName = 'RR' + (remoteRunners.length + 1 + remoteRunnerCount);
 					remoteRunnerCount++;
 				}
 			} else if (sites.length > 0 && remoteBuilders.length < remoteBuilderTarget) {
 				newName = 'RB' + (remoteBuilders.length + 1);
-				while (Game.spawns['Spawn1'].spawnCreep([WORK, WORK, WORK, WORK, WORK, WORK, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE], newName, { memory: { role: 'remotebuilder' } }) == ERR_NAME_EXISTS) {
+				while (Game.spawns['Spawn1'].spawnCreep([WORK, WORK, WORK, WORK, WORK, WORK, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE], newName, { memory: { role: 'remotebuilder', roleForQuota: 'remotebuilder' } }) == ERR_NAME_EXISTS) {
 					newName = 'RB' + (remoteBuilders.length + 1 + remoteBuilderCount);
 					remoteBuilderCount++;
 				}
 			} else if ((remoteGuards.length < remoteGuardTarget) || (remoteGuards.length <= remoteGuardTarget && remoteGuardDying)) {
 				newName = 'RG' + (remoteGuards.length + 1);
-				while (Game.spawns['Spawn1'].spawnCreep(availableVariants.remoteGuard, newName, { memory: { role: 'remoteguard' } }) == ERR_NAME_EXISTS) {
+				while (Game.spawns['Spawn1'].spawnCreep(availableVariants.remoteGuard, newName, { memory: { role: 'remoteguard', roleForQuota: 'remoteguard' } }) == ERR_NAME_EXISTS) {
 					newName = 'RG' + (remoteGuards.length + 1 + remoteGuardCount);
 					remoteGuardCount++;
 				}
 			}
 			if (cranes.length < craneTarget) {
 				newName = 'Cn' + (cranes.length + 1);
-				while (Game.spawns['Spawn1'].spawnCreep([CARRY,CARRY,CARRY,CARRY,WORK,WORK,WORK,WORK,WORK,MOVE,MOVE], newName, { memory: { role: 'crane' } }) == ERR_NAME_EXISTS) {
+				while (Game.spawns['Spawn1'].spawnCreep([CARRY,CARRY,CARRY,CARRY,WORK,WORK,WORK,WORK,WORK,MOVE,MOVE], newName, { memory: { role: 'crane', roleForQuota: 'crane' } }) == ERR_NAME_EXISTS) {
 					newName = 'Cr' + (cranes.length + 1 + craneCount);
 					craneCount++;
 				}
 			}
 			if (miners.length < minerTarget) {
 				newName = 'M' + (miners.length + 1);
-				while (Game.spawns['Spawn1'].spawnCreep([WORK,WORK,WORK,WORK,WORK,WORK,CARRY,MOVE,MOVE,MOVE], newName, { memory: { role: 'miner' } }) == ERR_NAME_EXISTS) {
+				while (Game.spawns['Spawn1'].spawnCreep([WORK,WORK,WORK,WORK,WORK,WORK,CARRY,MOVE,MOVE,MOVE], newName, { memory: { role: 'miner', roleForQuota: 'miner' } }) == ERR_NAME_EXISTS) {
 					newName = 'M' + (miners.length + 1 + minerCount);
 					minerCount++;
 				}

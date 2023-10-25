@@ -422,6 +422,7 @@ Room.prototype.setRoomSettings = function setRoomSettings(settingsArray) {
 Room.prototype.calcPath = function calcPath(pathName, start, end, walkOnCreeps = true, serializeData = false, maxOps) {
 
 	PathFinder.use(true);
+	
 	if (typeof start === 'string' || start instanceof String)
 		start = Game.getObjectById(start);
 
