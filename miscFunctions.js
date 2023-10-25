@@ -47,14 +47,6 @@ global.randomName = function() {
 
 };
 
-function roomData(room) {
-	let output;
-}
-
-function spawnClaimer() {
-	Game.spawns['Spawn1'].spawnCreep([CLAIM, CLAIM, MOVE, MOVE], 'Claimer', { memory: { role: 'claimer' } });
-}
-
 global.partCost = function (array) {
 	
 	let runningTotal = 0;
