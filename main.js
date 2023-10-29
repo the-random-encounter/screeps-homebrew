@@ -217,7 +217,8 @@ module.exports.loop = function () {
 			if (!room.memory.targets)
 				room.initTargets();
 
-			const spawn = Game.spawns.Spawn1;
+			const spawn = Game.getObjectById(room.memory.objects.spawns[0]);
+			
 
 			// tower logic function
 			roomDefense(room);
@@ -377,7 +378,7 @@ module.exports.loop = function () {
 				availableVariants.runner = spawnVariants.runner300;
 			}
 			/* #endregion */
-
+			
 			// if we have no collectors, and our energy supply is not enough for a 500 energy spawn, do a 300.
 			if (!collectors.length) {
 				if (capacity < 500)
@@ -580,6 +581,23 @@ module.exports.loop = function () {
 				
 			}
 			/* #endregion */
+
+			// Display creep spawning information next to spawn
+	if (spawn.spawning) {
+		
+		let spawningCreep = Game.creeps[spawn.spawning.name];
+		if (!spawnAnnounce) {
+			console.log('Spawning new creep: ' + spawningCreep.memory.role + ' (' + spawningCreep.name + ')');
+			spawnAnnounce = true;
+		}
+		spawn.room.visual.text('     ' + spawningCreep.memory.role + ' - ' +
+			spawn.spawning.remainingTime + '/' + spawn.spawning.needTime,
+			spawn.pos.x + 1,
+			spawn.pos.y - 1,
+			{ align: 'left', opacity: 0.8, font: 0.4 });
+	} else {
+		spawnAnnounce = false;
+	}
 		}
 		/* #endregion */
 
@@ -588,22 +606,7 @@ module.exports.loop = function () {
 	});
 	/* #endregion */
 
-	// Display creep spawning information next to spawn
-	if (Game.spawns['Spawn1'].spawning) {
-		
-		let spawningCreep = Game.creeps[Game.spawns['Spawn1'].spawning.name];
-		if (!spawnAnnounce) {
-			console.log('Spawning new creep: ' + spawningCreep.memory.role + ' (' + spawningCreep.name + ')');
-			spawnAnnounce = true;
-		}
-		Game.spawns['Spawn1'].room.visual.text('     ' + spawningCreep.memory.role + ' - ' +
-			Game.spawns['Spawn1'].spawning.remainingTime + '/' + Game.spawns['Spawn1'].spawning.needTime,
-			Game.spawns['Spawn1'].pos.x + 1,
-			Game.spawns['Spawn1'].pos.y - 1,
-			{ align: 'left', opacity: 0.8, font: 0.4 });
-	} else {
-		spawnAnnounce = false;
-	}
+	
 	
 	// Assign what actions for each creep to take by role
 	for(let name in Game.creeps) {

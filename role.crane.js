@@ -29,10 +29,9 @@ const roleCrane = {
         
             if (creep.store.getFreeCapacity() == 0 && creep.memory.dropLink == false) {
                 const resTypes = Object.keys(creep.store);
-                console.log('not even in her');
             
                 for (let types in resTypes) {
-                    console.log(types);
+
                     if (creep.store[types] !== 'energy')
                         creep.transfer(objStorage, types)
                 }

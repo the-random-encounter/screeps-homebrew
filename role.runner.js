@@ -12,9 +12,9 @@ const roleRunner = {
 			}
 		
 			if (!creep.room.memory.flags.runnersDoMinerals) {
-				if (!creep.memory.container)
+				if (!creep.memory.container && creep.room.memory.objects.containers)
 					creep.memory.container = creep.room.memory.objects.containers[0];
-				if (!creep.memory.storage)
+				if (!creep.memory.storage && creep.room.memory.objects.storage)
 					creep.memory.storage = creep.room.memory.objects.storage[0];
 
 				if (creep.store[RESOURCE_ENERGY] == 0) {

@@ -3,7 +3,7 @@ const roleProvider = {
 	run: function (creep) {
 
 		if (creep.memory.disableAI === undefined)
-            creep.memory.disableAI = false;
+			creep.memory.disableAI = false;
 
 		if (!creep.memory.disableAI) {
 			
@@ -19,6 +19,14 @@ const roleProvider = {
 
 			if (creep.store.getUsedCapacity() == 0) {
 
+				const tombstones = creep.room.find(FIND_DROPPED_RESOURCES);
+				const closestTomb = creep.pos.findClosestByRange(tombstones);
+
+				if (creep.pickup(closestTomb, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+					creep.moveTo(closestTomb, { visualizePathStyle: { stroke: '#ff0033', opacity: 0.3, lineStyle: 'dotted' } });
+				}
+			
+		
 				if (creep.room.name !== 'E58S51') {
 					creep.moveTo(Game.flags.NorthExit, { visualizePathStyle: { stroke: '#ff0033', opacity: 0.3, lineStyle: 'dotted' } });
 				} else {
@@ -27,6 +35,7 @@ const roleProvider = {
 						creep.moveTo(storage, { visualizePathStyle: { stroke: '#ff0033', opacity: 0.3, lineStyle: 'dotted' } });
 					}
 				}
+			
 			} else {
 				if (creep.room.name !== 'E5948') {
 					creep.moveTo(Game.flags.Attack, { visualizePathStyle: { stroke: '#ff0033', opacity: 0.3, lineStyle: 'dotted' } })
@@ -37,11 +46,11 @@ const roleProvider = {
 						creep.drop(RESOURCE_ENERGY);
 					}
 				}
+		
 			}
 		} else {
 			creep.say('Disabled');
 		}
 	}
 }
-
 module.exports = roleProvider;
