@@ -54,7 +54,7 @@ const roleUpgrader = {
 			if (creep.store.getUsedCapacity() !== 0) {
 				if (creep.room.name !== upgradeRoom) {
 					creep.moveTo(Game.flags.ClaimFlag);
-				} else if (creep.room.name == upgradeRoom) {
+				} else {
 					if (creep.upgradeController(creep.room.controller) == ERR_NOT_IN_RANGE)
 						creep.moveTo(creep.room.controller, { visualizePathStyle: { stroke: '#ffff00', opacity: 0.3, lineStyle: 'dotted' } });
 				}
@@ -63,13 +63,15 @@ const roleUpgrader = {
 				// if not working & inventory is empty, collect more energy
 				if (creep.store.getUsedCapacity() == 0) {
 				
-					switch (/*creep.room.memory.flags.runnerLogic ||*/ true) {
+					switch (creep.room.memory.flags.runnerLogic) {
 						case true: {
 							let containersWithEnergy = creep.room.find(FIND_MY_STRUCTURES, {
 								filter: (i) => (i.structureType == STRUCTURE_STORAGE) && i.store[RESOURCE_ENERGY] > 0
 							});
+							let piles = creep.room.find(FIND_DROPPED_RESOURCES);
 							
-							let target = creep.pos.findClosestByRange(containersWithEnergy);
+							let all = containersWithEnergy.concat(piles);
+							let target = creep.pos.findClosestByRange(all);
 						
 							if (target) {
 								if (creep.withdraw(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE)
