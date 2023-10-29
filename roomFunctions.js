@@ -387,7 +387,7 @@ Room.prototype.initRoomFlags = function initRoomFlags(flag1 = false, flag2 = fal
 		this.memory.flags.runnersDoMinerals 		= flag5;
 
 	if (this.memory.flags.towerRepairBasic 		=== undefined)
-		this.memory.flags.towerRepair 					= flag6;
+		this.memory.flags.towerRepairBasic 			= flag6;
 
 	if (this.memory.flags.towerRepairDefenses === undefined)
 		this.memory.flags.towerRepairDefenses = flag7;
@@ -457,6 +457,12 @@ Room.prototype.initRoomSettings = function initRoomSettings() {
 	if (this.memory.settings.repairSettings.repairWallsTo === undefined)
 		this.memory.settings.repairSettings.repairWallsTo = 1;
 
+	if (!this.memory.settings.labSettings.reagentOne)
+		this.memory.settings.labSettings.reagentOne = 'none';
+
+	if (!this.memory.settings.labSettings.reagentTwo)
+		this.memory.settings.labSettings.reagentTwo = 'none';
+	
 	return '[' + this.name + ']: Room settings initialized: repairRampartsTo(' + this.memory.settings.repairRampartsTo + ') repairWallsTo(' + this.memory.settings.repairWallsTo + ')';
 }
 
