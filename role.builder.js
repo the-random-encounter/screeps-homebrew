@@ -22,6 +22,16 @@ const roleBuilder = {
                 creep.say('🏗️');
             }
 
+            if (creep.pos.x == 49) {
+				creep.move(7);
+			} else if (creep.pos.x == 0) {
+				creep.move(3);
+			} else if (creep.pos.y == 0) {
+				creep.move(5);
+			} else if (creep.pos.y == 49) {
+				creep.move(1)
+            }
+            
             if (creep.store.getUsedCapacity() == 0) {
         
                 switch (creep.room.memory.flags.runnerLogic || false) {

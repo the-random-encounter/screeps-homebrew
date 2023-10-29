@@ -6,6 +6,8 @@ const roleUpgrader = {
 		if (creep.memory.disableAI === undefined)
 			creep.memory.disableAI = false;
 
+		if (creep.memory.upgradeRoom === undefined)
+			creep.memory.upgradeRoom = creep.room.name;
 		//if (creep.memory.upgradeRoom === undefined);
 			//creep.memory.upgradeRoom = creep.room.name;
 		
