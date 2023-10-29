@@ -28,7 +28,6 @@ const roleMiner = {
 			}
 		}
 		else {
-			console.log('[' + creep.room.name + ']: WARNING: Creep ' + creep.name + '\'s AI is disabled.');
 			creep.say('AI Disabled');
 		}
 	}

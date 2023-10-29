@@ -26,8 +26,8 @@ global.roomDefense = function (room) {
 						let walls = [];
 						let validTargets = [];
 						
-						const rampartsMax 	= tower.room.memory.settings.repairRampartsTo;
-						const wallsMax 			= tower.room.memory.settings.repairWallsTo;
+						const rampartsMax 	= tower.room.memory.settings.repairSettings.repairRampartsTo;
+						const wallsMax 			= tower.room.memory.settings.repairSettings.repairWallsTo;
 
 						// search for roads, spawns, extensions, or towers under 95%
 						let targets = tower.room.find(FIND_STRUCTURES, {

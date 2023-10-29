@@ -148,7 +148,12 @@ global.MC = function (name, dir) {
 
 global.visualRCProgress = function (controllerID) {
 
-	const cont = GOBI(controllerID);
+	let cont; 
+	
+	if (typeof controllerID == 'string')
+		cont = GOBI(controllerID);
+	else
+		cont = controllerID;
 
 	cont.room.visual.text('L' + cont.level + ' - ' + cont.progress + '/' + cont.progressTotal, cont.pos.x + 1, cont.pos.y - 1, { align: 'left', opacity: 0.5, color: '#00ffff', font: 0.4 });
 
@@ -169,7 +174,7 @@ Object.assign(exports, {
 	}
 })
 
-global.link1Fire = function() {
+global.fireLink1 = function() {
     
     const linkTo    = Game.getObjectById('65348e6c42580f28c7f68e55');
     const linkFrom  = Game.getObjectById('65334b1a8ff0f85732868edc');
@@ -182,7 +187,7 @@ global.link1Fire = function() {
     }
 }
 
-global.link2Fire = function() {
+global.fireLink2 = function() {
     
     const linkTo    = Game.getObjectById('653840abc40f9da7b4ebe67a');
     const linkFrom  = Game.getObjectById('65334b1a8ff0f85732868edc');
@@ -194,4 +199,96 @@ global.link2Fire = function() {
         return 'Link is on cooldown.'
     }
 }
-        
+
+global.fireLink = function (link1, link2) {
+	
+	const link1Obj = Game.getObjectById(link1);
+	const link2Obj = Game.getObjectById(link2);
+
+	link1Obj.transferEnergy(link2Obj);
+
+	return;
+}
+
+global.calcLabReaction = function (baseReg1, baseReg2) {
+		
+	// DETERMINE OUTPUT COMPOUND BASED ON INPUT COMPOUNDS
+	if (baseReg1 === RESOURCE_OXYGEN || baseReg2 === RESOURCE_OXYGEN) {
+		if (baseReg1 === RESOURCE_HYDROGEN || baseReg2 === RESOURCE_HYDROGEN)
+			outputChem = RESOURCE_HYDROXIDE;
+		else if (baseReg1 === RESOURCE_UTRIUM || baseReg2 === RESOURCE_UTRIUM)
+			outputChem = RESOURCE_UTRIUM_OXIDE;
+		else if (baseReg1 === RESOURCE_KEANIUM || baseReg2 === RESOURCE_KEANIUM)
+			outputChem = RESOURCE_KEANIUM_OXIDE;
+		else if (baseReg1 === RESOURCE_LEMERGIUM || baseReg2 === RESOURCE_LEMERGIUM)
+			outputChem = RESOURCE_LEMERGIUM_OXIDE;
+		else if (baseReg1 === RESOURCE_ZYNTHIUM || baseReg2 === RESOURCE_ZYNTHIUM)
+			outputChem = RESOURCE_ZYNTHIUM_OXIDE;
+		else if (baseReg1 === RESOURCE_GHODIUM || baseReg2 === RESOURCE_GHODIUM)
+			outputChem = RESOURCE_GHODIUM_OXIDE;
+	} else if (baseReg1 === RESOURCE_HYDROGEN || baseReg2 === RESOURCE_HYDROGEN) {
+		if (baseReg1 === RESOURCE_UTRIUM || baseReg2 === RESOURCE_UTRIUM)
+			outputChem = RESOURCE_UTRIUM_HYDRIDE;
+		else if (baseReg1 === RESOURCE_KEANIUM || baseReg2 === RESOURCE_KEANIUM)
+			outputChem = RESOURCE_KEANIUM_HYDRIDE;
+		else if (baseReg1 === RESOURCE_LEMERGIUM || baseReg2 === RESOURCE_LEMERGIUM)
+			outputChem = RESOURCE_LEMERGIUM_HYDRIDE;
+		else if (baseReg1 === RESOURCE_ZYNTHIUM || baseReg2 === RESOURCE_ZYNTHIUM)
+			outputChem = RESOURCE_ZYNTHIUM_HYDRIDE;
+		else if (baseReg1 === RESOURCE_GHODIUM || baseReg2 === RESOURCE_GHODIUM)
+			outputChem = RESOURCE_GHODIUM_HYDRIDE;
+	} else if (baseReg1 === RESOURCE_ZYNTHIUM || baseReg2 === RESOURCE_ZYNTHIUM) {
+		if (baseReg1 === RESOURCE_KEANIUM || baseReg2 === RESOURCE_KEANIUM)
+			outputChem = RESOURCE_ZYNTHIUM_KEANITE;
+	} else if (baseReg1 === RESOURE_UTRIUM || baseReg2 === RESOURCE_UTRIUM) {
+		if (baseReg1 === RESOURCE_LEMERGIUM || baseReg2 === RESOURCE_LEMERGIUM)
+			outputChem = RESOURCE_UTRIUM_LEMERGITE;
+	} else if (baseReg1 === RESOURCE_ZYNTHIUM_KEANITE || baseReg2 === RESOURCE_ZYNTHIUM_KEANITE) {
+		if (baseReg1 === RESOURCE_UTRIUM_LEMERGITE || baseReg2 === RESOURCE_UTRIUM_LEMERGITE)
+			outputChem = RESOURCE_GHODIUM;
+	} else if (baseReg1 === RESOURCE_HYDROXIDE || baseReg2 === RESOURCE_HYDROXIDE) {
+		if (baseReg1 === RESOURCE_UTRIUM_HYDRIDE || baseReg2 === RESOURCE_UTRIUM_HYDRIDE)
+			outputChem = RESOURCE_UTRIUM_ACID;
+		if (baseReg1 === RESOURCE_UTRIUM_OXIDE || baseReg2 === RESOURCE_UTRIUM_OXIDE)
+			outputChem = RESOURCE_UTRIUM_ALKALIDE;
+		if (baseReg1 === RESOURCE_KEANIUM_HYDRIDE || baseReg2 === RESOURCE_KEANIUM_HYDRIDE)
+			outputChem = RESOURCE_KEANIUM_ACID;
+		if (baseReg1 === RESOURCE_KEANIUM_OXIDE || baseReg2 === RESOURCE_KEANIUM_OXIDE)
+			outputChem = RESOURCE_KEANIUM_ALKALIDE;
+		if (baseReg1 === RESOURCE_LEMERGIUM_HYDRIDE || baseReg2 === RESOURCE_LEMERGIUM_HYDRIDE)
+			outputChem = RESOURCE_LEMERGIUM_ACID;
+		if (baseReg1 === RESOURCE_LEMERGIUM_OXIDE || baseReg2 === RESOURCE_LEMERGIUM_OXIDE)
+			outputChem = RESOURCE_LEMERGIUM_ALKALIDE;
+		if (baseReg1 === RESOURCE_ZYNTHIUM_HYDRIDE || baseReg2 === RESOURCE_ZYNTHIUM_HYDRIDE)
+			outputChem = RESOURCE_ZYNTHIUM_ACID;
+		if (baseReg1 === RESOURCE_ZYNTHIUM_OXIDE || baseReg2 === RESOURCE_ZYNTHIUM_OXIDE)
+			outputChem = RESOURCE_ZYNTHIUM_ALKALIDE;
+		if (baseReg1 === RESOURCE_GHODIUM_HYDRIDE || baseReg2 === RESOURCE_GHODIUM_HYDRIDE)
+			outputChem = RESOURCE_GHODIUM_ACID;
+		if (baseReg1 === RESOURCE_GHODIUM_OXIDE || baseReg2 === RESOURCE_GHODIUM_OXIDE)
+			outputChem = RESOURCE_GHODIUM_ALKALIDE;
+	} else if (baseReg1 === RESOURCE_CATALYST || baseReg2 === RESOURCE_CATALYST) {
+		if (baseReg1 === RESOURCE_UTRIUM_ACID || baseReg2 == RESOURCE_UTRIUM_ACID)
+			outputChem = RESOURCE_CATALYZED_UTRIUM_ACID;
+		if (baseReg1 === RESOURCE_UTRIUM_ALKALIDE || baseReg2 == RESOURCE_UTRIUM_ALKALIDE)
+			outputChem = RESOURCE_CATALYZED_UTRIUM_ALKALIDE;
+		if (baseReg1 === RESOURCE_KEANIUM_ACID || baseReg2 == RESOURCE_KEANIUM_ACID)
+			outputChem = RESOURCE_CATALYZED_KEANIUM_ACID;
+		if (baseReg1 === RESOURCE_KEANIUM_ALKALIDE || baseReg2 == RESOURCE_KEANIUM_ALKALIDE)
+			outputChem = RESOURCE_CATALYZED_KEANIUM_ALKALIDE;
+		if (baseReg1 === RESOURCE_LEMERGIUM_ACID || baseReg2 == RESOURCE_LEMERGIUM_ACID)
+			outputChem = RESOURCE_CATALYZED_LEMERGIUM_ACID;
+		if (baseReg1 === RESOURCE_LEMERGIUM_ALKALIDE || baseReg2 == RESOURCE_LEMERGIUM_ALKALIDE)
+			outputChem = RESOURCE_CATALYZED_LEMERGIUM_ALKALIDE;
+		if (baseReg1 === RESOURCE_ZYNTHIUM_ACID || baseReg2 == RESOURCE_ZYNTHIUM_ACID)
+			outputChem = RESOURCE_CATALYZED_ZYNTHIUM_ACID;
+		if (baseReg1 === RESOURCE_ZYNTHIUM_ALKALIDE || baseReg2 == RESOURCE_ZYNTHIUM_ALKALIDE)
+			outputChem = RESOURCE_CATALYZED_ZYNTHIUM_ALKALIDE;
+		if (baseReg1 === RESOURCE_GHODIUM_ACID || baseReg2 == RESOURCE_GHODIUM_ACID)
+			outputChem = RESOURCE_CATALYZED_GHODIUM_ACID;
+		if (baseReg1 === RESOURCE_GHODIUM_ALKALIDE || baseReg2 == RESOURCE_GHODIUM_ALKALIDE)
+			outputChem = RESOURCE_CATALYZED_GHODIUM_ALKALIDE;
+	}
+
+	return outputChem;
+}

@@ -39,23 +39,38 @@ const roleRunner = {
 				if (!creep.memory.storage)
 					creep.memory.storage = creep.room.memory.objects.storage[0];
 
-				const target = Game.getObjectById(creep.memory.container);
-				const mineral = Object.keys(target.store).toString();
+				let target, piles;
+				if (creep.room.memory.flags.runnersDoPiles)
+					piles = creep.room.find(FIND_DROPPED_RESOURCES);
+				
+				const thePile = creep.pos.findClosestByRange(piles);
 
-				if (creep.store.getUsedCapacity() == 0) {
-					if (target) {
-						if (creep.withdraw(target, mineral) == ERR_NOT_IN_RANGE)
-							//creep.moveByPath(creep.room.memory.paths.storeToMin, { visualizePathStyle: { stroke: '#880088', opacity: 0.3, lineStyle: 'dotted' } });
-							creep.moveTo(target, { visualizePathStyle: { stroke: '#880088', opacity: 0.3, lineStyle: 'dotted' } });
-					}
+				if (thePile) {
+					if (creep.pickup(thePile) == ERR_NOT_IN_RANGE)
+						creep.moveTo(thePile, { visualizePathStyle: { stroke: '#880088', opacity: 0.3, lineStyle: 'dotted' } });
 				} else {
-					const target = Game.getObjectById(creep.memory.storage);
+			
+					target = Game.getObjectById(creep.memory.container);
+
 					if (target) {
-						if (creep.pos.isNearTo(target))
-							creep.transfer(target, mineral);
-						else
-							creep.moveByPath(creep.room.memory.paths.minToStore, { visualizePathStyle: { stroke: '#880088', opacity: 0.3, lineStyle: 'dotted' } });
-							//creep.moveTo(target, { visualizePathStyle: { stroke: '#880088', opacity: 0.3, lineStyle: 'dotted' } });
+						const mineral = Object.keys(target.store).toString() || [];
+
+						if (creep.store.getUsedCapacity() == 0) {
+							if (target) {
+								if (creep.withdraw(target, mineral) == ERR_NOT_IN_RANGE)
+									//creep.moveByPath(creep.room.memory.paths.storeToMin, { visualizePathStyle: { stroke: '#880088', opacity: 0.3, lineStyle: 'dotted' } });
+									creep.moveTo(target, { visualizePathStyle: { stroke: '#880088', opacity: 0.3, lineStyle: 'dotted' } });
+							}
+						} else {
+							const target = Game.getObjectById(creep.memory.storage);
+							if (target) {
+								if (creep.pos.isNearTo(target))
+									creep.transfer(target, mineral);
+								else
+									creep.moveByPath(creep.room.memory.paths.minToStore, { visualizePathStyle: { stroke: '#880088', opacity: 0.3, lineStyle: 'dotted' } });
+								//creep.moveTo(target, { visualizePathStyle: { stroke: '#880088', opacity: 0.3, lineStyle: 'dotted' } });
+							}
+						}
 					}
 				}
 			}

@@ -133,7 +133,7 @@ Room.prototype.cacheObjects = function cacheObjects() {
 			this.memory.objects.storage = storageArray;
 			if (storageArray.length > 1)
 				console.log('Cached ' + storageArray.length + ' storages.');
-			elseu
+			else
 				console.log('Cached 1 storage.');
 		}
 		storageArray = [];
@@ -313,7 +313,63 @@ Room.prototype.initRoomData = function initRoomData() {
 	this.initRoomSettings();
 }
 
-Room.prototype.initRoomFlags = function initRoomFlags(flag1 = false, flag2 = false, flag3 = false, flag4 = false, flag5 = false, flag6 = false, flag7 = false) {
+Room.prototype.initTargets = function initTargets(targetArray = false) {
+
+	if (!targetArray) {
+		if (!this.memory.targets)
+			this.memory.targets = {};
+
+		this.memory.targets.harvester = 0;
+		this.memory.targets.collector = 0;
+		this.memory.targets.runner = 0;
+		this.memory.targets.builder = 0;
+		this.memory.targets.upgrader = 0;
+		this.memory.targets.repairer = 0;
+		this.memory.targets.ranger = 0;
+		this.memory.targets.warrior = 0;
+		this.memory.targets.healer = 0;
+		this.memory.targets.rebooter = 0;
+		this.memory.targets.reserver = 0;
+		this.memory.targets.remoteharvester = 0;
+		this.memory.targets.remoterunner = 0;
+		this.memory.targets.remotebuilder = 0;
+		this.memory.targets.remoteguard = 0;
+		this.memory.targets.crane = 0;
+		this.memory.targets.miner = 0;
+		this.memory.targets.scientist = 0;
+
+	} else {
+		if (targetArray.length < 18)
+			return 'Not enough array indices provided.'
+
+		this.memory.targets.harvester = targetArray[0];
+		this.memory.targets.collector = targetArray[1];
+		this.memory.targets.runner = targetArray[2];
+		this.memory.targets.builder = targetArray[3];
+		this.memory.targets.upgrader = targetArray[4];
+		this.memory.targets.repairer = targetArray[5];
+		this.memory.targets.ranger = targetArray[6];
+		this.memory.targets.warrior = targetArray[7];
+		this.memory.targets.healer = targetArray[8];
+		this.memory.targets.rebooter = targetArray[9];
+		this.memory.targets.reserver = targetArray[10];
+		this.memory.targets.remoteharvester = targetArray[11];
+		this.memory.targets.remoterunner = targetArray[12];
+		this.memory.targets.remotebuilder = targetArray[13];
+		this.memory.targets.remoteguard = targetArray[14];
+		this.memory.targets.crane = targetArray[15];
+		this.memory.targets.miner = targetArray[16];
+		this.memory.targets.scientist = targetArray[17];
+	}
+}
+Room.prototype.initFlags = function initFlags() {
+	this.initRoomFlags();
+}
+
+Room.prototype.initRoomFlags = function initRoomFlags(flag1 = false, flag2 = false, flag3 = false, flag4 = false, flag5 = false, flag6 = false, flag7 = false, flag8 = false) {
+
+	if (!this.memory.flags)
+		this.memory.flags = {};
 
 	if (this.memory.flags.craneUpgrades 			=== undefined)
 		this.memory.flags.craneUpgrades 				= flag1;
@@ -334,9 +390,12 @@ Room.prototype.initRoomFlags = function initRoomFlags(flag1 = false, flag2 = fal
 		this.memory.flags.towerRepair 					= flag6;
 
 	if (this.memory.flags.towerRepairDefenses === undefined)
-		this.memory.flags.towerRepairDefenses 	= flag7;
+		this.memory.flags.towerRepairDefenses = flag7;
+	
+	if (this.memory.flags.runnersDoPiles === undefined)
+		this.memory.flags.runnersDoPiles = flag8;
 
-	return '[' + this.name + ']: Room flags initialized: craneUpgrades(' + this.memory.flags.craneUpgrades + ') runnerLogic(' + this.memory.flags.runnerLogic + ') repairRamparts(' + this.memory.flags.repairRamparts + ') repairWalls(' + this.memory.flags.repairWalls + ') runnersDoMinerals(' + this.memory.flags.runnersDoMinerals + ') towerRepairBasic(' + this.memory.flags.towerRepairBasic + ') towerRepairDefenses(' + this.memory.flags.towerRepairDefenses + ')';
+	return '[' + this.name + ']: Room flags initialized: craneUpgrades(' + this.memory.flags.craneUpgrades + ') runnerLogic(' + this.memory.flags.runnerLogic + ') repairRamparts(' + this.memory.flags.repairRamparts + ') repairWalls(' + this.memory.flags.repairWalls + ') runnersDoMinerals(' + this.memory.flags.runnersDoMinerals + ') towerRepairBasic(' + this.memory.flags.towerRepairBasic + ') towerRepairDefenses(' + this.memory.flags.towerRepairDefenses + ') runnersDoPiles(' + this.memory.flags.runnersDoPiles + ')';
 }
 
 Room.prototype.setRoomFlags = function setRoomFlags([flags]) {
@@ -348,6 +407,7 @@ Room.prototype.setRoomFlags = function setRoomFlags([flags]) {
 	const flag5 = flags[4];
 	const flag6 = flags[5];
 	const flag7 = flags[6];
+	const flag8 = flags[7];
 
 	if (flag1)
 		this.memory.flags.craneUpgrades 			= flag1;
@@ -370,19 +430,32 @@ Room.prototype.setRoomFlags = function setRoomFlags([flags]) {
 	if (flag7)
 		this.memory.flags.towerRepairDefenses = flag7;
 
-	return '[' + this.name + ']: Room flags set: runnerLogic(' + this.memory.flags.runnerLogic + ') repairRamparts(' + this.memory.flags.repairRamparts + ') repairWalls(' + this.memory.flags.repairWalls + ') runnersDoMinerals(' + this.memory.flags.runnersDoMinerals + ') towerRepairBasic(' + this.memory.flags.towerRepairBasic + ') towerRepairDefenses(' + this.memory.flags.towerRepairDefenses + ')';
+	if (flag8)
+		this.memory.flags.runnersDoPiles 			= flag8;
+
+	return '[' + this.name + ']: Room flags set: runnerLogic(' + this.memory.flags.runnerLogic + ') repairRamparts(' + this.memory.flags.repairRamparts + ') repairWalls(' + this.memory.flags.repairWalls + ') runnersDoMinerals(' + this.memory.flags.runnersDoMinerals + ') towerRepairBasic(' + this.memory.flags.towerRepairBasic + ') towerRepairDefenses(' + this.memory.flags.towerRepairDefenses + ') runnersDoPiles(' + this.memory.flags.runnersDoPiles + ')';
+}
+
+Room.prototype.initSettings = function initSettings() {
+	this.initRoomSettings();
 }
 
 Room.prototype.initRoomSettings = function initRoomSettings() {
 
-	if (this.memory.settings === undefined)
+	if (!this.memory.settings)
 		this.memory.settings = {};
 
-	if (this.memory.settings.repairRampartsTo === undefined)
-		this.memory.settings.repairRampartsTo = 1;
+	if (!this.memory.settings.repairSettings)
+		this.memory.settings.repairSettings = {};
+	
+	if (!this.memory.settings.labSettings)
+		this.memory.settings.labSettings = {};
 
-	if (this.memory.settings.repairWallsTo === undefined)
-		this.memory.settings.repairWallsTo = 1;
+	if (this.memory.settings.repairSettings.repairRampartsTo === undefined)
+		this.memory.settings.repairSettings.repairRampartsTo = 1;
+
+	if (this.memory.settings.repairSettings.repairWallsTo === undefined)
+		this.memory.settings.repairSettings.repairWallsTo = 1;
 
 	return '[' + this.name + ']: Room settings initialized: repairRampartsTo(' + this.memory.settings.repairRampartsTo + ') repairWallsTo(' + this.memory.settings.repairWallsTo + ')';
 }
@@ -405,10 +478,10 @@ Room.prototype.setRepairWallsTo = function setRepairWallsTo(percentMax) {
 	return 'Walls will now repair to ' + this.memory.settings.repairWallsTo + '% max.';
 }
 
-Room.prototype.setRoomSettings = function setRoomSettings(settingsArray) {
+Room.prototype.setRoomSettings = function setRoomSettings(repairToArray, labSettingsArray) {
 	
-	const rampartsPercent = settingsArray[0];
-	const wallsPercent 		= settingsArray[1];
+	const rampartsPercent = repairToArray[0];
+	const wallsPercent 		= repairToArray[1];
 
 	if (rampartsPercent)
 		this.memory.settings.repairRampartsTo = rampartsPercent;
@@ -443,4 +516,329 @@ Room.prototype.calcPath = function calcPath(pathName, start, end, walkOnCreeps =
 		console.log('Could not generate path.');
 		return null;
 	}	
+}
+
+Room.prototype.enableFlag 								= function enableFlag(flag, initIfNull = false) {
+	if (this.memory.flags[flag] === undefined && initIfNull === false)
+		return 'The specified flag does not exist: ' + flag;
+	if (initIfNull) {
+		this.memory.flags[flag] = true;
+		return true;
+	}
+}
+Room.prototype.disableFlag 								= function disableFlag(flag, initIfNull = false) {
+	if (this.memory.flags[flag] === undefined && initIfNull === false)
+		return 'The specified flag does not exist: ' + flag;
+	if (initIfNull) {
+		this.memory.flags[flag] = false;
+		return false;
+	}	
+}
+Room.prototype.toggleFlag 								= function toggleFlag(flag, initIfNull = false, defaultValue) {
+	if (this.memory.flags[flag] !== undefined) {
+		const logicState = this.memory.flags[flag];
+		if (logicState) {
+			this.memory.flags[flag] = false;
+			return false;
+		}
+		if (!logicState) {
+			this.memory.flags[flag] = true;
+			return true;
+		}
+	} else {
+		if (initIfNull) {
+			this.memory.flags[flag] = defaultValue || false;
+			return this.memory.flags[flag];
+		} else {
+			return 'The specified flag does not exist: ' + flag;
+		}
+	}
+}
+Room.prototype.enableRunnerLogic 					= function enableRunnerLogic() {
+	this.memory.flags.runnerLogic = true;
+	return true;
+}
+Room.prototype.disableRunnerLogic 				= function disableRunnerLogic() {
+	this.memory.flags.runnerLogic = false;
+	return false;
+}
+Room.prototype.toggleRunnerLogic 					= function toggleRunnerLogic() {
+	const logicState = this.memory.flags.runnerLogic;
+	if (logicState) {
+		this.memory.flags.runnerLogic = false;
+		return false;
+	}
+	if (!logicState) {
+		this.memory.flags.runnerLogic = true;
+		return true;
+	}
+}
+Room.prototype.enableCraneUpgrades 				= function enableCraneUpgrades() {
+	this.memory.flags.craneUpgrades = true;
+	return true;
+}
+Room.prototype.disableCraneUpgrades 			= function disableCraneUpgrades() {
+	this.memory.flags.craneUpgrades = false;
+	return false;
+}
+Room.prototype.toggleCraneUpgrades 				= function toggleCraneUpgrades() {
+	const logicState = this.memory.flags.craneUpgrades;
+	if (logicState) {
+		this.memory.flags.craneUpgrades = false;
+		return false;
+	}
+	if (!logicState) {
+		this.memory.flags.craneUpgrades = true;
+		return true;
+	}
+}
+Room.prototype.enableBoostCreeps 					= function enableBoostCreeps(dontScience = false) {
+	if (this.memory.flags.doScience && !dontScience)
+		return 'Cannot enable \'boostCreeps\' flag when \'doScience\' is set to true. (Provide boolean arg "true" in parameters to allow disabling of this flag.';
+
+	if (!this.memory.flags.doScience || dontScience) {
+		this.memory.flags.boostCreeps = true;
+		return true;
+	}
+}
+Room.prototype.disableBoostCreeps 				= function disableBoostCreeps() {
+	this.memory.flags.boostCreeps = false;
+	return false;
+}
+Room.prototype.toggleBoostCreeps 					= function toggleBoostCreeps(dontScience = false) {
+	const logicState = this.memory.flags.boostCreeps;
+	const doScienceState = this.memory.flags.doScience;
+	
+	if (!logicState && doScienceState && !dontScience)
+		return 'Cannot enable \'boostCreeps\' flag when \'doScience\' is set to true. (Provide boolean arg "true" in parameters to allow disabling of this flag.';
+		
+	if (logicState) {
+		this.memory.flags.boostCreeps = false;
+		return false;
+	}
+	if (!logicState) {
+		if ((doScienceState || !doScienceState) && dontScience)
+			this.memory.flags.doScience = false;
+		this.memory.flags.boostCreeps = true;
+		return true;
+	}
+}
+Room.prototype.enableDoScience 						= function enableDoScience() {
+	this.memory.flags.doScience = true;
+	return true;
+}
+Room.prototype.disableDoScience 					= function disableDoScience() {
+	this.memory.flags.doScience = false;
+	return false;
+}
+Room.prototype.toggleDoScience 						= function toggleDoScience() {
+	const logicState = this.memory.flags.doScience;
+	if (logicState) {
+		this.memory.flags.doScience = false;
+		return false;
+	}
+	if (!logicState) {
+		this.memory.flags.doScience = true;
+		return true;
+	}
+}
+Room.prototype.enableTowerRepairBasic 		= function enableTowerRepairBasic() {
+	this.memory.flags.towerRepairBasic = true;
+	return true;
+}
+Room.prototype.disableTowerRepairBasic 		= function disableTowerRepairBasic() {
+	this.memory.flags.towerRepairBasic = false;
+	return false;
+}
+Room.prototype.toggleTowerRepairBasic 		= function toggleTowerRepairBasic() {
+	const logicState = this.memory.flags.towerRepairBasic;
+	if (logicState) {
+		this.memory.flags.towerRepairBasic = false;
+		return false;
+	}
+	if (!logicState) {
+		this.memory.flags.towerRepairBasic = true;
+		return true;
+	}
+}
+Room.prototype.enableTowerRepairDefenses 	= function enableTowerRepairDefenses() {
+	this.memory.flags.towerRepairDefenses = true;
+	return true;
+}
+Room.prototype.disableTowerRepairDefenses = function disableTowerRepairDefenses() {
+	this.memory.flags.towerRepairDefenses = false;
+	return false;
+}
+Room.prototype.toggleTowerRepairDefenses 	= function toggleTowerRepairDefenses() {
+	const logicState = this.memory.flags.towerRepairDefenses;
+	if (logicState) {
+		this.memory.flags.towerRepairDefenses = false;
+		return false;
+	}
+	if (!logicState) {
+		this.memory.flags.towerRepairDefenses = true;
+		return true;
+	}
+}
+Room.prototype.enableRunnersDoMinerals 		= function enableRunnersDoMinerals() {
+	this.memory.flags.runnersDoMinerals = true;
+	return true;
+}
+Room.prototype.disableRunnersDoMinerals 	= function disableRunnersDoMinerals() {
+	this.memory.flags.runnersDoMinerals = false;
+	return false;
+}
+Room.prototype.toggleRunnersDoMinerals 		= function toggleRunnersDoMinerals() {
+	const logicState = this.memory.flags.runnersDoMinerals;
+	if (logicState) {
+		this.memory.flags.runnersDoMinerals = false;
+		return false;
+	}
+	if (!logicState) {
+		this.memory.flags.runnersDoMinerals = true;
+		return true;
+	}
+}
+Room.prototype.enableRepairWalls 					= function enableRepairWalls() {
+	this.memory.flags.repairWalls = true;
+	return true;
+}
+Room.prototype.disableRepairWalls 				= function disableRepairWalls() {
+	this.memory.flags.repairWalls = false;
+	return false;
+}
+Room.prototype.toggleRepairWalls 					= function toggleRepairWalls() {
+	const logicState = this.memory.flags.repairWalls;
+	if (logicState) {
+		this.memory.flags.repairWalls = false;
+		return false;
+	}
+	if (!logicState) {
+		this.memory.flags.repairWalls = true;
+		return true;
+	}
+}
+Room.prototype.enableRepairRamparts 			= function enableRepairRamparts() {
+	this.memory.flags.repairRamparts = true;
+	return true;
+}
+Room.prototype.disableRepairRamparts 			= function disableRepairRamparts() {
+	this.memory.flags.repairRamparts = false;
+	return false;
+}
+Room.prototype.toggleRepairRamparts 			= function toggleRepairRamparts() {
+	const logicState = this.memory.flags.repairRamparts;
+	if (logicState) {
+		this.memory.flags.repairRamparts = false;
+		return false;
+	}
+	if (!logicState) {
+		this.memory.flags.repairRamparts = true;
+		return true;
+	}
+}
+Room.prototype.enableRepairBasics 				= function enableRepairBasics() {
+	this.memory.flags.repairBasics = true;
+	return true;
+}
+Room.prototype.disableRepairBasics 				= function disableRepairBasics() {
+	this.memory.flags.repairBasics = false;
+	return false;
+}
+Room.prototype.toggleRepairBasics 				= function toggleRepairBasics() {
+	const logicState = this.memory.flags.repairBasics;
+	if (logicState) {
+		this.memory.flags.repairBasics = false;
+		return false;
+	}
+	if (!logicState) {
+		this.memory.flags.repairBasics = true;
+		return true;
+	}
+}
+Room.prototype.calcLabReaction 						= function calcLabReaction() {
+
+	const baseReg1 = this.memory.settings.labSettings.reagentOne;
+	const baseReg2 = this.memory.settings.labSettings.reagentTwo;
+	let outputChem;
+
+	// DETERMINE OUTPUT COMPOUND BASED ON INPUT COMPOUNDS
+	if (baseReg1 === RESOURCE_OXYGEN || baseReg2 === RESOURCE_OXYGEN) {
+		if (baseReg1 === RESOURCE_HYDROGEN || baseReg2 === RESOURCE_HYDROGEN)
+			outputChem = RESOURCE_HYDROXIDE;
+		else if (baseReg1 === RESOURCE_UTRIUM || baseReg2 === RESOURCE_UTRIUM)
+			outputChem = RESOURCE_UTRIUM_OXIDE;
+		else if (baseReg1 === RESOURCE_KEANIUM || baseReg2 === RESOURCE_KEANIUM)
+			outputChem = RESOURCE_KEANIUM_OXIDE;
+		else if (baseReg1 === RESOURCE_LEMERGIUM || baseReg2 === RESOURCE_LEMERGIUM)
+			outputChem = RESOURCE_LEMERGIUM_OXIDE;
+		else if (baseReg1 === RESOURCE_ZYNTHIUM || baseReg2 === RESOURCE_ZYNTHIUM)
+			outputChem = RESOURCE_ZYNTHIUM_OXIDE;
+		else if (baseReg1 === RESOURCE_GHODIUM || baseReg2 === RESOURCE_GHODIUM)
+			outputChem = RESOURCE_GHODIUM_OXIDE;
+	} else if (baseReg1 === RESOURCE_HYDROGEN || baseReg2 === RESOURCE_HYDROGEN) {
+		if (baseReg1 === RESOURCE_UTRIUM || baseReg2 === RESOURCE_UTRIUM)
+			outputChem = RESOURCE_UTRIUM_HYDRIDE;
+		else if (baseReg1 === RESOURCE_KEANIUM || baseReg2 === RESOURCE_KEANIUM)
+			outputChem = RESOURCE_KEANIUM_HYDRIDE;
+		else if (baseReg1 === RESOURCE_LEMERGIUM || baseReg2 === RESOURCE_LEMERGIUM)
+			outputChem = RESOURCE_LEMERGIUM_HYDRIDE;
+		else if (baseReg1 === RESOURCE_ZYNTHIUM || baseReg2 === RESOURCE_ZYNTHIUM)
+			outputChem = RESOURCE_ZYNTHIUM_HYDRIDE;
+		else if (baseReg1 === RESOURCE_GHODIUM || baseReg2 === RESOURCE_GHODIUM)
+			outputChem = RESOURCE_GHODIUM_HYDRIDE;
+	} else if (baseReg1 === RESOURCE_ZYNTHIUM || baseReg2 === RESOURCE_ZYNTHIUM) {
+		if (baseReg1 === RESOURCE_KEANIUM || baseReg2 === RESOURCE_KEANIUM)
+			outputChem = RESOURCE_ZYNTHIUM_KEANITE;
+	} else if (baseReg1 === RESOURCE_UTRIUM || baseReg2 === RESOURCE_UTRIUM) {
+		if (baseReg1 === RESOURCE_LEMERGIUM || baseReg2 === RESOURCE_LEMERGIUM)
+			outputChem = RESOURCE_UTRIUM_LEMERGITE;
+	} else if (baseReg1 === RESOURCE_ZYNTHIUM_KEANITE || baseReg2 === RESOURCE_ZYNTHIUM_KEANITE) {
+		if (baseReg1 === RESOURCE_UTRIUM_LEMERGITE || baseReg2 === RESOURCE_UTRIUM_LEMERGITE)
+			outputChem = RESOURCE_GHODIUM;
+	} else if (baseReg1 === RESOURCE_HYDROXIDE || baseReg2 === RESOURCE_HYDROXIDE) {
+		if (baseReg1 === RESOURCE_UTRIUM_HYDRIDE || baseReg2 === RESOURCE_UTRIUM_HYDRIDE)
+			outputChem = RESOURCE_UTRIUM_ACID;
+		if (baseReg1 === RESOURCE_UTRIUM_OXIDE || baseReg2 === RESOURCE_UTRIUM_OXIDE)
+			outputChem = RESOURCE_UTRIUM_ALKALIDE;
+		if (baseReg1 === RESOURCE_KEANIUM_HYDRIDE || baseReg2 === RESOURCE_KEANIUM_HYDRIDE)
+			outputChem = RESOURCE_KEANIUM_ACID;
+		if (baseReg1 === RESOURCE_KEANIUM_OXIDE || baseReg2 === RESOURCE_KEANIUM_OXIDE)
+			outputChem = RESOURCE_KEANIUM_ALKALIDE;
+		if (baseReg1 === RESOURCE_LEMERGIUM_HYDRIDE || baseReg2 === RESOURCE_LEMERGIUM_HYDRIDE)
+			outputChem = RESOURCE_LEMERGIUM_ACID;
+		if (baseReg1 === RESOURCE_LEMERGIUM_OXIDE || baseReg2 === RESOURCE_LEMERGIUM_OXIDE)
+			outputChem = RESOURCE_LEMERGIUM_ALKALIDE;
+		if (baseReg1 === RESOURCE_ZYNTHIUM_HYDRIDE || baseReg2 === RESOURCE_ZYNTHIUM_HYDRIDE)
+			outputChem = RESOURCE_ZYNTHIUM_ACID;
+		if (baseReg1 === RESOURCE_ZYNTHIUM_OXIDE || baseReg2 === RESOURCE_ZYNTHIUM_OXIDE)
+			outputChem = RESOURCE_ZYNTHIUM_ALKALIDE;
+		if (baseReg1 === RESOURCE_GHODIUM_HYDRIDE || baseReg2 === RESOURCE_GHODIUM_HYDRIDE)
+			outputChem = RESOURCE_GHODIUM_ACID;
+		if (baseReg1 === RESOURCE_GHODIUM_OXIDE || baseReg2 === RESOURCE_GHODIUM_OXIDE)
+			outputChem = RESOURCE_GHODIUM_ALKALIDE;
+	} else if (baseReg1 === RESOURCE_CATALYST || baseReg2 === RESOURCE_CATALYST) {
+		if (baseReg1 === RESOURCE_UTRIUM_ACID || baseReg2 == RESOURCE_UTRIUM_ACID)
+			outputChem = RESOURCE_CATALYZED_UTRIUM_ACID;
+		if (baseReg1 === RESOURCE_UTRIUM_ALKALIDE || baseReg2 == RESOURCE_UTRIUM_ALKALIDE)
+			outputChem = RESOURCE_CATALYZED_UTRIUM_ALKALIDE;
+		if (baseReg1 === RESOURCE_KEANIUM_ACID || baseReg2 == RESOURCE_KEANIUM_ACID)
+			outputChem = RESOURCE_CATALYZED_KEANIUM_ACID;
+		if (baseReg1 === RESOURCE_KEANIUM_ALKALIDE || baseReg2 == RESOURCE_KEANIUM_ALKALIDE)
+			outputChem = RESOURCE_CATALYZED_KEANIUM_ALKALIDE;
+		if (baseReg1 === RESOURCE_LEMERGIUM_ACID || baseReg2 == RESOURCE_LEMERGIUM_ACID)
+			outputChem = RESOURCE_CATALYZED_LEMERGIUM_ACID;
+		if (baseReg1 === RESOURCE_LEMERGIUM_ALKALIDE || baseReg2 == RESOURCE_LEMERGIUM_ALKALIDE)
+			outputChem = RESOURCE_CATALYZED_LEMERGIUM_ALKALIDE;
+		if (baseReg1 === RESOURCE_ZYNTHIUM_ACID || baseReg2 == RESOURCE_ZYNTHIUM_ACID)
+			outputChem = RESOURCE_CATALYZED_ZYNTHIUM_ACID;
+		if (baseReg1 === RESOURCE_ZYNTHIUM_ALKALIDE || baseReg2 == RESOURCE_ZYNTHIUM_ALKALIDE)
+			outputChem = RESOURCE_CATALYZED_ZYNTHIUM_ALKALIDE;
+		if (baseReg1 === RESOURCE_GHODIUM_ACID || baseReg2 == RESOURCE_GHODIUM_ACID)
+			outputChem = RESOURCE_CATALYZED_GHODIUM_ACID;
+		if (baseReg1 === RESOURCE_GHODIUM_ALKALIDE || baseReg2 == RESOURCE_GHODIUM_ALKALIDE)
+			outputChem = RESOURCE_CATALYZED_GHODIUM_ALKALIDE;
+	}
+	
+	return outputChem;
 }

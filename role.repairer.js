@@ -82,10 +82,10 @@ const roleRepairer = {
 					let walls = [];
 					let validTargets = [];
 					
-					const rampartsMax 	= creep.room.memory.settings.repairRampartsTo;
-					const wallsMax 		= creep.room.memory.settings.repairWallsTo;
+					const rampartsMax 	= creep.room.memory.settings.repairSettings.repairRampartsTo;
+					const wallsMax 		= creep.room.memory.settings.repairSettings.repairWallsTo;
 
-					// search for roads, spawns, extensions, or towers under 95%
+					// search for basically everything that's not a wall or a rampart
 					if (creep.room.memory.flags.repairBasics) {
 						basics = creep.room.find(FIND_STRUCTURES, {
 							filter: (i) => (i.hits < i.hitsMax) && (i.structureType ==
@@ -94,19 +94,19 @@ const roleRepairer = {
 						validTargets = validTargets.concat(basics);
 					}
 					
+					// add ramparts to the repair list, based on room flag & room max repair limit
 					if (creep.room.memory.flags.repairRamparts) {
 						ramparts = creep.room.find(FIND_STRUCTURES, { filter: (i) => ((i.hits / i.hitsMax * 100) <= rampartsMax) && (i.structureType == STRUCTURE_RAMPART) });
 						validTargets = validTargets.concat(ramparts);
 					}
-
+					// add walls to the repair list, based on room flag & room max repair limit
 					if (creep.room.memory.flags.repairWalls) {
 						walls = creep.room.find(FIND_STRUCTURES, { filter: (i) => (i.structureType == STRUCTURE_WALL && (i.hits / i.hitsMax * 100) <= wallsMax) })
 						validTargets = validTargets.concat(walls);
 					}
 
 					const target = creep.pos.findClosestByRange(validTargets);
-
-					console.log(target.pos.x + ' ' + target.pos.y);
+						
 					// travel to closest object within repair criteria and start repairing!
 					if (target) {
 						if (creep.repair(target) == ERR_NOT_IN_RANGE)

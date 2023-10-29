@@ -247,3 +247,27 @@ Creep.prototype.recursivePathMove = function recursivePathMove(serializedPath, s
 	if (stepNum < serializedPath.length)
 		return recursivePathMove(serializedPath, stepNum);
 }
+
+Creep.prototype.disable = function disable() {
+	this.memory.disableAI = true;
+	return true;
+}
+
+Creep.prototype.enable = function enable() {
+	this.memory.disableAI = false;
+	return false;
+}
+
+Creep.prototype.getBoost = function getBoost(compound = false, sourceLab = false, numParts = 1) {
+	if (compound) {
+		if (sourceLab) {
+			if (typeof sourceLab === 'string')
+				sourceLab = Game.getObjectById(sourceLab);
+			sourceLab.boostCreep()
+		}
+		
+		if (sourceLab.boostCreep(this,numParts) == ERR_NOT_IN_RANGE) {
+			this.moveTo(sourceLab, { visualizePathStyle: { stroke: '#ffffff', opacity: 0.5, lineStyle: 'undefined' } });
+		}
+	}
+}
