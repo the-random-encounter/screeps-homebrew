@@ -37,7 +37,8 @@ global.HEAP_MEMORY = {
 		'652e4025c40f9d0858e95789': {
 			'maxDistance': 15
 		}
-	}
+	},
+	'containerCounter': 0
 };
 
 global.manualCmdQueue = [];
@@ -54,7 +55,8 @@ const spawnVariants = {
 	'collector800':  	[CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE],
 	'collector1000': 	[CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE,MOVE, MOVE, MOVE],
 	'upgrader300':	 	[WORK, WORK, CARRY, MOVE],
-	'upgrader500':   	[WORK, WORK, WORK, WORK, CARRY, MOVE],
+	'upgrader500': 		[WORK, WORK, WORK, WORK, CARRY, MOVE],
+	'upgrader550': 		[WORK, WORK, WORK, WORK, CARRY, MOVE, MOVE],
 	'upgrader800':   	[WORK, WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE],
 	'upgrader1000':  	[WORK, WORK, WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE,
 		MOVE],
@@ -108,7 +110,7 @@ let remoteGuardCount 			= 0;
 // declare other global variables
 let tickCount = 0;
 let newName 	= '';
-let spawnAnnounce 				= false;
+let spawnAnnounced 				= false;
 let harvesterDying 				= false;
 let runnerDying 					= false;
 let reserverDying 				= false;
@@ -129,8 +131,8 @@ module.exports.loop = function () {
 	
 	// Generate pixels with extra CPU time
 	if (Game.cpu.bucket == 10000) {
-	    Game.cpu.generatePixel()
-	    console.log('CPU Bucket at limit, generating pixel...');
+		Game.cpu.generatePixel()
+		console.log('CPU Bucket at limit, generating pixel...');
 	}
 
 	/* #region CREEP MEMORY GARBAGE COLLECTION */
@@ -206,6 +208,11 @@ module.exports.loop = function () {
 		// code to run if room contains a controller owned by us
 		if (room && room.controller && room.controller.my) {
 			
+			global.ROOM_HEAP = {
+				"inboxCounter": 0,
+				"outboxCouner": 0
+			}
+
 			const roomName = room.name;
 
 			if (!room.memory.objects)
@@ -249,53 +256,61 @@ module.exports.loop = function () {
 			// pull creep role caps from room memory, or set to default value if none are set
 			let harvesterTarget = _.get(room.memory, ['targets', 'harvester'], 2);
 			let collectorTarget = _.get(room.memory, ['targets', 'collector'], 2);
-			let upgraderTarget 	= _.get(room.memory, ['targets', 'upgrader'	], 2);
-			let builderTarget 	= _.get(room.memory, ['targets', 'builder'	], 2);
-			let repairerTarget 	= _.get(room.memory, ['targets', 'repairer'	], 1);
-			let runnerTarget 		= _.get(room.memory, ['targets', 'runner'		], 0);
-			let rebooterTarget 	= _.get(room.memory, ['targets', 'rebooter'	], 0);
-			let reserverTarget 	= _.get(room.memory, ['targets', 'reserver'	], 0);
-			let rangerTarget 		= _.get(room.memory, ['targets', 'ranger'		], 1);
-			let warriorTarget 	= _.get(room.memory, ['targets', 'warrior'	], 1);
-			let healerTarget 		= _.get(room.memory, ['targets', 'healer'		], 1);
-			let craneTarget 		= _.get(room.memory, ['targets', 'crane'		], 1);
-			let minerTarget 		= _.get(room.memory, ['targets', 'miner'		], 1);
+			let upgraderTarget = _.get(room.memory, ['targets', 'upgrader'], 2);
+			let builderTarget = _.get(room.memory, ['targets', 'builder'], 2);
+			let repairerTarget = _.get(room.memory, ['targets', 'repairer'], 1);
+			let runnerTarget = _.get(room.memory, ['targets', 'runner'], 0);
+			let rebooterTarget = _.get(room.memory, ['targets', 'rebooter'], 0);
+			let reserverTarget = _.get(room.memory, ['targets', 'reserver'], 0);
+			let rangerTarget = _.get(room.memory, ['targets', 'ranger'], 1);
+			let warriorTarget = _.get(room.memory, ['targets', 'warrior'], 1);
+			let healerTarget = _.get(room.memory, ['targets', 'healer'], 1);
+			let craneTarget = _.get(room.memory, ['targets', 'crane'], 1);
+			let minerTarget = _.get(room.memory, ['targets', 'miner'], 1);
 			let scientistTarget = _.get(room.memory, ['targets', 'scientist'], 1);
 
 			let remoteHarvesterTarget = _.get(room.memory, ['targets', 'remoteharvester'], 1);
-			let remoteRunnerTarget 		= _.get(room.memory, ['targets', 'remoterunner'		], 1);
-			let remoteBuilderTarget 	= _.get(room.memory, ['targets', 'remotebuilder'	], 1);
-			let remoteGuardTarget			= _.get(room.memory, ['targets', 'remoteguard'		], 1);
+			let remoteRunnerTarget = _.get(room.memory, ['targets', 'remoterunner'], 1);
+			let remoteBuilderTarget = _.get(room.memory, ['targets', 'remotebuilder'], 1);
+			let remoteGuardTarget = _.get(room.memory, ['targets', 'remoteguard'], 1);
 
 			// pull current amount of creeps alive by roleForQuota
-			let harvesters 	= _.filter(Game.creeps, (creep) => creep.memory.roleForQuota == 'harvester' && creep.memory.homeRoom == roomName);
-			let collectors 	= _.filter(Game.creeps, (creep) => creep.memory.roleForQuota == 'collector' && creep.memory.homeRoom == roomName);
-			let upgraders 	= _.filter(Game.creeps, (creep) => creep.memory.roleForQuota == 'upgrader' && creep.memory.homeRoom == roomName );
-			let builders 		= _.filter(Game.creeps, (creep) => creep.memory.roleForQuota == 'builder'	 && creep.memory.homeRoom == roomName );
-			let repairers 	= _.filter(Game.creeps, (creep) => creep.memory.roleForQuota == 'repairer'  && creep.memory.homeRoom == roomName );
-			let runners 		= _.filter(Game.creeps, (creep) => creep.memory.roleForQuota == 'runner'	  && creep.memory.homeRoom == roomName );
-			let rebooters 	= _.filter(Game.creeps, (creep) => creep.memory.roleForQuota == 'rebooter'  && creep.memory.homeRoom == roomName );
-			let reservers 	= _.filter(Game.creeps, (creep) => creep.memory.roleForQuota == 'reserver' && creep.memory.homeRoom == roomName  );
-			let rangers 		= _.filter(Game.creeps, (creep) => creep.memory.roleForQuota == 'ranger'	 && creep.memory.homeRoom == roomName  );
-			let warriors 		= _.filter(Game.creeps, (creep) => creep.memory.roleForQuota == 'warrior'	 && creep.memory.homeRoom == roomName  );
-			let healers 		= _.filter(Game.creeps, (creep) => creep.memory.roleForQuota == 'healer'	 && creep.memory.homeRoom == roomName  );
-			let cranes 			= _.filter(Game.creeps, (creep) => creep.memory.roleForQuota == 'crane'		 && creep.memory.homeRoom == roomName  );
-			let miners 			= _.filter(Game.creeps, (creep) => creep.memory.roleForQuota == 'miner'		 && creep.memory.homeRoom == roomName  );
-			let scientists  = _.filter(Game.creeps, (creep) => creep.memory.roleForQuota == 'scientist' && creep.memory.homeRoom == roomName );
+			let harvesters = _.filter(Game.creeps, (creep) => creep.memory.roleForQuota == 'harvester' && creep.memory.homeRoom == roomName);
+			let collectors = _.filter(Game.creeps, (creep) => creep.memory.roleForQuota == 'collector' && creep.memory.homeRoom == roomName);
+			let upgraders = _.filter(Game.creeps, (creep) => creep.memory.roleForQuota == 'upgrader' && creep.memory.homeRoom == roomName);
+			let builders = _.filter(Game.creeps, (creep) => creep.memory.roleForQuota == 'builder' && creep.memory.homeRoom == roomName);
+			let repairers = _.filter(Game.creeps, (creep) => creep.memory.roleForQuota == 'repairer' && creep.memory.homeRoom == roomName);
+			let runners = _.filter(Game.creeps, (creep) => creep.memory.roleForQuota == 'runner' && creep.memory.homeRoom == roomName);
+			let rebooters = _.filter(Game.creeps, (creep) => creep.memory.roleForQuota == 'rebooter' && creep.memory.homeRoom == roomName);
+			let reservers = _.filter(Game.creeps, (creep) => creep.memory.roleForQuota == 'reserver' && creep.memory.homeRoom == roomName);
+			let rangers = _.filter(Game.creeps, (creep) => creep.memory.roleForQuota == 'ranger' && creep.memory.homeRoom == roomName);
+			let warriors = _.filter(Game.creeps, (creep) => creep.memory.roleForQuota == 'warrior' && creep.memory.homeRoom == roomName);
+			let healers = _.filter(Game.creeps, (creep) => creep.memory.roleForQuota == 'healer' && creep.memory.homeRoom == roomName);
+			let cranes = _.filter(Game.creeps, (creep) => creep.memory.roleForQuota == 'crane' && creep.memory.homeRoom == roomName);
+			let miners = _.filter(Game.creeps, (creep) => creep.memory.roleForQuota == 'miner' && creep.memory.homeRoom == roomName);
+			let scientists = _.filter(Game.creeps, (creep) => creep.memory.roleForQuota == 'scientist' && creep.memory.homeRoom == roomName);
 
-			let remoteHarvesters = _.filter(Game.creeps, (creep) => creep.memory.roleForQuota == 'remoteharvester' && creep.memory.homeRoom == roomName );
-			let remoteRunners 	 = _.filter(Game.creeps, (creep) => creep.memory.roleForQuota == 'remoterunner'	 && creep.memory.homeRoom == roomName 	);
-			let remoteBuilders 	 = _.filter(Game.creeps, (creep) => creep.memory.roleForQuota == 'remotebuilder'	 && creep.memory.homeRoom == roomName );
-			let remoteGuards 		 = _.filter(Game.creeps, (creep) => creep.memory.roleForQuota == 'remoteguard'	 && creep.memory.homeRoom == roomName 	);
+			let remoteHarvesters = _.filter(Game.creeps, (creep) => creep.memory.roleForQuota == 'remoteharvester' && creep.memory.homeRoom == roomName);
+			let remoteRunners = _.filter(Game.creeps, (creep) => creep.memory.roleForQuota == 'remoterunner' && creep.memory.homeRoom == roomName);
+			let remoteBuilders = _.filter(Game.creeps, (creep) => creep.memory.roleForQuota == 'remotebuilder' && creep.memory.homeRoom == roomName);
+			let remoteGuards = _.filter(Game.creeps, (creep) => creep.memory.roleForQuota == 'remoteguard' && creep.memory.homeRoom == roomName);
 
 			let sites = room.find(FIND_CONSTRUCTION_SITES);
 			//let westSites = Game.rooms.E57S51.find(FIND_CONSTRUCTION_SITES);
 			let northSites = Game.rooms.E59S48.find(FIND_CONSTRUCTION_SITES);
 			/* #endregion */
 
+			// Select a non-geriatric collector to loot compounds or energy from enemy corpses
 			if (room.find(FIND_HOSTILE_CREEPS).length) {
-				collectors[0].memory.invaderLooter = true;
-				console.log(collectors[0] + ' is now the invader looter');
+				if (collectors.length) {
+					for (let i = 0; i < collectors.length; i++) {
+						if (collectors[i].ticksToLive > 300) {
+							collectors[i].memory.invaderLooter = true;
+							console.log(collectors[i] + ' is now the invader looter');
+							break;
+						}
+					}
+				}
 			}
 			
 			/* #region  CONSOLE LOG - SPAWN INFO */
@@ -304,34 +319,47 @@ module.exports.loop = function () {
 				tickCount = 0;
 			}
 			/* #endregion */
-	
 			/* #region  ROOM VISUAL - SPAWN INFO */
-
-			// BOTTOM RIGHT CORNER
+			const alignment = room.memory.settings.visualSettings.spawnInfo.alignment;
+			const spawnColor = room.memory.settings.visualSettings.spawnInfo.color;
+			let spawnX = 49;
+			if (alignment == 'left')
+				spawnX = 0;
+			/* #region BOTTOM RIGHT CORNER */
 			// Harvesters, Collectors, Upgraders, Builders, Cranes
-			room.visual.text('H:' + harvesters.length + '(' + harvesterTarget + ') | C:' + collectors.length + '(' + collectorTarget + ') | U:' + upgraders.length + '(' + upgraderTarget + ') | B:' + builders.length + '(' + builderTarget + ') | Cn:' + cranes.length + '(' + craneTarget + ')', 49, 49, { align: 'right' });
+			room.visual.text('H:' + harvesters.length + '(' + harvesterTarget + ') | C:' + collectors.length + '(' + collectorTarget + ') | U:' + upgraders.length + '(' + upgraderTarget + ') | B:' + builders.length + '(' + builderTarget + ') | Cn:' + cranes.length + '(' + craneTarget + ')', spawnX, 49, { align: alignment, color: spawnColor });
 			// Remote Harvesters, Remote Runners, Remote Builders, Remote Guards
-			room.visual.text('RH:' + remoteHarvesters.length + '(' + remoteHarvesterTarget + ') | RR:' + remoteRunners.length + '(' + remoteRunnerTarget + ') | RB:' + remoteBuilders.length + '(' + remoteBuilderTarget + ') | RG:' + remoteGuards.length + '(' + remoteGuardTarget + ')', 49, 48, { align: 'right' });
+			room.visual.text('RH:' + remoteHarvesters.length + '(' + remoteHarvesterTarget + ') | RR:' + remoteRunners.length + '(' + remoteRunnerTarget + ') | RB:' + remoteBuilders.length + '(' + remoteBuilderTarget + ') | RG:' + remoteGuards.length + '(' + remoteGuardTarget + ')', spawnX, 48, { align: alignment, color: spawnColor });
 			// Runners, Repaireres, Rebooters, Reservers
-			room.visual.text('Rn:' + runners.length + '(' + runnerTarget + ') | Rp:' + repairers.length + '(' + repairerTarget + ') | Rb:' + rebooters.length + '(' + rebooterTarget + ') | Rv:' + reservers.length + '(' + reserverTarget + ')', 49, 47, { align: 'right' });
+			room.visual.text('Rn:' + runners.length + '(' + runnerTarget + ') | Rp:' + repairers.length + '(' + repairerTarget + ') | Rb:' + rebooters.length + '(' + rebooterTarget + ') | Rv:' + reservers.length + '(' + reserverTarget + ')', spawnX, 47, { align: alignment, color: spawnColor });
 			// Rangers, Warriors, Healers
-			room.visual.text('Rng:' + rangers.length + '(' + rangerTarget + ') | War:' + warriors.length + '(' + warriorTarget + ') | Hlr:' + healers.length + '(' + healerTarget + ')', 49, 46, { align: 'right' });
+			room.visual.text('Rng:' + rangers.length + '(' + rangerTarget + ') | War:' + warriors.length + '(' + warriorTarget + ') | Hlr:' + healers.length + '(' + healerTarget + ')', spawnX, 46, { align: alignment, color: spawnColor });
 			// Energy Available, Energy Capacity
-			room.visual.text('Energy: ' + room.energyAvailable + '(' + room.energyCapacityAvailable + ')', 49, 45, { align: 'right' });
-
-			// TOP RIGHT CORNER
-			// Harvesters, Collectors, Upgraders, Builders, Cranes
-			room.visual.text('H:' + harvesters.length + '(' + harvesterTarget + ') | C:' + collectors.length + '(' + collectorTarget + ') | U:' + upgraders.length + '(' + upgraderTarget + ') | B:' + builders.length + '(' + builderTarget + ') | Cn:' + cranes.length + '(' + craneTarget + ')', 49, 0, { align: 'right' });
-			// Remote Harvesters, Remote Runners, Remote Builders, Remote Guards
-			room.visual.text('RH:' + remoteHarvesters.length + '(' + remoteHarvesterTarget + ') | RR:' + remoteRunners.length + '(' + remoteRunnerTarget + ') | RB:' + remoteBuilders.length + '(' + remoteBuilderTarget + ') | RG:' + remoteGuards.length + '(' + remoteGuardTarget + ')', 49, 1, { align: 'right' });
-			// Runners, Repaireres, Rebooters, Reservers
-			room.visual.text('Rn:' + runners.length + '(' + runnerTarget + ') | Rp:' + repairers.length + '(' + repairerTarget + ') | Rb:' + rebooters.length + '(' + rebooterTarget + ') | Rv:' + reservers.length + '(' + reserverTarget + ')', 49, 2, { align: 'right' });
-			// Rangers, Warriors, Healers
-			room.visual.text('Rng:' + rangers.length + '(' + rangerTarget + ') | War:' + warriors.length + '(' + warriorTarget + ') | Hlr:' + healers.length + '(' + healerTarget + ')', 49, 3, { align: 'right' });
-			// Energy Available, Energy Capacity
-			room.visual.text('Energy: ' + room.energyAvailable + '(' + room.energyCapacityAvailable + ')', 49, 4, { align: 'right' });
+			room.visual.text('Energy: ' + room.energyAvailable + '(' + room.energyCapacityAvailable + ')', spawnX, 45, { align: alignment, color: spawnColor });
 			/* #endregion */
+			/* #region TOP RIGHT CORNER */
+			// Harvesters, Collectors, Upgraders, Builders, Cranes
+			room.visual.text('H:' + harvesters.length + '(' + harvesterTarget + ') | C:' + collectors.length + '(' + collectorTarget + ') | U:' + upgraders.length + '(' + upgraderTarget + ') | B:' + builders.length + '(' + builderTarget + ') | Cn:' + cranes.length + '(' + craneTarget + ')', spawnX, 0, { align: alignment, color: spawnColor });
+			// Remote Harvesters, Remote Runners, Remote Builders, Remote Guards
+			room.visual.text('RH:' + remoteHarvesters.length + '(' + remoteHarvesterTarget + ') | RR:' + remoteRunners.length + '(' + remoteRunnerTarget + ') | RB:' + remoteBuilders.length + '(' + remoteBuilderTarget + ') | RG:' + remoteGuards.length + '(' + remoteGuardTarget + ')', spawnX, 1, { align: alignment, color: spawnColor });
+			// Runners, Repaireres, Rebooters, Reservers
+			room.visual.text('Rn:' + runners.length + '(' + runnerTarget + ') | Rp:' + repairers.length + '(' + repairerTarget + ') | Rb:' + rebooters.length + '(' + rebooterTarget + ') | Rv:' + reservers.length + '(' + reserverTarget + ')', spawnX, 2, { align: alignment, color: spawnColor });
+			// Rangers, Warriors, Healers
+			room.visual.text('Rng:' + rangers.length + '(' + rangerTarget + ') | War:' + warriors.length + '(' + warriorTarget + ') | Hlr:' + healers.length + '(' + healerTarget + ')', spawnX, 3, { align: alignment, color: spawnColor });
+			// Energy Available, Energy Capacity
+			room.visual.text('Energy: ' + room.energyAvailable + '(' + room.energyCapacityAvailable + ')', spawnX, 4, { align: alignment, color: spawnColor });
+			/* #endregion */
+			/* #endregion */
+			/* #region  ROOM VISUAL - ROOM FLAGS */
+			const xCoord = room.memory.settings.visualSettings.roomFlags.displayCoords[0];
+			const yCoord = room.memory.settings.visualSettings.roomFlags.displayCoords[1];
+			const displayColor = room.memory.settings.visualSettings.roomFlags.color;
+			const fontSize = room.memory.settings.visualSettings.roomFlags.fontSize;
 
+			room.visual.text('[' + room.name + ']: CU(' + room.memory.flags.craneUpgrades + ') RL(' + room.memory.flags.runnerLogic + ') RDM(' + room.memory.flags.runnersDoMinerals + ') RDP(' + room.memory.flags.runnersDoPiles + ') HFA(' + room.memory.flags.harvestersFixAdjacent + ')', xCoord, (yCoord -1), { align: 'left', font: fontSize, color: displayColor });
+			room.visual.text('[' + room.name + ']: RB(' + room.memory.flags.repairBasics + ') RR(' + room.memory.flags.repairRamparts + ') RW(' + room.memory.flags.repairWalls + ') TRB(' + room.memory.flags.towerRepairBasic + ') TRD(' + room.memory.flags.towerRepairDefenses + ')', xCoord, yCoord, { align: 'left', font: fontSize, color: displayColor });
+
+			/* #endregion */
 
 			let creepCount = Object.keys(Memory.creeps);
 			let capacity;
@@ -352,6 +380,8 @@ module.exports.loop = function () {
 				availableVariants.harvester = spawnVariants.harvester500;
 				availableVariants.collector = spawnVariants.collector500;
 				availableVariants.upgrader = spawnVariants.upgrader500;
+				if (room.energyCapacityAvailable <= 550)
+					availableVariants.upgrader = spawnVariants.upgrader550;
 				availableVariants.builder = spawnVariants.builder500;
 				availableVariants.repairer = spawnVariants.repairer500;
 				availableVariants.runner = spawnVariants.runner300;
@@ -385,9 +415,9 @@ module.exports.loop = function () {
 					availableVariants.collector = spawnVariants.collector300;
 			}
 
-			// ensure that two harvesters never use the same source for harvesting
+			// ensure that two harvesters never use the same source for harvesting, when spawning 6-work harvesters
 			// if it happens, send the older one to the opposite source
-			if (harvesters.length >= 2) {
+			if (harvesters.length >= 2 && harvesters[0].getActiveBodyparts(WORK).length >= 6) {
 				if (harvesters[0].memory.source == harvesters[1].memory.source) {
 					if (harvesters[0].ticksToLive > harvesters[1].ticksToLive) {
 						harvesters[1].assignHarvestSource(true);
@@ -467,13 +497,13 @@ module.exports.loop = function () {
 					newName = 'Rb' + (rebooters.length + 1 + rebooterCount);
 					rebooterCount++;
 				}
-			} else if ((collectors.length < collectorTarget) || (collectors.length <= collectorTarget && collectorDying == true)) {
+			} else if ((collectors.length < collectorTarget) || (collectors.length <= collectorTarget && collectorDying && collectorTarget !== 0)) {
 				newName = 'C' + (collectors.length + 1);
 				while (spawn.spawnCreep(availableVariants.collector, newName, { memory: { role: 'collector', roleForQuota: 'collector', homeRoom: roomName } }) == ERR_NAME_EXISTS) {
 					newName = 'C' + (collectors.length + 1 + collectorCount);
 					collectorCount++;
 				}
-			} else if ((harvesters.length < harvesterTarget) || (harvesters.length <= harvesterTarget && harvesterDying == true)) {
+			} else if ((harvesters.length < harvesterTarget) || (harvesters.length <= harvesterTarget && harvesterDying && harvesterTarget !== 0)) {
 				newName = 'H' + (harvesters.length + 1);
 				while (spawn.spawnCreep(availableVariants.harvester, newName, { memory: { role: 'harvester', roleForQuota: 'harvester', homeRoom: roomName } }) == ERR_NAME_EXISTS) {
 					newName = 'H' + (harvesters.length + 1 + harvesterCount);
@@ -481,7 +511,7 @@ module.exports.loop = function () {
 				}
 			} else {
 				// REBOOTERS/COLLECTORS/HARVESTERS are at quota, move on to the rest:
-				if ((runners.length < runnerTarget) || (runners.length <= runnerTarget && runnerDying)) {
+				if ((runners.length < runnerTarget) || (runners.length <= runnerTarget && runnerDying && runnerTarget !== 0)) {
 					newName = 'Rn' + (runners.length + 1);
 					while (spawn.spawnCreep(availableVariants.runner, newName, { memory: { role: 'runner', roleForQuota: 'runner', homeRoom: roomName } }) == ERR_NAME_EXISTS) {
 						newName = 'Rn' + (runners.length + 1 + runnerCount);
@@ -525,13 +555,13 @@ module.exports.loop = function () {
 					}
 				} else {
 					//RUNNERS/UPGRADERS/BUILDERS/REPAIRERS/CRANES/MINERS/SCIENTISTS are at quota, move on to rest:
-					if ((reservers.length < reserverTarget) || (reservers.length <= reserverTarget && reserverDying)) {
+					if ((reservers.length < reserverTarget) || (reservers.length <= reserverTarget && reserverDying && reserverTarget !== 0)) {
 						newName = 'Rv' + (reservers.length + 1);
 						while (spawn.spawnCreep([MOVE, MOVE, CLAIM, CLAIM], newName, { memory: { role: 'reserver', roleForQuota: 'reserver', homeRoom: roomName } }) == ERR_NAME_EXISTS) {
 							newName = 'Rv' + (reservers.length + 1 + reserverCount);
 							reserverCount++;
 						}
-					} else if ((remoteHarvesters.length < remoteHarvesterTarget) || (remoteHarvesters.length <= remoteHarvesterTarget && remoteHarvesterDying)) {
+					} else if ((remoteHarvesters.length < remoteHarvesterTarget) || (remoteHarvesters.length <= remoteHarvesterTarget && remoteHarvesterDying && remoteHarvesterTarget !== 0)) {
 						newName = 'RH' + (remoteHarvesters.length + 1);
 						while (spawn.spawnCreep([WORK, WORK, WORK, WORK, WORK, WORK, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE], newName, { memory: { role: 'remoteharvester', roleForQuota: 'remoteharvester', homeRoom: roomName } }) == ERR_NAME_EXISTS) {
 							newName = 'RH' + (remoteHarvesters.length + 1 + remoteHarvesterCount);
@@ -549,7 +579,7 @@ module.exports.loop = function () {
 							newName = 'RB' + (remoteBuilders.length + 1 + remoteBuilderCount);
 							remoteBuilderCount++;
 						}
-					} else if ((remoteGuards.length < remoteGuardTarget) || (remoteGuards.length <= remoteGuardTarget && remoteGuardDying)) {
+					} else if ((remoteGuards.length < remoteGuardTarget) || (remoteGuards.length <= remoteGuardTarget && remoteGuardDying && remoteGuardTarget !== 0)) {
 						newName = 'RG' + (remoteGuards.length + 1);
 						while (spawn.spawnCreep(availableVariants.remoteGuard, newName, { memory: { role: 'remoteguard', roleForQuota: 'remoteguard', homeRoom: roomName } }) == ERR_NAME_EXISTS) {
 							newName = 'RG' + (remoteGuards.length + 1 + remoteGuardCount);
@@ -583,25 +613,24 @@ module.exports.loop = function () {
 			/* #endregion */
 
 			// Display creep spawning information next to spawn
-	if (spawn.spawning) {
+			if (spawn.spawning) {
 		
-		let spawningCreep = Game.creeps[spawn.spawning.name];
-		if (!spawnAnnounce) {
-			console.log('Spawning new creep: ' + spawningCreep.memory.role + ' (' + spawningCreep.name + ')');
-			spawnAnnounce = true;
-		}
-		spawn.room.visual.text('     ' + spawningCreep.memory.role + ' - ' +
-			spawn.spawning.remainingTime + '/' + spawn.spawning.needTime,
-			spawn.pos.x + 1,
-			spawn.pos.y - 1,
-			{ align: 'left', opacity: 0.8, font: 0.4 });
-	} else {
-		spawnAnnounce = false;
-	}
+				let spawningCreep = Game.creeps[spawn.spawning.name];
+				if (!spawnAnnounced) {
+					console.log('Spawning new creep: ' + spawningCreep.memory.role + ' (' + spawningCreep.name + ')');
+					spawnAnnounced = true;
+				}
+				spawn.room.visual.text('     ' + spawningCreep.memory.role + ' - ' + spawn.spawning.remainingTime + '/' + spawn.spawning.needTime, spawn.pos.x + 1, spawn.pos.y - 1, { align: 'left', opacity: 0.8, font: 0.4 });
+			} else {
+				spawnAnnounced = false;
+			}
+
+			if (room.controller.level > 1)
+				visualRCProgress(room.controller);
+			
+			//console.log('[' + room.name + ']: Consumed ' + Game.cpu.getUsed().toFixed(3) + ' this tick.');
 		}
 		/* #endregion */
-
-	//visualRCProgress(room.controller);
 
 	});
 	/* #endregion */
@@ -687,6 +716,7 @@ module.exports.loop = function () {
 	}
 /* #endregion */
 	tickCount++;
+	//console.log('Full main loop used ' + Game.cpu.getUsed().toFixed(3) + ' this tick.');
 }
 /* #endregion */
 

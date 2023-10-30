@@ -148,6 +148,35 @@ global.MC = function (name, dir) {
 
 global.visualRCProgress = function (controllerID) {
 
+	let lvlColor;
+
+	switch (controllerID.level) {
+		case 1:
+			lvlColor = '#005500';
+			break;
+		case 2:
+			lvlColor = '#00ffff';
+			break;
+		case 3:
+			lvlColor = '#22dddd';
+			break;
+		case 4:
+			lvlColor = '#44ccaa';
+			break;
+		case 5:
+			lvlColor = '#6600ff';
+			break;
+		case 6:
+			lvlColor = '#99ff00';
+			break;
+		case 7:
+			lvlColor = '#cc00ff';
+			break;
+		case 8:
+			lvlColor = '#aa0000';
+			break;
+		
+	}
 	let cont; 
 	
 	if (typeof controllerID == 'string')
@@ -155,9 +184,9 @@ global.visualRCProgress = function (controllerID) {
 	else
 		cont = controllerID;
 
-	cont.room.visual.text('L' + cont.level + ' - ' + cont.progress + '/' + cont.progressTotal, cont.pos.x + 1, cont.pos.y - 1, { align: 'left', opacity: 0.5, color: '#00ffff', font: 0.4 });
+	cont.room.visual.text('L' + cont.level + ' - ' + cont.progress + '/' + cont.progressTotal, cont.pos.x + 1, cont.pos.y - 1, { align: 'left', opacity: 0.5, color: lvlColor, font: 0.4 });
 
-	cont.room.visual.text('          ' + ((cont.progress / cont.progressTotal) * 100).toFixed(2) + '%', cont.pos.x + 1, cont.pos.y, { align: 'left', opacity: 0.5, color: '#00ffff', font: 0.4 });
+	cont.room.visual.text('          ' + ((cont.progress / cont.progressTotal) * 100).toFixed(2) + '%', cont.pos.x + 1, cont.pos.y, { align: 'left', opacity: 0.5, color: lvlColor, font: 0.4 });
 		
 }
 

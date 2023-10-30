@@ -59,7 +59,7 @@ const roleRepairer = {
 				var towers = creep.room.find(FIND_STRUCTURES);
 
 				towers = _.filter(towers, function (struct) {
-					return (struct.structureType == STRUCTURE_TOWER && struct.store.getFreeCapacity(RESOURCE_ENERGY) > 0);
+					return (struct.structureType == STRUCTURE_TOWER && struct.store.getFreeCapacity(RESOURCE_ENERGY) > 500);
 				});
 	
 				if (towers.length) {
@@ -81,9 +81,14 @@ const roleRepairer = {
 					let ramparts = [];
 					let walls = [];
 					let validTargets = [];
+					let rampartsMax, wallsMax;
 					
-					const rampartsMax 	= creep.room.memory.settings.repairSettings.repairRampartsTo;
-					const wallsMax 		= creep.room.memory.settings.repairSettings.repairWallsTo;
+					if (creep.room.controller !== undefined) {
+						if (creep.room.controller.my) {
+							rampartsMax = creep.room.memory.settings.repairSettings.repairRampartsTo;
+							wallsMax = creep.room.memory.settings.repairSettings.repairWallsTo;
+						}
+					}
 
 					// search for basically everything that's not a wall or a rampart
 					if (creep.room.memory.flags.repairBasics) {

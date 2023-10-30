@@ -1,4 +1,29 @@
-Room.prototype.cacheObjects = function cacheObjects() {
+Room.prototype.calcPath 									= function calcPath(pathName, start, end, walkOnCreeps = true, serializeData = false, maxOps) {
+
+	PathFinder.use(true);
+	
+	if (typeof start === 'string' || start instanceof String)
+		start = Game.getObjectById(start);
+
+	if (typeof end === 'string' || end instanceof String)
+		end = Game.getObjectById(end);
+
+	let path;
+	if (maxOps)
+		path = this.findPath(start, end, { ignoreCreeps: walkOnCreeps, serialize: serializeData, maxOps: maxOps });
+
+	if (!maxOps)
+		path = this.findPath(start, end, { ignoreCreeps: walkOnCreeps, serialize: serializeData });
+
+	if (path) {
+		this.memory.paths[pathName] = path;
+		return path;
+	} else if (!path){
+		console.log('Could not generate path.');
+		return null;
+	}	
+}
+Room.prototype.cacheObjects 							= function cacheObjects() {
 
 	// declare storage array for objects to cache
 	let storageArray = [];
@@ -9,6 +34,7 @@ Room.prototype.cacheObjects = function cacheObjects() {
 	const deposits 		= this.find(FIND_DEPOSITS	);
 	const controller 	= this.find(FIND_STRUCTURES, { filter: { structureType: STRUCTURE_CONTROLLER  } });
 	const spawns 			= this.find(FIND_STRUCTURES, { filter: { structureType: STRUCTURE_SPAWN 			} });
+	const extensions 	= this.find(FIND_STRUCTURES, { filter: { structureType: STRUCTURE_EXTENSION 	} });
 	const towers 			= this.find(FIND_STRUCTURES, { filter: { structureType: STRUCTURE_TOWER 			} });
 	const containers 	= this.find(FIND_STRUCTURES, { filter: { structureType: STRUCTURE_CONTAINER 	} });
 	const storage 		= this.find(FIND_STRUCTURES, { filter: { structureType: STRUCTURE_STORAGE 		} });
@@ -93,6 +119,20 @@ Room.prototype.cacheObjects = function cacheObjects() {
 				console.log('Cached ' + storageArray.length + ' spawns.');
 			else 
 				console.log('Cached 1 spawn.');
+		}
+		storageArray = [];
+	}	
+
+	// if an extension is found, add its ID to array and add array to room's 'objects' memory
+	if (extensions) {
+		for (i = 0; i < extensions.length; i++)
+			storageArray.push(extensions[i].id);
+		if (storageArray.length) {
+			this.memory.objects.extensions = storageArray;
+			if (storageArray.length > 1) 
+				console.log('Cached ' + storageArray.length + ' extensions.');
+			else 
+				console.log('Cached 1 extebsion.');
 		}
 		storageArray = [];
 	}	
@@ -257,16 +297,16 @@ Room.prototype.cacheObjects = function cacheObjects() {
 
 	return 'Caching objects for room ' + this.name + ' completed.';
 }
-
-
-Room.prototype.initTargets = function initTargets(array) {
+Room.prototype.initTargets 								= function initTargets(array) {
 
 	const targetArray = array || [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
 	this.memory.targets = {};
 }
-
-Room.prototype.setTarget = function setTarget(roleTarget, newTarget) {
+Room.prototype.setQuota 									= function setQuota(roleTarget, newTarget) {
+	this.setTarget(roleTarget, newTarget);
+}
+Room.prototype.setTarget 									= function setTarget(roleTarget, newTarget) {
 
 	const oldTarget = this.memory.targets[roleTarget];
 
@@ -275,8 +315,7 @@ Room.prototype.setTarget = function setTarget(roleTarget, newTarget) {
 
 	return ('[' + this.name + ']: Set role \'' + roleTarget + '\' target to ' + newTarget + ' (was ' + oldTarget + ').');
 }
-
-Room.prototype.sendEnergy = function sendEnergy() {
+Room.prototype.sendEnergy 								= function sendEnergy() {
 
 	const linkToLocal = this.memory.objects.links[0];
 	const linkFromLocal = this.memory.objects.links[1];
@@ -288,32 +327,28 @@ Room.prototype.sendEnergy = function sendEnergy() {
 		return '[' + this.name + ']: On cooldown, ' + linkFromLocal.cooldown + ' ticks remaining.';
 	}
 }
-
-Room.prototype.initRoomData = function initRoomData() {
+Room.prototype.initRoom 									= function initRoom() {
+	this.initRoomData();
+}
+Room.prototype.initRoomData 							= function initRoomData() {
 
 	if (!this.memory.objects)
 		this.memory.objects = {};
-
 	if (!this.memory.flags)
 		this.memory.flags = {};
-
 	if (!this.memory.settings)
 		this.memory.settings = {};
-
 	if (!this.memory.paths)
 		this.memory.paths = {};
-
 	if (this.memory.objects.lastAssigned === undefined)
 		this.memory.objects.lastAssigned = 0;
 		
 	this.cacheObjects();
-	
 	this.initRoomFlags();
-
 	this.initRoomSettings();
+	this.initTargets();
 }
-
-Room.prototype.initTargets = function initTargets(targetArray = false) {
+Room.prototype.initTargets 								= function initTargets(targetArray = false) {
 
 	if (!targetArray) {
 		if (!this.memory.targets)
@@ -362,43 +397,47 @@ Room.prototype.initTargets = function initTargets(targetArray = false) {
 		this.memory.targets.scientist = targetArray[17];
 	}
 }
-Room.prototype.initFlags = function initFlags() {
+Room.prototype.initFlags									= function initFlags() {
 	this.initRoomFlags();
 }
-
-Room.prototype.initRoomFlags = function initRoomFlags(flag1 = false, flag2 = false, flag3 = false, flag4 = false, flag5 = false, flag6 = false, flag7 = false, flag8 = false) {
+Room.prototype.initRoomFlags 							= function initRoomFlags() {
 
 	if (!this.memory.flags)
 		this.memory.flags = {};
 
 	if (this.memory.flags.craneUpgrades 			=== undefined)
-		this.memory.flags.craneUpgrades 				= flag1;
+		this.memory.flags.craneUpgrades 				= false;
 
 	if (this.memory.flags.repairRamparts 			=== undefined)
-		this.memory.flags.repairRamparts 				= flag2;
+		this.memory.flags.repairRamparts 				= false;
 	
 	if (this.memory.flags.repairWalls 				=== undefined)
-		this.memory.flags.repairWalls 					= flag3;
+		this.memory.flags.repairWalls 					= false;
 
 	if (this.memory.flags.runnerLogic 				=== undefined)
-		this.memory.flags.runnerLogic 					= flag4;
+		this.memory.flags.runnerLogic 					= false;
 
 	if (this.memory.flags.runnersDoMinerals 	=== undefined)
-		this.memory.flags.runnersDoMinerals 		= flag5;
+		this.memory.flags.runnersDoMinerals 		= false;
 
 	if (this.memory.flags.towerRepairBasic 		=== undefined)
-		this.memory.flags.towerRepairBasic 			= flag6;
+		this.memory.flags.towerRepairBasic 			= false;
 
 	if (this.memory.flags.towerRepairDefenses === undefined)
-		this.memory.flags.towerRepairDefenses = flag7;
+		this.memory.flags.towerRepairDefenses = false;
 	
 	if (this.memory.flags.runnersDoPiles === undefined)
-		this.memory.flags.runnersDoPiles = flag8;
+		this.memory.flags.runnersDoPiles = false;
 
-	return '[' + this.name + ']: Room flags initialized: craneUpgrades(' + this.memory.flags.craneUpgrades + ') runnerLogic(' + this.memory.flags.runnerLogic + ') repairRamparts(' + this.memory.flags.repairRamparts + ') repairWalls(' + this.memory.flags.repairWalls + ') runnersDoMinerals(' + this.memory.flags.runnersDoMinerals + ') towerRepairBasic(' + this.memory.flags.towerRepairBasic + ') towerRepairDefenses(' + this.memory.flags.towerRepairDefenses + ') runnersDoPiles(' + this.memory.flags.runnersDoPiles + ')';
+	if (this.memory.flags.harvestersFixAdjacent === undefined)
+		this.memory.flags.harvestersFixAdjacent = false;
+
+	if (this.memory.flags.repairBasics === undefined)
+		this.memory.flags.repairBasics = false;
+
+	return '[' + this.name + ']: Room flags initialized: craneUpgrades(' + this.memory.flags.craneUpgrades + ') runnerLogic(' + this.memory.flags.runnerLogic + ') repairRamparts(' + this.memory.flags.repairRamparts + ') repairWalls(' + this.memory.flags.repairWalls + ') runnersDoMinerals(' + this.memory.flags.runnersDoMinerals + ') towerRepairBasic(' + this.memory.flags.towerRepairBasic + ') towerRepairDefenses(' + this.memory.flags.towerRepairDefenses + ') runnersDoPiles(' + this.memory.flags.runnersDoPiles + ') harvestersFixAdjacent(' + this.memory.flags.harvestersFixAdjacent + ') repairBasics(' + this.memory.flags.repairBasics + ')';
 }
-
-Room.prototype.setRoomFlags = function setRoomFlags([flags]) {
+Room.prototype.setRoomFlags 							= function setRoomFlags([flags]) {
 
 	const flag1 = flags[0];
 	const flag2 = flags[1];
@@ -408,39 +447,45 @@ Room.prototype.setRoomFlags = function setRoomFlags([flags]) {
 	const flag6 = flags[5];
 	const flag7 = flags[6];
 	const flag8 = flags[7];
+	const flag9 = flags[8];
+	const flag10 = flags[9];
 
 	if (flag1)
-		this.memory.flags.craneUpgrades 			= flag1;
+		this.memory.flags.craneUpgrades 				= flag1;
 
 	if (flag2)
-		this.memory.flags.repairRamparts 			= flag2;
+		this.memory.flags.repairRamparts 				= flag2;
 	
 	if (flag3)
-		this.memory.flags.repairWalls 				= flag3;
+		this.memory.flags.repairWalls 					= flag3;
 
 	if (flag4)
-		this.memory.flags.runnerLogic 				= flag4;
+		this.memory.flags.runnerLogic 					= flag4;
 
 	if (flag5)
-		this.memory.flags.runnersDoMinerals 	= flag5;
+		this.memory.flags.runnersDoMinerals 		= flag5;
 
 	if (flag6)
-		this.memory.flags.towerRepair 				= flag6;
+		this.memory.flags.towerRepair 					= flag6;
 
 	if (flag7)
-		this.memory.flags.towerRepairDefenses = flag7;
+		this.memory.flags.towerRepairDefenses 	= flag7;
 
 	if (flag8)
-		this.memory.flags.runnersDoPiles 			= flag8;
+		this.memory.flags.runnersDoPiles 				= flag8;
+	
+	if (flag9)
+		this.memory.flags.harvestersFixAdjacent = flag9;
 
-	return '[' + this.name + ']: Room flags set: runnerLogic(' + this.memory.flags.runnerLogic + ') repairRamparts(' + this.memory.flags.repairRamparts + ') repairWalls(' + this.memory.flags.repairWalls + ') runnersDoMinerals(' + this.memory.flags.runnersDoMinerals + ') towerRepairBasic(' + this.memory.flags.towerRepairBasic + ') towerRepairDefenses(' + this.memory.flags.towerRepairDefenses + ') runnersDoPiles(' + this.memory.flags.runnersDoPiles + ')';
+	if (flag10)
+		this.memory.flags.repairBasics 					= flag10;
+
+	return '[' + this.name + ']: Room flags set: runnerLogic(' + this.memory.flags.runnerLogic + ') repairRamparts(' + this.memory.flags.repairRamparts + ') repairWalls(' + this.memory.flags.repairWalls + ') runnersDoMinerals(' + this.memory.flags.runnersDoMinerals + ') towerRepairBasic(' + this.memory.flags.towerRepairBasic + ') towerRepairDefenses(' + this.memory.flags.towerRepairDefenses + ') runnersDoPiles(' + this.memory.flags.runnersDoPiles + ') harvestersFixAdjacent(' + this.memory.flags.harvestersFixAdjacent + ') repairBasics(' + this.memory.flags.repairBasics + ')';
 }
-
-Room.prototype.initSettings = function initSettings() {
+Room.prototype.initSettings 							= function initSettings() {
 	this.initRoomSettings();
 }
-
-Room.prototype.initRoomSettings = function initRoomSettings() {
+Room.prototype.initRoomSettings 					= function initRoomSettings() {
 
 	if (!this.memory.settings)
 		this.memory.settings = {};
@@ -451,22 +496,51 @@ Room.prototype.initRoomSettings = function initRoomSettings() {
 	if (!this.memory.settings.labSettings)
 		this.memory.settings.labSettings = {};
 
+	if (!this.memory.settings.visualSettings)
+		this.memory.settings.visualSettings = {};
+
+	if (!this.memory.settings.containerSettings)
+		this.memory.settings.containerSettings = {};
+
+	if (!this.memory.settings.visualSettings.spawnInfo)
+		this.memory.settings.visualSettings.spawnInfo = {};
+
+	if (!this.memory.settings.visualSettings.roomFlags)
+		this.memory.settings.visualSettings.roomFlags = {};
+
 	if (this.memory.settings.repairSettings.repairRampartsTo === undefined)
 		this.memory.settings.repairSettings.repairRampartsTo = 1;
 
 	if (this.memory.settings.repairSettings.repairWallsTo === undefined)
 		this.memory.settings.repairSettings.repairWallsTo = 1;
 
+	if (!this.memory.settings.visualSettings.spawnInfo.alignment)
+		this.memory.settings.visualSettings.spawnInfo.alignment = 'right';
+
+	if (!this.memory.settings.visualSettings.spawnInfo.color)
+		this.memory.settings.visualSettings.spawnInfo.color = '#ffffff';
+
+	if (!this.memory.settings.visualSettings.roomFlags.displayCoords)
+		this.memory.settings.visualSettings.roomFlags.displayCoords = [0, 49];
+		
+	if (!this.memory.settings.visualSettings.roomFlags.color)
+		this.memory.settings.visualSettings.roomFlags.color = '#ff0033';
+
 	if (!this.memory.settings.labSettings.reagentOne)
 		this.memory.settings.labSettings.reagentOne = 'none';
 
 	if (!this.memory.settings.labSettings.reagentTwo)
 		this.memory.settings.labSettings.reagentTwo = 'none';
-	
-	return '[' + this.name + ']: Room settings initialized: repairRampartsTo(' + this.memory.settings.repairRampartsTo + ') repairWallsTo(' + this.memory.settings.repairWallsTo + ')';
-}
 
-Room.prototype.setRepairRampartsTo = function setRepairRampartsTo(percentMax) {
+	if (!this.memory.settings.containerSettings.inboxes)
+		this.memory.settings.containerSettings.inboxes = [];
+	
+	if (!this.memory.settings.containerSettings.outboxes)
+		this.memory.settings.containerSettings.outboxes = [];
+	
+	return '[' + this.name + ']: Room settings initialized.';
+}
+Room.prototype.setRepairRampartsTo 				= function setRepairRampartsTo(percentMax) {
 
 	if (percentMax === undefined || percentMax < 0 || percentMax > 100)
 		return 'Requires a value 0-100.';
@@ -474,8 +548,7 @@ Room.prototype.setRepairRampartsTo = function setRepairRampartsTo(percentMax) {
 	this.memory.settings.repairRampartsTo = percentMax;
 	return 'Ramparts will now repair to ' + this.memory.settings.repairRampartsTo + '% max.';
 }
-
-Room.prototype.setRepairWallsTo = function setRepairWallsTo(percentMax) {
+Room.prototype.setRepairWallsTo 					= function setRepairWallsTo(percentMax) {
 
 	if (percentMax === undefined || percentMax < 0 || percentMax > 100)
 		return 'Requires a value 0-100.';
@@ -483,8 +556,7 @@ Room.prototype.setRepairWallsTo = function setRepairWallsTo(percentMax) {
 	this.memory.settings.repairWallsTo = percentMax;
 	return 'Walls will now repair to ' + this.memory.settings.repairWallsTo + '% max.';
 }
-
-Room.prototype.setRoomSettings = function setRoomSettings(repairToArray, labSettingsArray) {
+Room.prototype.setRoomSettings 						= function setRoomSettings(repairToArray, labSettingsArray) {
 	
 	const rampartsPercent = repairToArray[0];
 	const wallsPercent 		= repairToArray[1];
@@ -497,33 +569,33 @@ Room.prototype.setRoomSettings = function setRoomSettings(repairToArray, labSett
 
 	return '[' + this.name + ']: Room settings set: repairRampartsTo(' + this.memory.settings.	repairRampartsTo + ') repairWallsTo(' + this.memory.settings.repairWallsTo + ')';
 }
-
-Room.prototype.calcPath = function calcPath(pathName, start, end, walkOnCreeps = true, serializeData = false, maxOps) {
-
-	PathFinder.use(true);
-	
-	if (typeof start === 'string' || start instanceof String)
-		start = Game.getObjectById(start);
-
-	if (typeof end === 'string' || end instanceof String)
-		end = Game.getObjectById(end);
-
-	let path;
-	if (maxOps)
-		path = this.findPath(start, end, { ignoreCreeps: walkOnCreeps, serialize: serializeData, maxOps: maxOps });
-
-	if (!maxOps)
-		path = this.findPath(start, end, { ignoreCreeps: walkOnCreeps, serialize: serializeData });
-
-	if (path) {
-		this.memory.paths[pathName] = path;
-		return path;
-	} else if (!path){
-		console.log('Could not generate path.');
-		return null;
-	}	
+Room.prototype.setInbox 									= function setInbox(boxID) {
+	let inboxMem = [];
+	if (this.memory.settings.containerSettings.inboxes !== undefined)
+		inboxMem = inboxMem.concat(this.memory.settings.containerSettings.inboxes);
+	if (inboxMem.includes(boxID))
+		return 'This container ID is already in the inbox list.';
+	else {
+		inboxMem.push(boxID);
+		this.memory.settings.containerSettings.inboxes = inboxMem;
+		return true;
+	}
 }
-
+Room.prototype.setOutbox 									= function setOutbox(boxID) {
+	let outboxMem = [];
+	outboxMem = outboxMem.concat(this.memory.settings.containerSettings.outboxes);
+	if (outboxMem.includes(boxID))
+		return 'This container ID is already in the inbox list.';
+	else
+		outboxMem.push(boxID);
+	return true;
+}
+Room.prototype.getInboxes 								= function getInboxes() {
+	return this.memory.settings.containerSettings.inboxes;
+}
+Room.prototype.getOutboxes 								= function getOutboxes() {
+	return this.memory.settings.containerSettings.outboxes;
+}
 Room.prototype.enableFlag 								= function enableFlag(flag, initIfNull = false) {
 	if (this.memory.flags[flag] === undefined && initIfNull === false)
 		return 'The specified flag does not exist: ' + flag;

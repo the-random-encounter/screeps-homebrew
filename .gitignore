@@ -6,3 +6,4 @@ spawnDaemon.js
 .gitattributes
 role.remoteMiner.js
 calcTickTimeInGame.js
+.jsdoc.json
