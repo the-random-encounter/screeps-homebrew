@@ -7,7 +7,7 @@ const roleRemoteBuilder = {
 			creep.memory.disableAI = false;
 		
 		if (creep.memory.workRoom === undefined)
-			creep.memory.workRoom = 'E59S48';
+			creep.memory.workRoom = 'W8N2';
 
 		if (!creep.memory.disableAI) {
 
@@ -41,8 +41,7 @@ const roleRemoteBuilder = {
 				creep.move(BOTTOM);
 
 			if (creep.store.getFreeCapacity() >= (creep.getActiveBodyparts(WORK) * 5) && creep.memory.working == false) {
-				switch (creep.room.memory.flags.runnerLogic) {
-					case true: {
+
 						const tombstones = creep.room.find(FIND_TOMBSTONES);
 						const containersWithEnergy = creep.room.find(FIND_STRUCTURES, {
 							filter: (i) => (i.structureType == STRUCTURE_CONTAINER || i.structureType == STRUCTURE_STORAGE) && i.store[RESOURCE_ENERGY] > 0
@@ -71,47 +70,19 @@ const roleRemoteBuilder = {
 							creep.harvestEnergy();
 						}
 						creep.memory.working = true;
-					}
-					case false:
-					default: {
-						const tombstones = creep.room.find(FIND_TOMBSTONES);
-						const containersWithEnergy = creep.room.find(FIND_STRUCTURES, {
-							filter: (i) => (i.structureType == STRUCTURE_CONTAINER || i.structureType == STRUCTURE_STORAGE) && i.store[RESOURCE_ENERGY] > 0
-						});
-						const droppedPiles = creep.room.find(FIND_DROPPED_RESOURCES);
-						let resourceList = containersWithEnergy.concat(droppedPiles);
-						resourceList = tombstones.concat(resourceList);
-			
-						const target = creep.pos.findClosestByRange(resourceList);
-		
-						if (target) {
-							if (creep.pickup(target) == ERR_NOT_IN_RANGE || creep.withdraw(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-								creep.moveTo(target, { visualizePathStyle: { stroke: '#ffff00', opacity: 0.3, lineStyle: 'dotted', ignoreCreeps: true } });
-							} else {
-								switch (target.structureType) {
-									case STRUCTURE_CONTAINER:
-									case STRUCTURE_STORAGE:
-										creep.withdraw(target, RESOURCE_ENERGY);
-										break;
-									default:
-										creep.pickup(target);
-										break;
-								}
-							}
-						}
-						creep.memory.working = true;
-						break;
-					}
-				}
+					
+					
+				
 			} else if (creep.store.getUsedCapacity() !== 0 && creep.memory.working) {
 
 				if (creep.room.name !== workRoom)
-					creep.moveTo(Game.getObjectById(Game.rooms[workRoom].memory.objects.sources[0]), { visualizePathStyle: { stroke: '#ffff00', opaciy: 0.3, ignroeCreeps: true } });
+					creep.moveTo(Game.getObjectById(Game.rooms[workRoom].memory.objects.controller[0]), { visualizePathStyle: { stroke: '#ffff00', opaciy: 0.3, ignroeCreeps: true } });
 				else {
-					var targets = Game.rooms[workRoom].find(FIND_CONSTRUCTION_SITES);
+					let targets = Game.rooms[workRoom].find(FIND_CONSTRUCTION_SITES);
 					if (targets.length) {
-						if (creep.build(targets[0]) == ERR_NOT_IN_RANGE) {
-							creep.moveTo(targets[0], { visualizePathStyle: { stroke: '#0000ff', opacity: 0.3, lineStyle: 'dotted', ignoreCreeps: true } });
+						targets = creep.pos.findClosestByRange(targets);
+						if (creep.build(targets) == ERR_NOT_IN_RANGE) {
+							creep.moveTo(targets, { visualizePathStyle: { stroke: '#0000ff', opacity: 0.3, lineStyle: 'dotted', ignoreCreeps: true } });
 						}
 					}
 				}

@@ -8,18 +8,34 @@ const roleUpgrader = {
 
 		if (creep.memory.upgradeRoom === undefined)
 			creep.memory.upgradeRoom = creep.room.name;
-		//if (creep.memory.upgradeRoom === undefined);
-			//creep.memory.upgradeRoom = creep.room.name;
+
+		if (creep.memory.canSeekEnergy === undefined)
+			creep.memory.canSeekEnergy = false;
+
+		if (!creep.memory.mainBucket)
+			creep.memory.mainBucket = creep.room.memory.data.upgraderBucket || creep.room.controller.pos.findInRange(FIND_STRUCTURES, 5, { filter: { structureType: STRUCTURE_CONTAINER } })[0].id;
+		
 		
 		if (!creep.memory.disableAI) {
 
-			const badPosC = new RoomPosition(39, 9, 'E58S51');
-			const badPosSW = new RoomPosition(38, 9, 'E58S51');
-			const badPosW = new RoomPosition(38, 8, 'E58S51');
-			const badPosSE = new RoomPosition(40, 9, 'E58S51');
+			if (creep.room.name == 'E58S51' && Game.shard.name == 'shard3') { // AM I IN A SPECIFIC ROOM ON SHARD 3? IF SO, STAND IN THE RIGHT SPOT
+				const badPosC = new RoomPosition(39, 9, 'E58S51');
+				const badPosSW = new RoomPosition(38, 9, 'E58S51');
+				const badPosW = new RoomPosition(38, 8, 'E58S51');
+				const badPosSE = new RoomPosition(40, 9, 'E58S51');
+
+				if (creep.pos.x == badPosC.x && creep.pos.y == badPosC.y) {
+					if (creep.move(8) !== 0)
+						creep.move(1);
+				} else if ((creep.pos.x == badPosSW.x || creep.pos.x == badPosSE.x) && creep.pos.y == badPosSW.y) {
+					creep.move(1);
+				} else if (creep.pos.x == badPosW.x && creep.pos.y == badPosW.y)
+					creep.move(1);
+			}
+
 			const upgradeRoom = creep.memory.upgradeRoom;
+
 			if (creep.ticksToLive <= 2) {
-				creep.drop(RESOURCE_ENERGY);
 				creep.say('☠️');
 			}
 
@@ -27,99 +43,82 @@ const roleUpgrader = {
 				creep.memory.working = false;
 				creep.say('🔼');
 			}
+
 			if (!creep.memory.working && creep.store.getFreeCapacity() == 0) {
 				creep.memory.working = true;
 				creep.say('⚡');
 			}
-
-			if (creep.pos.x == badPosC.x && creep.pos.y == badPosC.y) {
-				if (creep.move(8) !== 0)
-					creep.move(1);
-			} else if ((creep.pos.x == badPosSW.x || creep.pos.x == badPosSE.x) && creep.pos.y == badPosSW.y)
-				creep.move(1);
-			else if (creep.pos.x == badPosW.x && creep.pos.y == badPosW.y)
-				creep.move(1);
 			
-			if (creep.pos.x == 49) {
+			// IF STANDING ON ROOM EXIT, STEP OFF
+			if (creep.pos.x == 49)
 				creep.move(7);
-			} else if (creep.pos.x == 0) {
+			else if (creep.pos.x == 0)
 				creep.move(3);
-			} else if (creep.pos.y == 0) {
+			if (creep.pos.y == 0)
 				creep.move(5);
-			} else if (creep.pos.y == 49) {
+			else if (creep.pos.y == 49)
 				creep.move(1)
-			}
 
-				// if working flag is true, upgrade local controller
-			if (creep.store.getUsedCapacity() !== 0) {
-				if (creep.room.name !== upgradeRoom) {
-					creep.moveTo(Game.flags.ClaimFlag);
-				} else {
-					if (creep.upgradeController(creep.room.controller) == ERR_NOT_IN_RANGE)
-						creep.moveTo(creep.room.controller, { visualizePathStyle: { stroke: '#ffff00', opacity: 0.3, lineStyle: 'dotted' } });
-				}
-			}
-	
-				// if not working & inventory is empty, collect more energy
-				if (creep.store.getUsedCapacity() == 0) {
+			if (creep.store.getUsedCapacity() == 0) { // I HAVE NO ENERGY, SO...
 				
-					switch (creep.room.memory.flags.runnerLogic) {
-						case true: {
-							let containersWithEnergy = creep.room.find(FIND_MY_STRUCTURES, {
-								filter: (i) => (i.structureType == STRUCTURE_STORAGE) && i.store[RESOURCE_ENERGY] > 0
-							});
-							let piles = creep.room.find(FIND_DROPPED_RESOURCES);
-							
-							let all = containersWithEnergy.concat(piles);
-							let target = creep.pos.findClosestByRange(all);
+				if (!creep.memory.mainBucket) { // I HAVE NO MAIN BUCKET IN MEMORY, SO...
+
+					const adjacentBucket = creep.pos.findInRange(FIND_STRUCTURES, 1, { filter: { structureType: STRUCTURE_CONTAINER } });
+					
+					if (adjacentBucket.length > 0) // IF THERE'S ONE NEXT TO ME, THAT'S MY MAIN BUCKET.
+						creep.memory.mainBucket = adjacentBucket[0].id;
+				} // end of (if there is no mainBucket in memory)
+				
+				if (creep.memory.mainBucket && (Game.getObjectById(creep.memory.mainBucket).store[RESOURCE_ENERGY] > 0)) { // MY MAIN BUCKET IS HERE AND ISN'T EMPTY, SO...
 						
-							if (target) {
-								if (creep.withdraw(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE)
-									creep.moveTo(target, { visualizePathStyle: { stroke: '#ffff00', opacity: 0.3, lineStyle: 'dotted' } });
-								else
-									creep.withdraw(target, RESOURCE_ENERGY);
-							}
-							break;
-						}
-						case false:
-						default: {
-							const containersWithEnergy = creep.room.find(FIND_STRUCTURES, {
-								filter: (i) => (i.structureType == STRUCTURE_CONTAINER || i.structureType == STRUCTURE_STORAGE) && i.store[RESOURCE_ENERGY] > 0
-							});
-							const droppedPiles = creep.room.find(FIND_DROPPED_RESOURCES);
-							const resourceList = containersWithEnergy.concat(droppedPiles);
-							
-							target = creep.pos.findClosestByRange(resourceList);
-						
-							if (target) {
-								if (creep.pickup(target) == ERR_NOT_IN_RANGE || creep.withdraw(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-									creep.moveTo(target, { visualizePathStyle: { stroke: '#ffff00', opacity: 0.3, lineStyle: 'dotted' } });
-								}
-								else {
-									switch (target.structureType) {
-										case STRUCTURE_CONTAINER:
-										case STRUCTURE_STORAGE:
-											creep.withdraw(target, RESOURCE_ENERGY);
-											break;
-										default:
-											creep.pickup(target);
-											break;
-									}
-								}
-							}
-							break;
-						}
+					const mainBucket = Game.getObjectById(creep.memory.mainBucket);
+
+					if (creep.withdraw(mainBucket, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) // WITHDRAW FROM IT
+						creep.moveTo(mainBucket, { visualizePathStyle: { stroke: '#ffff00', opacity: 0.3, lineStyle: 'dotted' } });	
+				} // end of (if main bucket is present & not empty)
+				else if (creep.memory.canSeekEnergy) { // MY MAIN BUCKET EITHER ISN'T HERE OR IT'S EMPTY, LET'S FIND ENERGY ELSEWHERE...
+
+					let containersWithEnergy = creep.room.find(FIND_STRUCTURES, {
+						filter: (i) => (i.structureType == STRUCTURE_STORAGE || i.structureType == STRUCTURE_CONTAINER) && i.store[RESOURCE_ENERGY] > 0
+					});
+					let piles = creep.room.find(FIND_DROPPED_RESOURCES);
+					let controllerContainers = creep.room.controller.pos.findInRange(FIND_STRUCTURES, 5, { filter: { strucutreType: STRUCTURE_CONTAINER } });
+				
+					let all = containersWithEnergy.concat(piles);
+					all = all.concat(controllerContainers);
+					let target = creep.pos.findClosestByRange(all);
+			
+					if (target) { // I FOUND SOME ENERGY SOMEWHERE, LET'S GET IT
+						if (creep.withdraw(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE || creep.pickup(target) == ERR_NOT_IN_RANGE)
+							creep.moveTo(target, { visualizePathStyle: { stroke: '#ffff00', opacity: 0.3, lineStyle: 'dotted' } });
 					}
-				
-			}
-		}
+				} // end of (no bucket or bucket energy, find other source)
+			} // end of (find energy if empty)	
+			else { // I HAVE ENERGY, LET'S UPGRADE THE CONTROLLER, IF MY BUCKET DOESN'T NEED FIXING FIRST...
+
+				if (creep.room.name !== upgradeRoom) { // AM I IN THE ROOM I'M TOLD TO UPGRADE? IF NOT, GO THERE
+					creep.moveTo(Game.flags.ClaimFlag);
+				} else { // CHECK MY BUCKET DOESN'T HAVE A LEAK...
+					if (!creep.memory.mainBucket) {
+						const containers = creep.room.controller.pos.findInRange(FIND_STRUCTURES, 5, { filter: { structureType: STRUCTURE_CONTAINER } });
+						const closestContainer = creep.pos.findClosestByRange(containers);
+						creep.memory.mainBucket = closestContainer.id;
+					}
+					const mainBucket = Game.getObjectById(creep.memory.mainBucket);
+					if (mainBucket.hits < mainBucket.hitsMax) // I FOUND A LEAK, FIX IT
+						creep.repair(mainBucket);
+					else { // NO LEAKS TO BE FOUND, START UPGRADING THE CONTROLLER
+						if (creep.upgradeController(creep.room.controller) == ERR_NOT_IN_RANGE)
+							creep.moveTo(creep.room.controller, { visualizePathStyle: { stroke: '#ffff00', opacity: 0.3, lineStyle: 'dotted' } });
+					}
+				} 
+			} // end of (fix bucket/upgrade controller)
+		} // end of (disableAI is disabled)
 		else {
 			console.log('[' + creep.room.name + ']: WARNING: Creep ' + creep.name + '\'s AI is disabled.');
 			creep.say('AI Disabled');
-		}
-		
-	}
-
-};
+		} // end of (disableAI is enabled)
+	} // end of (run function)
+};// end of (role)
 
 module.exports = roleUpgrader;

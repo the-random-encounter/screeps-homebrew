@@ -39,7 +39,7 @@ const roleBuilder = {
                         
                         // look for the closest pile of energy, storage, or container for energy to use
                         const droppedPiles = creep.room.find(FIND_DROPPED_RESOURCES);
-                        const containersWithEnergy = Game.getObjectById(creep.room.memory.objects.storage[0]) || creep.room.find(FIND_MY_STRUCTURES, {
+                        const containersWithEnergy = /*Game.getObjectById(creep.room.memory.objects.storage[0]) ||*/ creep.room.find(FIND_STRUCTURES, {
                             filter: (i) => ((i.structureType == STRUCTURE_STORAGE || i.structureType == STRUCTURE_CONTAINER) && i.store[RESOURCE_ENERGY] > 0)
                         });
                         const targets = droppedPiles.concat(containersWithEnergy);

@@ -490,6 +490,9 @@ Room.prototype.initRoomSettings 					= function initRoomSettings() {
 	if (!this.memory.settings)
 		this.memory.settings = {};
 
+	if (!this.memory.data)
+		this.memory.data = {};
+
 	if (!this.memory.settings.repairSettings)
 		this.memory.settings.repairSettings = {};
 	
@@ -519,12 +522,18 @@ Room.prototype.initRoomSettings 					= function initRoomSettings() {
 
 	if (!this.memory.settings.visualSettings.spawnInfo.color)
 		this.memory.settings.visualSettings.spawnInfo.color = '#ffffff';
+	
+	if (!this.memory.settings.visualSettings.spawnInfo.fontSize)
+		this.memory.settings.visualSettings.spawnInfo.fontSize = 0.4;
 
 	if (!this.memory.settings.visualSettings.roomFlags.displayCoords)
 		this.memory.settings.visualSettings.roomFlags.displayCoords = [0, 49];
 		
 	if (!this.memory.settings.visualSettings.roomFlags.color)
 		this.memory.settings.visualSettings.roomFlags.color = '#ff0033';
+
+	if (!this.memory.settings.visualSettings.roomFlags.fontSize)
+		this.memory.settings.visualSettings.roomFlags.fontSize = 0.4;
 
 	if (!this.memory.settings.labSettings.reagentOne)
 		this.memory.settings.labSettings.reagentOne = 'none';
@@ -537,8 +546,105 @@ Room.prototype.initRoomSettings 					= function initRoomSettings() {
 	
 	if (!this.memory.settings.containerSettings.outboxes)
 		this.memory.settings.containerSettings.outboxes = [];
+
+	if (this.memory.settings.containerSettings.lastInbox === undefined)
+		this.memory.settings.containerSettings.lastInbox = 0;
+
+	if (this.memory.settings.containerSettings.lastOutbox === undefined)
+		this.memory.settings.containerSettings.lastOutbox = 0;
+	
+	if (this.memory.data.logisticalPairs === undefined)
+		this.memory.data.logisticalPairs = [];
+
+	if (this.memory.data.pairCounter === undefined)
+		this.memory.data.pairCounter = 0;
 	
 	return '[' + this.name + ']: Room settings initialized.';
+}
+Room.prototype.registerLogisticalPairs = function registerLogisticalPairs() {
+	let energyOutboxes = [];
+	let sources = this.find(FIND_SOURCES);
+	console.log('RegisterLogisticalPairs: sources: ' + sources);
+	let logisticalPairs = [];
+	let minerals = this.find(FIND_MINERALS)
+	console.log('RegisterLogisticalPairs: minerals: ' + minerals);
+	let mineralOutbox;
+	if (minerals) {
+		mineralOutbox = minerals[0].pos.findInRange(FIND_STRUCTURES, 3, { filter: { structureType: STRUCTURE_CONTAINER } });
+		if (mineralOutbox.length >= 1)
+			mineralOutbox = mineralOutbox[0].id;
+	}
+
+	console.log('RegisterLogisticalPairs: mineralOutbox: ' + mineralOutbox);
+	let energyInbox = this.controller.pos.findInRange(FIND_STRUCTURES, 5, { filter: { structureType: STRUCTURE_CONTAINER } });
+	if (energyInbox.length > 0)
+		energyInbox = energyInbox[0].id;
+	console.log('RegisterLogisticalPairs: energyInbox: ' + energyInbox);
+	let storage = this.find(FIND_STRUCTURES, { filter: { structureType: STRUCTURE_STORAGE } });
+	if (storage.length > 0)
+		storage = storage[0].id;
+
+	console.log('RegisterLogisticalPairs: storage: ' + storage);
+	let roomOutboxes = this.memory.settings.containerSettings.outboxes;
+	let roomInboxes = this.memory.settings.containerSettings.inboxes;
+
+	for (let i = 0; i < sources.length; i++) {
+		let sourceBox = sources[i].pos.findInRange(FIND_STRUCTURES, 3, { filter: { structureType: STRUCTURE_CONTAINER } });
+		if (sourceBox.length > 0) {
+			console.log('RegisterLogisticalPairs: sourceBox: ' + sourceBox[0].id);
+			energyOutboxes.push(sourceBox[0].id);
+		}
+	}
+
+	console.log('RegisterLogisticalPairs: energyOutboxes: ' + energyOutboxes);
+
+	if (energyOutboxes.length == 0 && !energyInbox)
+		this.memory.data.noPairs = true;
+	else {
+		if (this.memory.data.noPairs)
+			delete this.memory.data.noPairs;
+	}
+
+	for (let i = 0; i < energyOutboxes.length; i++) {
+		if (!roomOutboxes.includes(energyOutboxes[i]))
+			roomOutboxes.push(energyOutboxes[i]);
+	}
+
+	if (!roomInboxes.includes(energyInbox))
+		roomInboxes.push(energyInbox);
+
+	this.memory.settings.containerSettings.outboxes = roomOutboxes;
+	this.memory.settings.containerSettings.inboxes = roomInboxes;
+
+	if (storage) {
+		for (let i = 0; i < energyOutboxes.length; i++) {
+			let onePair = [energyOutboxes[i], storage, 'energy'];
+			logisticalPairs.push(onePair);
+		}
+		let onePair = [storage, energyInbox, 'energy'];
+		logisticalPairs.push(onePair);
+		if (mineralOutbox.length >= 1) {
+			const mineral = Object.keys(Game.getObjectById(mineralOutbox[0]).store);
+			onePair = [mineralOutbox[0], storage, mineral[0]];
+			logisticalPairs.push(onePair);
+		}
+	} else {
+		for (let i = 0; i < energyOutboxes.length; i++) {
+			let onePair = [energyOutboxes[i], energyInbox, 'energy'];
+			logisticalPairs.push(onePair);
+		}
+	}
+
+	if (!this.memory.data)
+		this.memory.data = {};
+	if (!this.memory.data.logisticalPairs)
+		this.memory.data.logisticalPairs = [];
+	if (!this.memory.data.pairCounter)
+		this.memory.data.pairCounter = 0;
+	console.log('Registered logistical pairs: ' + logisticalPairs);
+	this.memory.data.logisticalPairs = logisticalPairs;
+
+	return;
 }
 Room.prototype.setRepairRampartsTo 				= function setRepairRampartsTo(percentMax) {
 
@@ -585,10 +691,28 @@ Room.prototype.setOutbox 									= function setOutbox(boxID) {
 	let outboxMem = [];
 	outboxMem = outboxMem.concat(this.memory.settings.containerSettings.outboxes);
 	if (outboxMem.includes(boxID))
-		return 'This container ID is already in the inbox list.';
-	else
+		return 'This container ID is already in the outbox list.';
+	else {
 		outboxMem.push(boxID);
-	return true;
+		this.memory.settings.containerSettings.outboxes = outboxMem;
+		return true;
+	}
+}
+Room.prototype.checkInbox = function checkInbox(boxID) {
+	const inboxes = this.getInboxes();
+
+	if (inboxes.includes(boxID))
+		return true;
+	else
+		return false;
+}
+Room.prototype.checkOutbox = function checkOutbox(boxID) {
+	const outboxes = this.getOutboxes();
+
+	if (outboxes.includes(boxID))
+		return true;
+	else
+		return false;
 }
 Room.prototype.getInboxes 								= function getInboxes() {
 	return this.memory.settings.containerSettings.inboxes;
@@ -919,4 +1043,84 @@ Room.prototype.calcLabReaction 						= function calcLabReaction() {
 	}
 	
 	return outputChem;
+}
+Room.prototype.registerOutpost 						= function registerOutpost(roomName) {
+	if (!this.memory.outposts)
+		this.memory.outposts = {};
+	if (!this.memory.outposts.roomList)
+		this.memory.outposts.roomList = [];
+	if (!this.memory.outposts.registry)
+		this.memory.outposts.registry = {};
+	if (!this.memory.outposts.aggregateSourceList)
+		this.memory.outposts.aggregateSourceList = [];
+	if (!this.memory.outposts.aggLastAssigned)
+		this.memory.outposts.aggLastAssigned = 0;
+
+	let currentOutpostList = this.memory.outposts.roomList;
+	let exits;
+	let outpostRoomName;
+	let outpostDirection;
+
+	if (typeof roomName === 'number') {
+		exits = Game.map.describeExits(this.name);
+		outpostRoomName = exits[roomName.toString()];
+
+		switch (roomName) {
+			case 1:
+				outpostDirection = TOP;
+				break;
+			case 3:
+				outpostDirection = RIGHT;
+				break;
+			case 5:
+				outpostDirection = BOTTOM;
+				break;
+			case 7:
+				outpostDirection = LEFT;
+				break;
+			default:
+				return '[' + this.name + ']: You did not specify a valid room name or direction (numeric or string).';
+		}
+	} else if (typeof roomName === 'string') {
+		exits = Game.map.describeExits()
+		switch (roomName) {
+			case 'north':
+				outpostDirection = TOP;
+				break;
+			case 'east':
+				outpostDirection = RIGHT;
+				break;
+			case 'south':
+				outpostDirection = BOTTOM;
+				break;
+			case 'west':
+				outpostDirection = LEFT;
+				break;
+			default:
+				if (Game.map.describeExits(roomName) === null)
+					return '[' + this.name + ']: You did not specify a valid room name or direction (numeric or string).'
+			}
+	} else
+		return '[' + this.name + ']: You must provide a valid room name or direction (numeric or string). Other data types are not supported.';
+
+	if (currentOutpostList.includes(outpostRoomName))
+		return '[' + this.name + ']: This outpost is already registered.';
+
+	const homeRoomName = this.name;
+		
+	const newOutpost = {
+		name: outpostRoomName,
+		homeRoom: homeRoomName,
+		sources: Game.rooms[outpostRoomName].memory.objects.sources || null,
+		lastAssigned: 0,
+		direction: outpostDirection,
+		rallyPoint: createRoomFlag(outpostRoomName)
+	}
+	this.memory.outposts.aggregateSourceList = this.memory.outposts.aggregateSourceList.concat(newOutpost.sources);
+	this.memory.outposts.registry[outpostRoomName] = newOutpost;
+	
+	currentOutpostList.push(outpostRoomName);
+	this.memory.outposts.roomList = currentOutpostList;
+
+	return '[' + this.name + ']: Outpost at ' + outpostRoomName + ' successfully registered.';
 }

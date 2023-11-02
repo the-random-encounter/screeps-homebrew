@@ -321,3 +321,72 @@ global.calcLabReaction = function (baseReg1, baseReg2) {
 
 	return outputChem;
 }
+
+global.createRoomFlag = function (room) { // creates a flag named after room at room's center, or at controller if present
+
+	let flagX;
+	let flagY;
+
+	if (Game.rooms[room].controller) {
+		flagX = Game.rooms[room].controller.pos.x;
+		flagY = Game.rooms[room].controller.pos.y;
+	} else {
+		flagX = 25;
+		flagY = 25;
+	}
+	
+	const flag = Game.rooms[room].createFlag(flagX, flagY, Game.rooms[room].name, randomColor(), randomColor());
+	switch (flag) {
+		default:
+			console.log('Flag succesfully created.');
+			return flag;
+		case ERR_NAME_EXISTS:
+			console.log('Error: Name exists.');
+			return null;
+		case ERR_FULL:
+			console.log('Error: At flag limit of 10,000 already.');
+			return null;
+		case ERR_INVALID_ARGS:
+			console.log('Error: The location or the name is incorrect.');
+			return null;
+	}
+}
+
+global.randomInt = function (min = 1, max = 100) { // Random integer between min & max, inclusive
+  return Math.floor(Math.random() * (max - min + 1) + min)
+}
+
+global.randomColor = function () { // Random color returned as CONSTANT
+	const colorInt = randomInt(1, 10);
+
+	switch (colorInt) {
+		case 1:
+			return COLOR_RED;
+		case 2:
+			return COLOR_PURPLE;
+		case 3:
+			return COLOR_BLUE;
+		case 4:
+			return COLOR_CYAN;
+		case 5:
+			return COLOR_GREEN;
+		case 6:
+			return COLOR_YELLOW;
+		case 7:
+			return COLOR_ORANGE;
+		case 8:
+			return COLOR_BROWN;
+		case 9:
+			return COLOR_GREY;
+		case 10:
+			return COLOR_WHITE;
+	}
+}
+
+global.randomColorAsInt = function () { // Random color returned as INTEGER
+	return randomInt(1, 10);
+}
+
+global.spawnClaimerForCarry = function () {
+	return Game.spawns.Spawn1.spawnCreep([CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE], 'CarryClaimer', { memory: { role: 'claimer', homeRoom: 'E58S51', claimRoom: 'E59S48' } });
+}
