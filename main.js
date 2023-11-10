@@ -174,10 +174,10 @@ module.exports.loop = function () {
 	calcTickTime();
 	
 	// Generate pixels with extra CPU time
-	//if (Game.cpu.bucket == 10000) {
-	//	Game.cpu.generatePixel()
-	//	console.log('CPU Bucket at limit, generating pixel...');
-	//}
+	if (Game.cpu.bucket == 10000) {
+		Game.cpu.generatePixel()
+		console.log('CPU Bucket at limit, generating pixel...');
+	}
 
 	/* #region CREEP MEMORY GARBAGE COLLECTION */
 	for (let name in Memory.creeps) {

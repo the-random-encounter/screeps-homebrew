@@ -616,7 +616,7 @@ Room.prototype.registerLogisticalPairs = function registerLogisticalPairs() {
 	this.memory.settings.containerSettings.outboxes = roomOutboxes;
 	this.memory.settings.containerSettings.inboxes = roomInboxes;
 
-	if (storage) {
+	if (this.controller.level > 3 && storage) {
 		for (let i = 0; i < energyOutboxes.length; i++) {
 			let onePair = [energyOutboxes[i], storage, 'energy'];
 			logisticalPairs.push(onePair);

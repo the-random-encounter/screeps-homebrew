@@ -68,11 +68,8 @@ const roleUpgrader = {
 					if (adjacentBucket.length > 0) // IF THERE'S ONE NEXT TO ME, THAT'S MY MAIN BUCKET.
 						creep.memory.mainBucket = adjacentBucket[0].id;
 				} // end of (if there is no mainBucket in memory)
-				
-				if (creep.memory.mainBucket && (Game.getObjectById(creep.memory.mainBucket).store[RESOURCE_ENERGY] > 0)) { // MY MAIN BUCKET IS HERE AND ISN'T EMPTY, SO...
-						
-					const mainBucket = Game.getObjectById(creep.memory.mainBucket);
-
+				const mainBucket = Game.getObjectById(creep.memory.mainBucket);
+				if (creep.memory.mainBucket && mainBucket.store[RESOURCE_ENERGY] > 0) { // MY MAIN BUCKET IS HERE AND ISN'T EMPTY, SO...
 					if (creep.withdraw(mainBucket, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) // WITHDRAW FROM IT
 						creep.moveTo(mainBucket, { visualizePathStyle: { stroke: '#ffff00', opacity: 0.3, lineStyle: 'dotted' } });	
 				} // end of (if main bucket is present & not empty)
@@ -95,23 +92,29 @@ const roleUpgrader = {
 				} // end of (no bucket or bucket energy, find other source)
 			} // end of (find energy if empty)	
 			else { // I HAVE ENERGY, LET'S UPGRADE THE CONTROLLER, IF MY BUCKET DOESN'T NEED FIXING FIRST...
-
-				if (creep.room.name !== upgradeRoom) { // AM I IN THE ROOM I'M TOLD TO UPGRADE? IF NOT, GO THERE
+            
+				/*if (creep.room.name !== upgradeRoom) { // AM I IN THE ROOM I'M TOLD TO UPGRADE? IF NOT, GO THERE
 					creep.moveTo(Game.flags.ClaimFlag);
-				} else { // CHECK MY BUCKET DOESN'T HAVE A LEAK...
+				} else { // CHECK MY BUCKET DOESN'T HAVE A LEAK...*/
 					if (!creep.memory.mainBucket) {
 						const containers = creep.room.controller.pos.findInRange(FIND_STRUCTURES, 5, { filter: { structureType: STRUCTURE_CONTAINER } });
 						const closestContainer = creep.pos.findClosestByRange(containers);
 						creep.memory.mainBucket = closestContainer.id;
 					}
 					const mainBucket = Game.getObjectById(creep.memory.mainBucket);
-					if (mainBucket.hits < mainBucket.hitsMax) // I FOUND A LEAK, FIX IT
+					if (mainBucket && mainBucket.hits < mainBucket.hitsMax) // I FOUND A LEAK, FIX IT
 						creep.repair(mainBucket);
-					else { // NO LEAKS TO BE FOUND, START UPGRADING THE CONTROLLER
-						if (creep.upgradeController(creep.room.controller) == ERR_NOT_IN_RANGE)
+					else if (creep.upgradeController(creep.room.controller) == ERR_NOT_IN_RANGE) {
 							creep.moveTo(creep.room.controller, { visualizePathStyle: { stroke: '#ffff00', opacity: 0.3, lineStyle: 'dotted' } });
+							console.log('got energy');
 					}
-				} 
+			
+			} 
+			if (creep.memory.working) {
+		        if (creep.upgradeController(creep.room.controller) == ERR_NOT_IN_RANGE) {
+					creep.moveTo(creep.room.controller, { visualizePathStyle: { stroke: '#ffff00', opacity: 0.3, lineStyle: 'dotted' } });
+	        }
+	    
 			} // end of (fix bucket/upgrade controller)
 		} // end of (disableAI is disabled)
 		else {

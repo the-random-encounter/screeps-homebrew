@@ -30,14 +30,17 @@ const roleHarvester = {
         // deposit energy into container, storage, or link when close to full
         if (creep.store.getFreeCapacity() < (creep.getActiveBodyparts(WORK) * 2)) {
           if (!creep.memory.bucket) {
-            const containers = creep.pos.findClosestByRange(FIND_STRUCTURES, { filter: (i) => i.structureType == STRUCTURE_CONTAINER || i.structureType == STRUCTURE_STORAGE || i.structureType == STRUCTURE_LINK});
-            creep.memory.bucket = containers.id;
+            const buckets = creep.pos.findInRange(FIND_STRUCTURES, 3, { filter: (i) => i.structureType == STRUCTURE_CONTAINER || i.structureType == STRUCTURE_STORAGE || i.structureType == STRUCTURE_LINK});
+            console.log(buckets);
+            const containers = creep.pos.findClosestByRange(buckets);
+            if (containers)
+              creep.memory.bucket = containers.id;
           }
           const target = Game.getObjectById(creep.memory.bucket);
-          if (!creep.pos.isNearTo(target))
+          if (creep.memory.bucket && !creep.pos.isNearTo(target))
             creep.moveTo(target);
           else {
-            if (target.hits < target.hitsMax)
+            if (creep.memory.bucket && target.hits < target.hitsMax)
               creep.repair(target);
             else
               creep.unloadEnergy();

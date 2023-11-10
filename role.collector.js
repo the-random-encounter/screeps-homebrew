@@ -93,7 +93,7 @@ const roleCollector = {
 						} // end of (if there are dropped piles)
 						else { // NO DROPPED PILES, NEED TO FIND OTHER SOURCES OF ENERGY...
 							
-							if (creep.room.controller.level > 3 && creep.room.memory.objects.storage[0]) { // IF RCL IS OVER 3 AND WE HAVE A STORAGE
+							if (creep.room.memory.objects.storage[0]) { // IF RCL IS OVER 3 AND WE HAVE A STORAGE
 
 								if (!creep.memory.pickup) // MAKE THE STORAGE MY PICKUP TARGET AND GET ENERGY
 									creep.memory.pickup = creep.room.memory.objects.storage[0];
@@ -151,17 +151,29 @@ const roleCollector = {
 						else { // NO SPAWNS/EXTENSIONS NEED FILLING, WHAT ABOUT TOWERS...?
 							const towers = creep.room.find(FIND_STRUCTURES, { filter: (i) => (i.structureType == STRUCTURE_TOWER && i.store.getFreeCapacity(RESOURCE_ENERGY) > 0) });
 			
-							if (towers.length) { // THERE ARE TOWERS TO FILL, SO...
+							if (towers.length > 0) { // THERE ARE TOWERS TO FILL, SO...
 								const towerTarget = creep.pos.findClosestByRange(towers);
 								
 								if (towerTarget) { // HEAD TO CLOSEST NON-FULL TOWER AND FILL IT
 									if (creep.transfer(towerTarget, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE)
 										creep.moveTo(towerTarget, { visualizePathStyle: { stroke: '#00ffff', opacity: 0.3, lineStyle: 'dotted', ignoreCreeps: true } });
 								}
-							} else if (creep.room.memory.objects.storage[0]) { // NOTHING LEFT, RETURN ENERGY TO STORAGE
+							} else if (creep.room.controller && creep.room.controller.level > 3 && creep.room.memory.objects.storage[0]) { // NOTHING LEFT, RETURN ENERGY TO STORAGE
 									const storage = Game.getObjectById(creep.room.memory.objects.storage[0]);
 									if (creep.transfer(storage, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE)
 										creep.moveTo(storage, { visualizePathStyle: { stroke: '#00ffff', opacity: 0.3, lineStyle: 'dotted', ignoreCreeps: true } })	
+							} else {
+								if (!creep.memory.dropoff) {
+									if (creep.room.memory.settings.containerSettings.inboxes !== undefined) {
+										creep.memory.dropoff = creep.room.memory.settings.containerSettings.inboxes[0];
+									} else {
+										creep.memory.dropoff = creep.room.controller.pos.findClosestByRange(FIND_STRUCTURES, { filter: { structureType: STRUCTURE_CONTAINER } });
+									}
+									
+									const storage = Game.getObjectById(creep.memory.dropoff);
+									if (creep.transfer(storage, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE)
+										creep.moveTo(storage, { visualizePathStyle: { stroke: '#00ffff', opacity: 0.3, lineStyle: 'dotted', ignoreCreeps: true } })
+								}	
 							} // end of (refilling tower energy directive)
 						} // end of (if no spawns/extensions to fill)
 					} // end of (if creep's store is full)
