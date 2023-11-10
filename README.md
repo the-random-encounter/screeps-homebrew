@@ -1,6 +1,10 @@
 <!-- omit from toc -->
 # Random Encounter's Screeps Codebase
-[![forthebadge](https://forthebadge.com/images/badges/fixed-bugs.svg)](https://forthebadge.com)		[![forthebadge](https://forthebadge.com/images/badges/mom-made-pizza-rolls.svg)](https://forthebadge.com)	[![forthebadge](https://forthebadge.com/images/badges/designed-in-ms-paint.svg)](https://forthebadge.com)	[![forthebadge](https://forthebadge.com/images/badges/compatibility-pc-load-letter.svg)](https://forthebadge.com)	[![forthebadge](https://forthebadge.com/images/badges/approved-by-george-costanza.svg)](https://forthebadge.com)	[![forthebadge](https://forthebadge.com/images/badges/built-by-crips.svg)](https://forthebadge.com)	[![forthebadge](https://forthebadge.com/images/badges/fo-sho.svg)](https://forthebadge.com)	[![forthebadge](https://forthebadge.com/images/badges/0-percent-optimized.svg)](https://forthebadge.com)	[![forthebadge](https://forthebadge.com/images/badges/fuck-it-ship-it.svg)](https://forthebadge.com)	
+[![forthebadge](https://forthebadge.com/images/badges/fixed-bugs.svg)](https://forthebadge.com) [![forthebadge](https://forthebadge.com/images/badges/mom-made-pizza-rolls.svg)](https://forthebadge.com) [![forthebadge](https://forthebadge.com/images/badges/designed-in-ms-paint.svg)](https://forthebadge.com)
+
+[![forthebadge](https://forthebadge.com/images/badges/compatibility-pc-load-letter.svg)](https://forthebadge.com) [![forthebadge](https://forthebadge.com/images/badges/approved-by-george-costanza.svg)](https://forthebadge.com)
+
+[![forthebadge](https://forthebadge.com/images/badges/built-by-crips.svg)](https://forthebadge.com) [![forthebadge](https://forthebadge.com/images/badges/fo-sho.svg)](https://forthebadge.com) [![forthebadge](https://forthebadge.com/images/badges/0-percent-optimized.svg)](https://forthebadge.com) [![forthebadge](https://forthebadge.com/images/badges/fuck-it-ship-it.svg)](https://forthebadge.com)
 
 ---
 # Still Writing the README, so don't waste your time scrolling down...
