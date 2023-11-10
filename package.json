@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "@types/screeps": "^3.3.6",
+    "screeps-toolkit": "^1.0.0",
+    "screeps-typescript-starter": "file:../../../../../../../../programming/screeps/ts-starter",
+    "typescript": "^5.2.2"
+  }
+}
