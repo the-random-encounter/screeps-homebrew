@@ -1,8 +1,29 @@
 {
   "dependencies": {
+    "@types/lodash": "^4.14.201",
     "@types/screeps": "^3.3.6",
     "screeps-toolkit": "^1.0.0",
     "screeps-typescript-starter": "file:../../../../../../../../programming/screeps/ts-starter",
     "typescript": "^5.2.2"
-  }
+  },
+  "name": "random-screeps",
+  "description": "<!-- omit from toc -->\r # Random Encounter's Screeps Codebase\r [![forthebadge](https://forthebadge.com/images/badges/fixed-bugs.svg)](https://forthebadge.com) [![forthebadge](https://forthebadge.com/images/badges/mom-made-pizza-rolls.svg)](https://forthebadge.com) [![forthebadge](https://forthebadge.com/images/badges/designed-in-ms-paint.svg)](https://forthebadge.com)",
+  "version": "0.2.0",
+  "main": "src/main.ts",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "github.com/the-random-encounter/screeps-homebrew/tree/dev"
+  },
+  "keywords": [
+    "Random",
+    "Encounter",
+    "Screeps",
+    "Homebrew",
+    "Codebase"
+  ],
+  "author": "Random Encounter",
+  "license": "ISC"
 }

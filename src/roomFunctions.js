@@ -554,9 +554,6 @@ Room.prototype.initRoomSettings 					= function initRoomSettings() {
 	
 	return '[' + this.name + ']: Room settings initialized.';
 }
-//Room.prototype.rLP() = function rLP() {
-//	this.registerLogisticalPairs();
-//}
 Room.prototype.registerLogisticalPairs 		= function registerLogisticalPairs() {
 	let energyOutboxes = [];
 	let sources = this.find(FIND_SOURCES);

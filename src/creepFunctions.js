@@ -452,7 +452,4 @@ Creep.prototype.assignLogisticalPair = function assignLogisticalPair(source = fa
 			return 'Unable to assign pair.';
 		}
 	}
-	
-	
-
 }

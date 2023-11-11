@@ -5,24 +5,25 @@ const roleUpgrader 	= require('role.upgrader'	);
 const roleBuilder 	= require('role.builder'	);
 const roleCollector = require('role.collector');
 const roleRepairer 	= require('role.repairer'	);
-const roleReserver 	= require('role.reserver'	);
 const roleRunner 		= require('role.runner'		);
-const roleRebooter 	= require('role.rebooter'	);
+const roleCrane = require('role.crane');
+const roleMiner 		= require('role.miner'		);
+const roleScientist = require('role.scientist');
+
 const roleRanger 		= require('role.ranger'		);
 const roleWarrior 	= require('role.warrior'	);
 const roleHealer 		= require('role.healer'		);
-const roleCrane 		= require('role.crane'		);
-const roleMiner 		= require('role.miner'		);
-const roleScientist = require('role.scientist');
-const roleClaimer 	= require('role.claimer'	);
-const roleProvider 	= require('role.provider');
-const roleScout 		= require('role.scout');
 
+const roleProvider = require('role.provider');
+const roleRebooter 	= require('role.rebooter'	);
+
+const roleClaimer = require('role.claimer');
+const roleScout = require('role.scout');
 const roleRemoteHarvester = require('role.remoteHarvester');
 const roleRemoteRunner 		= require('role.remoteRunner'		);
 const roleRemoteBuilder 	= require('role.remoteBuilder'	);
 const roleRemoteGuard 		= require('role.remoteGuard'		);
-
+const roleReserver 	= require('role.reserver'	);
 
 // require other modules
 require('roomDefense'			);
@@ -268,17 +269,6 @@ module.exports.loop = function () {
 			room.initSettings();
 			room.initFlags();
 		}
-		/*if (ROOM_HEAP === undefined) {
-			let ROOM_HEAP = new ROOM_HEAP_MEMORY();
-		}
-
-		// check for completed buildings to automatically cache completed constructions
-		ROOM_HEAP.sitesLastTick = ROOM_HEAP.sitesThisTick;
-		ROOM_HEAP.sitesThisTick = room.find(FIND_CONSTRUCTION_SITES).length;
-		
-		console.log(ROOM_HEAP.sitesLastTick + ' ' + ROOM_HEAP.sitesThisTick);
-		if ((ROOM_HEAP.sitesThisTick < ROOM_HEAP.sitesLastTick) && (_.filter(room.getEventLog(), function (n) { if (n.event == 'EVENT_BUILD' && n.event !== 'EVENT_OBJECT_DESTROYED') return true })))
-			room.cacheObjects();*/
 		
 		/* #region  EACH ROOM LOOP, FOR OWNED ROOMS */
 		// code to run if room contains a controller owned by us
@@ -773,7 +763,7 @@ module.exports.loop = function () {
 							}
 						} else if (warriors.length < warriorTarget) {
 							newName = 'War' + (warriors.length + 1);
-							while (readySpawn.spawnCreep(/*[TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, ATTACK, ATTACK, ATTACK, ATTACK, MOVE, MOVE, MOVE, MOVE]*/availableVariants.warrior, newName, { memory: { role: 'warrior', roleForQuota: 'warrior', homeRoom: roomName } }) == ERR_NAME_EXISTS) {
+							while (readySpawn.spawnCreep(availableVariants.warrior, newName, { memory: { role: 'warrior', roleForQuota: 'warrior', homeRoom: roomName } }) == ERR_NAME_EXISTS) {
 								newName = 'War' + (warriors.length + 1 + warriorCount);
 								warriorCount++;
 							}

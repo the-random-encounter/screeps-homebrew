@@ -897,13 +897,12 @@ const roleScientist = {
 	}
 };
 
-module.exports = roleScientist;
-
-module.exports = roleMiner;
-module.exports = roleCrane;
-module.exports = roleRepairer;
-module.exports = roleRunner;
-module.exports = roleUpgrader;
-module.exports = roleBuilder;
-module.exports = roleCollector;
 module.exports = roleHarvester;
+module.exports = roleCollector;
+module.exports = roleBuilder;
+module.exports = roleUpgrader;
+module.exports = roleRunner;
+module.exports = roleRepairer;
+module.exports = roleCrane;
+module.exports = roleMiner;
+module.exports = roleScientist;
