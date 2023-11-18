@@ -1,27 +1,63 @@
-roleRenew.js
-spawnDaemon.js
-./.vscode
-.gitignore
-.gitattributes
-calcTickTimeInGame.js
-.jsdoc.json
-rollup.config.js
-screeps.json
-tsconfig.json
-tsconfig.test.json
+# logs
+logs
+*.log
+npm-debug.log*
+
+# configuration files
+.grunt
 .editorconfig
 .eslintrc.js
-.issues
+.jsdoc.json
 .prettierrc
 book.json
-gruntfile.js
-./bkup
-./deprecated
-roomPositionFunction.js
-roomPositionFunctions.js
-roles.mining.js
-roles.building.js
-testFunctions.js
-creepFunctions.js
-main.js
-\deprecated
+package-lock.json BACKUP
+rollup.config.js
+/.screeps.json
+tsconfig.json
+tsconfig.test.json
+.git*
+
+# node modules
+node_modules/
+# sensitive data
+.env
+
+# old or backup files, prior to deletion
+deprecated/
+bkup/
+
+# internal bug tracking
+.issues
+
+# --------------------------- #
+# old entries, these are now  #
+# replaced by those above     #
+# --------------------------- #
+#roleRenew.js
+#spawnDaemon.js
+#./.vscode
+#.gitignore
+#.gitattributes
+#calcTickTimeInGame.js
+#.jsdoc.json
+#rollup.config.js
+#screeps.json
+#tsconfig.json
+#tsconfig.test.json
+#.editorconfig
+#.eslintrc.js
+#.issues
+#.prettierrc
+#book.json
+#gruntfile.js
+#./bkup
+#./deprecated
+#roomPositionFunction.js
+#roomPositionFunctions.js
+#roles.mining.js
+#roles.building.js
+#testFunctions.js
+#creepFunctions.js
+#main.js
+#\deprecated
+#/.screeps.json
