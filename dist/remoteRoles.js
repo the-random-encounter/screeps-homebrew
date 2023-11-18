@@ -1,4 +1,4 @@
-const roleRemoteHarvester = {
+export const roleRemoteHarvester = {
 
 	run: function (creep) {
 		
@@ -51,7 +51,7 @@ const roleRemoteHarvester = {
 	}
 }
 
-const roleRemoteBuilder = {
+export const roleRemoteBuilder = {
 
 	/** @param {Creep} creep **/
 	run: function(creep) {
@@ -148,7 +148,7 @@ const roleRemoteBuilder = {
 	}
 };
 
-const roleRemoteRunner = {
+export const roleRemoteRunner = {
 
 	run: function (creep) {
 
@@ -198,7 +198,7 @@ const roleRemoteRunner = {
 	}
 }
 
-const roleRemoteGuard = {
+export const roleRemoteGuard = {
 
 	/** @param {Creep} creep **/
 	run: function (creep) {
@@ -236,7 +236,7 @@ const roleRemoteGuard = {
 	}
 }
 
-const roleReserver = {
+export const roleReserver = {
 
 	run: function (creep) {
 	
@@ -277,7 +277,7 @@ const roleReserver = {
 	}
 }
 
-const roleClaimer = {
+export const roleClaimer = {
 
 	run: function (creep) {
 
@@ -398,7 +398,7 @@ const roleClaimer = {
 	}
 }
 
-const roleScout = {
+export const roleScout = {
 
 	run: function (creep) {
 		
@@ -459,7 +459,7 @@ const roleScout = {
 	}
 };
 	
-
+/*
 module.exports = roleScout;
 module.exports = roleClaimer;
 module.exports = roleReserver;
@@ -467,3 +467,4 @@ module.exports = roleRemoteGuard;
 module.exports = roleRemoteRunner;
 module.exports = roleRemoteBuilder;
 module.exports = roleRemoteHarvester;
+*/

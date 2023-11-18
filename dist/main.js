@@ -1,6 +1,6 @@
 
 // require creep role modules
-
+/*
 const roleHarvester = require('localRoles');
 const roleUpgrader 	= require('localRoles'	);
 const roleBuilder 	= require('localRoles'	);
@@ -9,22 +9,22 @@ const roleRepairer 	= require('localRoles');
 const roleRunner 		= require('localRoles');
 const roleCrane = require('localRoles');
 const roleMiner 		= require('localRoles');
-const roleScientist = require('localRoles');
+const roleScientist = require('localRoles');*/
 
-//import './localRoles';
-
+import './localRoles';
+/*
 const roleRanger 		= require('combatRoles'		);
 const roleWarrior 	= require('combatRoles'	);
 const roleHealer 		= require('combatRoles'		);
-
-//import './combatRoles';
-//import './remoteRoles';
-//import './specialRoles';
-
+*/
+import './combatRoles';
+import './remoteRoles';
+import './specialRoles';
+/*
 const roleProvider = require('specialRoles');
 const roleRebooter 	= require('specialRoles'	);
-
-
+*/
+/*
 const roleClaimer = require('remoteRoles');
 const roleScout = require('remoteRoles');
 const roleRemoteHarvester = require('remoteRoles');
@@ -32,7 +32,7 @@ const roleRemoteRunner 		= require('remoteRoles'		);
 const roleRemoteBuilder 	= require('remoteRoles'	);
 const roleRemoteGuard 		= require('remoteRoles'		);
 const roleReserver 	= require('remoteRoles'	);
-
+*/
 // require other modules
 require('roomDefense'			);
 require('miscFunctions'		);
@@ -270,8 +270,7 @@ module.exports.loop = function () {
 	_.forEach(Game.rooms, function (room) {
 		
 		if (!room.memory.objects) {
-			console.log('No room objects in memory. Caching.')
-			//room.cacheObjects();
+			room.cacheObjects();
 		}
 
 		if (!room.memory.settings) {
@@ -289,10 +288,9 @@ module.exports.loop = function () {
 			const flags 		= room.memory.settings.flags;
 			const colonies 	= Memory.colonies;
 
-			if (tickCount == 1000) {
+			if (tickCount % 1000 == 0) {
 				console.log('MAIN LOOP, CACHING OBJECTS EVERY 1000 TICKS --- Tick#: ' + tickCount);
-				//room.cacheObjects();
-				tickCount = 0;
+				room.cacheObjects();
 			}
 
 			if (Memory.colonies[room.name] === undefined) {
@@ -329,7 +327,7 @@ module.exports.loop = function () {
 
 			const roomName = room.name;
 
-			//if (!room.memory.objects)							room.cacheObjects();
+			if (!room.memory.objects)							room.cacheObjects();
 			if (!room.memory.settings) 						room.initSettings();
 			if (!room.memory.settings.flags)			room.initFlags();
 			if (!room.memory.targets)							room.initTargets();
@@ -341,7 +339,6 @@ module.exports.loop = function () {
 
 			/* #region ROOM LINK LOGIC */
 			if (room.memory.objects.links) {
-				console.log('Link logic');
 
 				if (room.memory.data.linkRegistry === undefined)
 					room.registerLinks();
@@ -358,7 +355,7 @@ module.exports.loop = function () {
 						counter++;
 
 					if (room.memory.objects.links.length !== counter) {
-						//room.cacheObjects();
+						room.cacheObjects();
 						room.registerLinks();
 					}
 				}
@@ -933,8 +930,8 @@ function getBody(segment, room) {
 }
 
 function determineCraneSpot(room) {
-	//if (!room.memory.objects) room.cacheObjects();
-	//if (!room.memory.objects.storage || !room.memory.objects.links || !room.memory.objects.terminal || !room.memory.objects.labs) room.cacheObjects();
+	if (!room.memory.objects) room.cacheObjects();
+	if (!room.memory.objects.storage || !room.memory.objects.links || !room.memory.objects.terminal || !room.memory.objects.labs) room.cacheObjects();
 
 	const storage 	= Game.getObjectById(room.memory.objects.storage[0]	);
 	const terminal 	= Game.getObjectById(room.memory.objects.terminal[0]);

@@ -1,4 +1,4 @@
-const roleRanger = {
+export const roleRanger = {
 
 	/** @param {Creep} creep **/
 	run: function (creep) {
@@ -68,7 +68,7 @@ const roleRanger = {
 	}
 }
 
-const roleWarrior = {
+export const roleWarrior = {
 
 	/** @param {Creep} creep **/
 	run: function(creep) {
@@ -133,7 +133,7 @@ const roleWarrior = {
 	}
 }
 
-const roleHealer = {
+export const roleHealer = {
 
 	/** @param {Creep} creep **/
 	run: function (creep) {
@@ -170,7 +170,8 @@ const roleHealer = {
 		}
 	}
 }
-
+/*
 module.exports = roleHealer;
 module.exports = roleWarrior;
 module.exports = roleRanger;
+*/

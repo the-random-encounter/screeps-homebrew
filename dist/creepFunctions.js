@@ -27,11 +27,8 @@ Creep.prototype.assignHarvestSource = function assignHarvestSource(noIncrement) 
 	const room = this.room;
 	const LA = room.memory.objects.lastAssigned;
 
-	console.log('Calling assignHarvestSource');
-	if (room.memory.objects === undefined) {
+	if (!room.memory.objects)
 		room.cacheObjects();
-		console.log('assignHarvestSource room Cache');
-	}
 
 	if (this.memory.role == 'miner') {
 		const assignedMineral = room.memory.objects.minerals[0];

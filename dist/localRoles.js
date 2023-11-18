@@ -1,4 +1,4 @@
-const roleHarvester = {
+export const roleHarvester = {
 
   /** @param {Creep} creep **/
   run: function (creep) {
@@ -18,37 +18,31 @@ const roleHarvester = {
         }
 
         // deposit energy into container, storage, or link when close to full
-				if (creep.store.getFreeCapacity() == 0 || creep.store.getFreeCapacity() < (creep.getActiveBodyparts(WORK) * 2)) {
-					console.log('full energy test');
-					if (!creep.memory.bucket) {
-						if (creep.memory.source) {
-							const sourceTarget = Game.getObjectById(creep.memory.source);
+        if (creep.store.getFreeCapacity() < (creep.getActiveBodyparts(WORK) * 2)) {
+          if (!creep.memory.bucket) {
+            if (creep.memory.source) {
+              const sourceTarget = Game.getObjectById(creep.memory.source);
 
-							//const possibleBuckets = sourceTarget.pos.findInRange(FIND_STRUCTURES, 3, { filter: (i) => i.structureType == STRUCTURE_LINK || i.structureType == STRUCTURE_STORAGE || i.structureType == STRUCTURE_CONTAINER });
-							//const chosenBucket = sourceTarget.pos.findClosestByRange(possibleBuckets);
-							const chosenBucket = sourceTarget.pos.findClosestByRange(FIND_STRUCTURES, 3, { filter: (i) => i.structureType == STRUCTURE_LINK || i.structureType == STRUCTURE_STORAGE || i.structureType == STRUCTURE_CONTAINER });
-							if (chosenBucket) creep.memory.bucket = chosenBucket.id;
-						}
-					} else {
-						
-						const dropBucket = Game.getObjectById(creep.memory.bucket);
-						//console.log('Harvester ' + creep.name + ': Unloading into ' + creep.memory.bucket);
-						if (creep.pos.isNearTo(dropBucket)) creep.unloadEnergy();
-						else creep.moveTo(dropBucket);
-					}
-				}
+              //const possibleBuckets = sourceTarget.pos.findInRange(FIND_STRUCTURES, 3, { filter: (i) => i.structureType == STRUCTURE_LINK || i.structureType == STRUCTURE_STORAGE || i.structureType == STRUCTURE_CONTAINER });
+              //const chosenBucket = sourceTarget.pos.findClosestByRange(possibleBuckets);
+              const chosenBucket = sourceTarget.pos.findClosestByRange(FIND_STRUCTURES, 3, { filter: (i) => i.structureType == STRUCTURE_LINK || i.structureType == STRUCTURE_STORAGE || i.structureType == STRUCTURE_CONTAINER });
+              if (chosenBucket) creep.memory.bucket = chosenBucket.id;
+            }
+          } else {
+            const dropBucket = Game.getObjectById(creep.memory.bucket);
+            //console.log('Harvester ' + creep.name + ': Unloading into ' + creep.memory.bucket);
+            if (creep.pos.isNearTo(dropBucket)) creep.unloadEnergy(); 
+            else creep.moveTo(dropBucket);
+          }
+        }
       
-        /*if (!creep.pos.findInRange(FIND_MY_CREEPS, 1, { filter: (creep) => creep.memory.role == 'crane' }) && Game.getObjectById(creep.room.memory.objects.links[0]).store.getUsedCapacity() > 0) {
+        if (!creep.pos.findInRange(FIND_MY_CREEPS, 1, { filter: (creep) => creep.memory.role == 'crane' }) && Game.getObjectById(creep.room.memory.objects.links[0]).store.getUsedCapacity() > 0) {
           // if the crane isn't there but the link has energy, go ahead and pull it out
           if (creep.pos.x == 40 && creep.pos.y == 7) {
             creep.withdraw(Game.getObjectById(creep.room.memory.objects.links[0]), RESOURCE_ENERGY);
             console.log('[' + creep.room.name + ']: Harvester \'' + creep.name + '\' filling in as crane due to full link.');
           } else creep.harvestEnergy();
-
-        }*/ else {
-					console.log('test');
-					creep.harvestEnergy();
-				}
+        } else creep.harvestEnergy();
       }
     }
     else {
@@ -73,7 +67,7 @@ const roleHarvester = {
 // DEFAULT 'COLLECTOR' PATH VISUALIZER SETTINGS:
 //,{ visualizePathStyle: { stroke: '#00ffff', opacity: 0.3, lineStyle: 'dotted', ignoreCreeps: true } }
 
-const roleCollector = {
+export const roleCollector = {
 
 	run: function (creep) {
 		if (creep.memory.disableAI === undefined)
@@ -256,7 +250,7 @@ const roleCollector = {
 	} // end of (run function)
 } // end of (module)
 
-const roleBuilder = {
+export const roleBuilder = {
 
     /** @param {Creep} creep **/
     run: function(creep) {
@@ -365,7 +359,7 @@ const roleBuilder = {
     }
 };
 
-const roleUpgrader = {
+export const roleUpgrader = {
 
 			/** @param {Creep} creep **/
 		run: function(creep) {
@@ -512,7 +506,7 @@ const roleUpgrader = {
 
 //, { visualizePathStyle: { stroke: '#880088', opacity: 0.3, lineStyle: 'dotted' } }
 
-const roleRunner = {
+export const roleRunner = {
 
 	run: function (creep) {
 
@@ -557,7 +551,7 @@ const roleRunner = {
 	}
 }
 
-const roleRepairer = {
+export const roleRepairer = {
 
 	run: function (creep) {
 		
@@ -657,7 +651,7 @@ const roleRepairer = {
 	}
 }
 
-const roleCrane = {
+export const roleCrane = {
     
     run: function (creep) {
         
@@ -797,7 +791,7 @@ const roleCrane = {
     }
 }
 
-const roleMiner = {
+export const roleMiner = {
 
 	run: function (creep) {
     
@@ -832,7 +826,7 @@ const roleMiner = {
 	}
 }
 
-const roleScientist = {
+export const roleScientist = {
 
 	run: function (creep) {
 
@@ -851,56 +845,53 @@ const roleScientist = {
 			if (!creep.room.memory.settings.labSettings.boostingCompound)
 				creep.room.memory.settings.labSettings.boostingCompound = 'none';
 
-			if (creep) {
-				//if (Game.rooms[creep.memory.homeRoom].memory.objects && Game.rooms[creep.memory.homeRoom].memory.objects.labs) {
-				if (creep.room.memory.objects && creep.room.memory.objects.labs) {
-					const reagentLab1 = Game.getObjectById(creep.room.memory.objects.labs[0]);
-					const reagentLab2 = Game.getObjectById(creep.room.memory.objects.labs[1]);
-					const reactionLab1 = Game.getObjectById(creep.room.memory.objects.labs[2]);
-					const storage = Game.getObjectById(creep.room.memory.objects.storage[0]);
+			if (Game.rooms[creep.memory.homeRoom].memory.objects && Game.rooms[creep.memory.homeRoom].memory.objects.labs) {
+				const reagentLab1 = Game.getObjectById(creep.room.memory.objects.labs[0]);
+				const reagentLab2 = Game.getObjectById(creep.room.memory.objects.labs[1]);
+				const reactionLab1 = Game.getObjectById(creep.room.memory.objects.labs[2]);
+				const storage = Game.getObjectById(creep.room.memory.objects.storage[0]);
 
-					const baseReg1 = creep.room.memory.settings.labSettings.reagantOne;
-					const baseReg2 = creep.room.memory.settings.labSettings.reagantTwo;
-					const boostChem = creep.room.memory.settings.labSettings.boostingCompound;
-					const outputChem = creep.room.calcLabReaction();
-				
+				const baseReg1 = creep.room.memory.settings.labSettings.reagantOne;
+				const baseReg2 = creep.room.memory.settings.labSettings.reagantTwo;
+				const boostChem = creep.room.memory.settings.labSettings.boostingCompound;
+				const outputChem = creep.room.calcLabReaction();
+			
 				
 				if (creep.room.memory.objects.labs[2])
 					outputLab = Game.getObjectById(creep.room.memory.objects.labs[2]);
 
-					if (reagentLab1.store[RESOURCE_ENERGY] < 2000) {
-						if (creep.store[RESOURCE_ENERGY] == 0) {
-							if (creep.withdraw(storage, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE)
+				if (reagentLab1.store[RESOURCE_ENERGY] < 2000) {
+					if (creep.store[RESOURCE_ENERGY] == 0) {
+						if (creep.withdraw(storage, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE)
+							creep.moveTo(storage, { visualizePathStyle: { stroke: '#ffffff', opacity: 0.8, lineStyle: 'undefined' } });
+					}
+				} else if (reagentLab2.store[RESOURCE_ENERGY] < 2000) {
+					if (creep.store[RESOURCE_ENERGY] == 0) {
+						if (creep.withdraw(storage, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE)
+							creep.moveTo(storage, { visualizePathStyle: { stroke: '#ffffff', opacity: 0.8, lineStyle: 'undefined' } });
+					}
+				} else if (creep.room.memory.settings.flags.doScience) {
+					if (reagentLab1.store[baseReg1] < 3000) {
+						if (creep.store[baseReg1] == 0) {
+							if (creep.withdraw(storage, baseReg1) == ERR_NOT_IN_RANGE)
 								creep.moveTo(storage, { visualizePathStyle: { stroke: '#ffffff', opacity: 0.8, lineStyle: 'undefined' } });
 						}
-					} else if (reagentLab2.store[RESOURCE_ENERGY] < 2000) {
-						if (creep.store[RESOURCE_ENERGY] == 0) {
-							if (creep.withdraw(storage, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE)
+					} else if (reagentLab2.store[baseReg2] < 3000) {
+						if (creep.store[baseReg2] == 0) {
+							if (creep.withdraw(storage, baseReg2) == ERR_NOT_IN_RANGE)
 								creep.moveTo(storage, { visualizePathStyle: { stroke: '#ffffff', opacity: 0.8, lineStyle: 'undefined' } });
 						}
-					} else if (creep.room.memory.settings.flags.doScience) {
-						if (reagentLab1.store[baseReg1] < 3000) {
-							if (creep.store[baseReg1] == 0) {
-								if (creep.withdraw(storage, baseReg1) == ERR_NOT_IN_RANGE)
-									creep.moveTo(storage, { visualizePathStyle: { stroke: '#ffffff', opacity: 0.8, lineStyle: 'undefined' } });
-							}
-						} else if (reagentLab2.store[baseReg2] < 3000) {
-							if (creep.store[baseReg2] == 0) {
-								if (creep.withdraw(storage, baseReg2) == ERR_NOT_IN_RANGE)
-									creep.moveTo(storage, { visualizePathStyle: { stroke: '#ffffff', opacity: 0.8, lineStyle: 'undefined' } });
-							}
-						} else {
-							reactionLab1.runReaction(reagentLab1, reagentLab2);
-						}
+					} else {
+						reactionLab1.runReaction(reagentLab1, reagentLab2);
+					}
 		
-						if (reactionLab1.store[outputChem] > 0) {
-							if (creep.withdraw(reactionLab1, outputChem) == ERR_NOT_IN_RANGE) {
-								creep.moveTo(reactionLab1, { visualizePathStyle: { stroke: '#ffffff', opacity: 0.8, lineStyle: 'undefined' } });
-							}
-						} else {
-							if (creep.transfer(storage, outputChem) == ERR_NOT_IN_RANGE) {
-								creep.moveTo(storage, { visualizePathStyle: { stroke: '#ffffff', opacity: 0.8, lineStyle: 'undefined' } });
-							}
+					if (reactionLab1.store[outputChem] > 0) {
+						if (creep.withdraw(reactionLab1, outputChem) == ERR_NOT_IN_RANGE) {
+							creep.moveTo(reactionLab1, { visualizePathStyle: { stroke: '#ffffff', opacity: 0.8, lineStyle: 'undefined' } });
+						}
+					} else {
+						if (creep.transfer(storage, outputChem) == ERR_NOT_IN_RANGE) {
+							creep.moveTo(storage, { visualizePathStyle: { stroke: '#ffffff', opacity: 0.8, lineStyle: 'undefined' } });
 						}
 					}
 				}
@@ -909,7 +900,7 @@ const roleScientist = {
 	}
 };
 
-
+/*
 module.exports = roleHarvester;
 module.exports = roleCollector;
 module.exports = roleBuilder;
@@ -919,3 +910,4 @@ module.exports = roleRepairer;
 module.exports = roleCrane;
 module.exports = roleMiner;
 module.exports = roleScientist;
+*/
